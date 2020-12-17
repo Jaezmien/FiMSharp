@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using FiMSharpCore.GlobalVars;
+using FiMSharp.GlobalVars;
 
-namespace FiMSharpCore
+namespace FiMSharp
 {
     static partial class Extension {
         public static bool HasDecimal(this float Value) {

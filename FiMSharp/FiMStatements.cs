@@ -4,9 +4,9 @@ using System.Text;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-using FiMSharpCore.GlobalVars;
+using FiMSharp.GlobalVars;
 
-namespace FiMSharpCore
+namespace FiMSharp
 {
 
     public interface FiMStatement {}

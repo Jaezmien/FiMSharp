@@ -4,9 +4,9 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-using FiMSharpCore;
+using FiMSharp;
 
-namespace FiMSharp
+namespace FiMSharp.Test
 {
     class Program
     {

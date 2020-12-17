@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Data;
 
-using FiMSharpCore.GlobalVars;
+using FiMSharp.GlobalVars;
 
-namespace FiMSharpCore
+namespace FiMSharp
 {
     public class FiMArithmetic
     {

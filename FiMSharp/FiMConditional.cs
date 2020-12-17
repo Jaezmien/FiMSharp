@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-using FiMSharpCore.GlobalVars;
+using FiMSharp.GlobalVars;
 
-namespace FiMSharpCore
+namespace FiMSharp
 {
     public class FiMConditional
     {

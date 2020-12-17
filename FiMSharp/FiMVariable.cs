@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-using FiMSharpCore.GlobalVars;
-using FiMSharpCore;
+using FiMSharp.GlobalVars;
+using FiMSharp;
 
-namespace FiMSharpCore
+namespace FiMSharp
 {
     public class FiMVariable
     {
