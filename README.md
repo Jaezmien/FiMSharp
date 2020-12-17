@@ -9,3 +9,7 @@ FiMSharp is a C# interpreter library for the esoteric language, [FiM++](https://
 [FiM++ Fandom](https://fimpp.fandom.com)
 
 [Language Specification](https://fimpp.fandom.com)
+
+# Notes
+
+FiMSharp is just a personal hobby project, seeing as FiM++ has never been updated for quite some time now.
