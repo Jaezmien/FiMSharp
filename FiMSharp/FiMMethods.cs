@@ -245,7 +245,7 @@ namespace FiMSharp
                 return VariableTypes.CHAR;
             }
 
-            throw new Exception("Invalid string");
+            throw new FiMException("Invalid string");
         }
         public static bool HasVariableTypeDeclaration( string str)
         {
@@ -283,7 +283,7 @@ namespace FiMSharp
             if( type == VariableTypes.STRING_ARRAY ) return VariableTypes.STRING;
             if( type == VariableTypes.STRING ) return VariableTypes.CHAR;
 
-            throw new Exception("Invalid Variable Type");
+            throw new FiMException("Invalid Variable Type");
         }
 
         public static bool ConvertStringToBoolean( string str, out bool result ) {

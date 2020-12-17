@@ -27,14 +27,9 @@ namespace FiMSharp
             VariableTypes _paragraphReturn = VariableTypes.UNDEFINED;
             List<(string, VariableTypes)> _paragraphParameters = new List<(string, VariableTypes)>();
 
-            int ignoreCount = 0;
             int scopeCount = 0;
             List<int> blacklist = new List<int>();
             for( int i = 0; i < lines.Length; i++ ) {
-                if( ignoreCount > 0 ) {
-                    ignoreCount--;
-                    continue;
-                }
                 if( blacklist.Contains(i) ) continue;
 
                 string line = lines[i];
@@ -42,7 +37,8 @@ namespace FiMSharp
                 line = FiMMethods.RemoveStringParentheses( line ).TrimStart();
 
                 if( line.Trim().Length > 0 ) {
-                    
+
+                    try {                    
                     if( !FiMMethods.IsComment(line) ) {
                         if( !Globals.Punctuations.Any(x => line[line.Length-1] == x) ) {
                             throw new FiMException(
@@ -117,7 +113,7 @@ namespace FiMSharp
                                 continue;
                             }
                             // Global variables
-                            var tokenize_result = Tokenizer.FiMTokenizer.TokenizeString( _line, out int _ );
+                            var tokenize_result = Tokenizer.FiMTokenizer.TokenizeString( _line );
                             if( tokenize_result.Item1 != TokenTypes.CREATE_VARIABLE )
                                 throw new FiMException(
                                     FiMMethods.CreateExceptionString("Expected only global variable creation outside of paragraphs", line, i+1)
@@ -127,8 +123,8 @@ namespace FiMSharp
                                 var new_variable = FiMMethods.VariableFromTokenizer( this, this.Variables, tokenize_result.Item2 );
                                 this.Variables.Add( new_variable.Item1, new_variable.Item2 );
                             }
-                            catch (Exception ex) {
-                                throw new Exception( FiMMethods.CreateExceptionString( ex.Message, line, i+1 ) );
+                            catch (FiMException ex) {
+                                throw new FiMException( ex.Message );
                             }
 
                         }
@@ -136,9 +132,7 @@ namespace FiMSharp
                         {
                             if( line.StartsWith("That's all about " + _paragraphName ) ) {
                                 if( scopeCount != 0 )
-                                    throw new FiMException(
-                                        FiMMethods.CreateExceptionString($"Paragraph { _paragraphName } has scoping error!", line, i+1)
-                                    );
+                                    throw new FiMException( $"Paragraph { _paragraphName } has scoping error!" );
 
                                 FiMParagraph paragraph = new FiMParagraph( _paragraphName );
                                 paragraph.Lines = ( _paragraphIndex+1, i-1 );
@@ -459,7 +453,7 @@ namespace FiMSharp
 
                             if( !ignore )
                             {
-                                var tokenize_result = Tokenizer.FiMTokenizer.TokenizeString( _line, out ignoreCount );
+                                var tokenize_result = Tokenizer.FiMTokenizer.TokenizeString( _line );
                                 this.Lines.Add(
                                     i,
                                     (line, tokenize_result.Item1, tokenize_result.Item2)
@@ -468,6 +462,11 @@ namespace FiMSharp
 
                         }
 
+                    }
+                    } catch( FiMException ex ) {
+                        throw new FiMException(
+                            FiMMethods.CreateExceptionString( ex.Message, _line.TrimStart(), i + 1 )
+                        );
                     }
 
                 } else {

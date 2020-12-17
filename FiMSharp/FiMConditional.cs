@@ -52,7 +52,7 @@ namespace FiMSharp
                 string keyword = Globals.Methods.Conditional_Equal.Where(x => line.Contains($" {x} ")).FirstOrDefault();
                 return (keyword, "==");
             }
-            throw new Exception("Conditional not found");
+            throw new FiMException("Conditional not found");
         }
 
         public static bool HasConditional( string line ) {

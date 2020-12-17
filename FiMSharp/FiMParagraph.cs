@@ -441,10 +441,10 @@ namespace FiMSharp
 
                             FiMVariable variable = GetVariable( statement.Variable );
                             if( !FiMMethods.IsVariableTypeArray( variable.Type, true ) ) 
-                                throw new Exception("For-in statement can only be used by arrays");
+                                throw new FiMException("For-in statement can only be used by arrays");
 
                             if( FiMMethods.VariableTypeArraySubType( variable.Type ) != statement.Element.Item2 )
-                                throw new Exception("Mismatch types");
+                                throw new FiMException("Mismatch types");
 
                             ((object, VariableTypes), Dictionary<string, FiMVariable>) Exec( FiMVariable _v ) {
                                 var _t = CombineVariables();

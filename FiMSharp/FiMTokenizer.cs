@@ -36,10 +36,8 @@ namespace FiMSharp.Tokenizer
             return line;
         }
         public static string SimpleSanitize( string line ) => SimpleSanitize( line, out var _ );
-        public static (TokenTypes, object) TokenizeString(string inputLine, out int ignoreCount, int line_index = 0)
+        public static (TokenTypes, object) TokenizeString(string inputLine)
         {
-            ignoreCount = 0;
-
             string line = inputLine.TrimStart();
             (TokenTypes, object) return_obj = (TokenTypes.UNDEFINED, null);
 
@@ -50,9 +48,7 @@ namespace FiMSharp.Tokenizer
                     return return_obj;
                 }
             } catch(Exception ex) {
-                throw new FiMException(
-                    FiMMethods.CreateExceptionString( ex.Message, inputLine, line_index )
-                );
+                throw new FiMException(ex.Message);
             }
 
             // Console.WriteLine("~ Parsing: " + line);
@@ -116,9 +112,7 @@ namespace FiMSharp.Tokenizer
                         valid = false;
 
                     if( !valid )
-                        throw new Exception(
-                            FiMMethods.CreateExceptionString( $"Invalid variable name { var_name }", inputLine, line_index )
-                        );
+                        throw new FiMException( $"Invalid variable name { var_name }" );
                 }
 
                 bool is_const = false;
