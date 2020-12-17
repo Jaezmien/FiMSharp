@@ -1,0 +1,49 @@
+Dear Princess Celestia: Rot13!
+
+I learned how to apply rot13 using a word input to get a word.
+
+    Did you know that output is the word nothing?
+    For every character char in input...
+        Did you know that char ascii is the number num of char char?
+        Did you know that rotable is the argument false?
+
+        If char ascii had no less than 65 and char ascii had no more than 90 then, (Uppercase)
+            rotable became true.
+        Otherwise if char ascii had no less than 97 and char ascii had no more than 122 then, (Lowercase)
+            rotable became true.
+        That's what I would do.
+
+        If rotable is true,
+            Did you know that modascii is the number char ascii modulo 32?
+            Did you know that addchar is the number -13?
+            If modascii had less than 14 then,
+                addchar became 13.
+            That's what I would do.
+            char ascii became char ascii plus addchar.
+            Did you know that new char ascii is the character char of num char ascii?
+            output became output""new char ascii.
+        Otherwise,
+            output became output""char.
+        That's what I would do.
+
+        
+    That's what I did.
+    Then you get output!
+
+That's all about how to apply rot13.
+
+Today I learned how to do rot13!
+
+    Did you know that Twilight Sparkle is the word "Hello World!".
+    I said Twilight Sparkle.
+    Twilight Sparkle became how to apply rot13 using Twilight Sparkle.
+    I said Twilight Sparkle.
+    Twilight Sparkle became how to apply rot13 using Twilight Sparkle.
+    I said Twilight Sparkle.
+
+That's all about how to do rot13!
+
+
+Your faithful student, Jaezmien Naejara.
+
+P.S. From rosettacode: return string.char(c+(c%32<14 and 13 or -13)) end

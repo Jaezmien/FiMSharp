@@ -1,0 +1,48 @@
+Dear Princess Celestia: Switches!
+
+
+Today I learned how to do switch cases!
+
+    Did you know that Twilight is the argument correct?
+    Did you know that Spike is the argument correct?
+
+    Did you know that Applejack is the argument correct?
+    Did you know that Pinkie is the argument incorrect?
+    Did you know that Rainbow is the argument incorrect?
+    Did you know that Fluttershy is the argument correct?
+    Did you know that Rarity is the argument incorrect?
+
+    (No conditionals)
+    If Twilight is equal to Spike then,
+        I said "Twilight == Spike[T]".
+    That's what I would do.
+
+    (One conditionals, and)
+    If Twilight is equal to Spike and Pinkie is equal to Rainbow then,
+        I said "Twilight == Spike[T] && Pinkie == Rainbow[T]".
+    That's what I would do.
+
+    (One conditionals, or)
+    If Twilight is equal to Pinkie or Twilight is equal to Spike then,
+        I said "Twilight == Pinkie[F] || Twilight == Spike[T]".
+    That's what I would do.
+
+    (Two conditionals, or and)
+    If Spike is equal to Pinkie or Spike isn't equal to Rainbow and Spike is equal to Twilight then,
+        I said "(Spike == Pinkie[F] || Spike != Rainbow[T]) && Spike == Twilight[T]".
+    That's what I would do.
+
+    (Two conditionals, and or)
+    If Spike is equal to Rainbow or Spike is equal to Fluttershy and Spike isn't equal to Rarity then,
+        I said "(Spike == Rainbow[F] || Spike == Fluttershy[T]) && Spike != Rarity[T]".
+    That's what I would do.
+
+    (Three conditionals, or and or)
+    If Spike is equal to Rarity or Twilight is equal to Fluttershy and Spike is equal to Applejack or Twilight is equal to Rarity then,
+        I said "(Spike == Rarity[F] || Twilight == Fluttershy[T]) && (Spike == Applejack[T] || Twilight == Rarity[F])".
+    That's what I would do.
+
+That's all about how to do switch cases.
+
+
+Your faithful student, Twilight Sparkle.

@@ -1,0 +1,122 @@
+Dear Princess Celestia: Brainfuck!
+
+Did you know that Twilight is the word "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+."? (Hello World)
+Did you know that Applejack is the number 1? (Input Pointer)
+
+Did you know that Fluttershy is many numbers? (Memory Blocks)
+Did you know that Pinkie Pie is the number 1? (Memory Pointer)
+
+Did you know that Princess Luna is the argument correct?
+
+I learned how to check brainfuck code.
+
+    Did you know that Spike is the number 0? (Have Spike check for inconsistencies)
+
+    For every character Ember in Twilight... (Ember will be the one getting the characters from the input one by one)
+        If Ember is equal to '[' then,
+            Spike got one more.
+        Otherwise if Ember is equal to ']' then,
+            Spike got one less.
+        That's what I would do.
+    That's what I did.
+
+    If Spike is not 0 then, (Inform Princess Luna if the code is ok)
+        Princess Luna became incorrect.
+    That's what I would do.
+
+That's all about how to check brainfuck code.
+
+I learned how to find the index using the argument reversed.
+
+    Did you know that Spike is the number 0? (We'll have Spike to check for the correct scope...)
+    Did you know that Starlight is the number Applejack? (...but since Applejack is busy, Starlight is gonna help instead)
+
+    Did you know that Thorax is the letter '['? (Thorax and Pharynx will handle what character we'll need to check for)
+    Did you know that Pharynx is the letter ']'? (With Pharynx checking the character we're gonna stop at)
+    If reversed is correct then,
+        Thorax became the letter ']'.
+        Pharynx became the letter '['.
+    That's what I would do.
+
+    Did you know that Kevin is the argument true? (Kevin will check if we've hit the jackpot)
+    While Kevin is equal to true,
+        
+        If Starlight of Twilight is equal to Pharynx then,
+            Spike got one less.
+            If Spike is equal to 0 then, (We found the correct index!)
+                Applejack became Starlight.
+                Kevin became incorrect.
+            That's what I would do.
+        Otherwise if Starlight of Twilight is equal to Thorax then,
+            Spike got one more.
+        That's what I would do.
+
+        If Kevin is not incorrect then, (*Kevin stopping Starlight*)
+            If reversed is equal to true then,
+                Starlight got one less. (Go back one step)
+            Otherwise,
+                Starlight got one more. (Go forward one step)
+            That's what I would do.
+        That's what I would do.
+
+    That's what I did.
+
+That's all about how to find the index.
+
+I learned how to parse brainfuck.
+
+    Did you know that Trixie is the word nothing? (Trixie here will handle if there's an output.)
+    Did you know that Jasmine is the number 1? (oh hi just want to tell if its going well... the interpreter is a bit slow)
+
+    As long as Applejack had no more than length of Twilight,
+
+        Did you know that Rainbow Dash is the letter Applejack of Twilight?
+
+        If Rainbow Dash is equal to '>' then,
+            Pinkie Pie got one more.
+        Otherwise if Rainbow Dash is equal to '<' then,
+            Pinkie Pie got one less.
+        Otherwise if Rainbow Dash is equal to '+' then,
+            Pinkie Pie of Fluttershy got one more.
+        Otherwise if Rainbow Dash is equal to '-' then,
+            Pinkie Pie of Fluttershy got one less.
+        Otherwise if Rainbow Dash is equal to '.' then,
+            Did you know that Spike is the letter char of num Pinkie Pie of Fluttershy. (Spike will hold this temporarily, this is an interpreter limit.)
+            Trixie became Trixie""Spike.
+        Otherwise if Rainbow Dash is equal to '[' then,
+            If Pinkie Pie of Fluttershy is equal to 0 then,
+                I remembered how to find the index using incorrect.
+            That's what I would do.
+        Otherwise if Rainbow Dash is equal to ']' then,
+            If Pinkie Pie of Fluttershy is not 0 then,
+                I remembered how to find the index using correct.
+            That's what I would do.
+        That's what I would do.
+
+        (No input, dont know how to handle it properly yet...)
+
+        Applejack got one more.
+
+    That's what I did.
+
+    If Trixie is not nothing then,
+        I said Trixie!
+    That's what I would do.
+
+That's all about how to parse brainfuck.
+
+Today I learned how to start parsing brainfuck.
+
+    I remembered how to check brainfuck code.
+
+    If Princess Luna is correct then,
+        I remembered how to parse brainfuck.
+    Otherwise,
+        I said "Oh my! There is a mismatched bracket in the code.".
+    That's what I would do.
+
+That's all about how to start parsing brainfuck.
+
+Your faithful student, Jaezmien Naejara.
+
+P.S. Code somewhat borrowed from https://helloacm.com/brainfuck-interpreter-c-console-application/.

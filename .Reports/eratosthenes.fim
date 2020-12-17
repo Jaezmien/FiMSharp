@@ -1,0 +1,52 @@
+Dear Princess Celestia: Sieve of Eratosthenes!
+
+I learned how to find the primes using the number n to get many numbers.
+
+    Did you know that primes is many numbers?
+    If n is no greater than 2 then,
+        Then you get primes!
+    That's what I would do.
+
+    Did you know that t is many numbers?
+    Did you know that sqrt limit is the number sqrt of n.
+
+    For every number k from 2 to n...
+        k of t is 1.
+    That's what I did.
+
+    Did you know that i is the number 2?
+    As long as i had no more than sqrt limit,
+        If i of t is equal to 1 then,
+            Did you know that j is the number i times i?
+            As long as j had no more than n,
+                j of t is 0.
+                j became j plus i.
+            That's what I did.
+        That's what I would do.
+        i got one more.
+    That's what I did.
+
+    For every number k from 2 to n...
+        If k of t is equal to 1 then,
+            Did you know that prime index is the number length of primes?
+            prime index got one more.
+            prime index of primes is k.
+        That's what I would do.
+    That's what I did.
+
+    Then you get primes!
+
+That's all about how to find the primes.
+
+Today I learned how to run a program!
+
+    Did you know that primes is the numbers how to find the primes using the number 20.
+    For every number p in primes...
+        I said p. (Expected: 0, 2, 3, 5, 7, 11, 13, 17, 19)
+    That's what I did.
+
+That's all about how to run a program.
+
+
+Your faithful student, Jaezmien Naejara.
+P.S. https://rosettacode.org/wiki/Sieve_of_Eratosthenes#Lua
