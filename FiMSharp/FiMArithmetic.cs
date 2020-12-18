@@ -1,23 +1,21 @@
+// Disabling this will make the DLL use DataTable instead of the switch statement.
 #define ARITH_HARDCODED
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Data;
 
 using FiMSharp.GlobalVars;
 
-namespace FiMSharp
+namespace FiMSharp.Core
 {
     public class FiMArithmetic
     {
-        private string left;
-        private string arithmetic;
-        private string right;
+        private readonly string left;
+        private readonly string arithmetic;
+        private readonly string right;
 
-        private Dictionary<string, string> shorthand = new Dictionary<string, string>()
+        private readonly Dictionary<string, string> shorthand = new Dictionary<string, string>()
         {
             { "Add", "+" },
             { "Subtract", "-" },
@@ -31,7 +29,7 @@ namespace FiMSharp
             arithmetic = shorthand[ arithmetic_ ];
             right = right_;
         }
-        public FiMArithmetic(string _line, (bool, string) check_result, FiMReport report, Dictionary<string, FiMVariable> variables)
+        public FiMArithmetic(string _line, (bool, string) check_result)
         {
             string t = check_result.Item2;
             arithmetic = shorthand[ t ];;

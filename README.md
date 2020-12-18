@@ -2,6 +2,32 @@
 
 FiMSharp is a C# interpreter library for the esoteric language, [FiM++](https://esolangs.org/wiki/FiM%2B%2B)
 
+# Usage
+
+To use the library, simply include the library to your project:
+
+```csharp
+using FiMSharp;
+```
+
+And create a `FiMReport` with the lines of your report!
+
+```csharp
+FiMReport report = new FiMReport( lines );
+
+// Run the main paragraph!
+if (!string.IsNullOrEmpty(report.MainParagraph))
+    report.Paragraphs[report.MainParagraph].Execute(report);
+```
+
+You can also build and use project `FiMSharp.Test`, you'll need a `Report` directory on its executable file.
+
+# TODO
+
+- Logo
+
+- REPL
+
 # External Resources
 
 [Esolangs Page](https://esolangs.org/wiki/FiM%2B%2B)

@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
 using FiMSharp.GlobalVars;
 
-namespace FiMSharp
+namespace FiMSharp.Core
 {
     public class FiMConditional
     {
@@ -97,19 +93,19 @@ namespace FiMSharp
             return _x == _y;
         }
         public static bool Calculate(string left, string conditional, string right, FiMReport report, Dictionary<string, FiMVariable> variables) {
-            object left_value; VariableTypes left_type;
+            object left_value;
             if( FiMMethods.HasVariableTypeDeclaration(left) ) {
                 VariableTypes _ = FiMMethods.GetVariableTypeFromDeclaration( left, out string keyword );
                 left = left.Substring( keyword.Length + 1 );
             }
-            left_value = FiMMethods.ParseVariable(left, report, variables, out left_type);
+            left_value = FiMMethods.ParseVariable(left, report, variables, out VariableTypes left_type);
 
-            object right_value; VariableTypes right_type;
+            object right_value;
             if( FiMMethods.HasVariableTypeDeclaration(right) ) {
                 VariableTypes _ = FiMMethods.GetVariableTypeFromDeclaration( right, out string keyword );
                 right = right.Substring( keyword.Length + 1 );
             }
-            right_value = FiMMethods.ParseVariable(right, report, variables, out right_type);
+            right_value = FiMMethods.ParseVariable(right, report, variables, out VariableTypes right_type);
 
             if( left_value == null && right_value != null ) {
                 left_type = right_type;

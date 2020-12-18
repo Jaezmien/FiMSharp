@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+using FiMSharp.Core;
 using FiMSharp.GlobalVars;
 
 namespace FiMSharp
@@ -16,7 +16,6 @@ namespace FiMSharp
     }
     public class FiMReport
     {
-        public FiMReport() {}
         public FiMReport(string[] lines)
         {
             bool is_in_report = false;
@@ -134,11 +133,13 @@ namespace FiMSharp
                                 if( scopeCount != 0 )
                                     throw new FiMException( $"Paragraph { _paragraphName } has scoping error!" );
 
-                                FiMParagraph paragraph = new FiMParagraph( _paragraphName );
-                                paragraph.Lines = ( _paragraphIndex+1, i-1 );
-                                if( _paragraphName == this.MainParagraph ) paragraph.IsMain = true;
-                                paragraph.ReturnType = _paragraphReturn;
-                                paragraph.Parameters = new List<(string, VariableTypes)>( _paragraphParameters );
+                                FiMParagraph paragraph = new FiMParagraph(
+                                    _paragraphName,
+                                    (_paragraphIndex + 1, i - 1),
+                                    _paragraphName == this.MainParagraph,
+                                    new List<(string, VariableTypes)>(_paragraphParameters),
+                                    _paragraphReturn
+                                );
                                 this.Paragraphs.Add( _paragraphName, paragraph );
 
                                 _paragraphIndex = -1;
@@ -238,10 +239,12 @@ namespace FiMSharp
                                     int _i = i+1;
                                     int _s = 0;
 
-                                    FiMWhileStatement whileStatement = new FiMWhileStatement();
-                                    whileStatement.Lines = (i+1, i);
-                                    whileStatement.Condition = line.Substring( keyword.Length );
-                                    if( whileStatement.Condition.EndsWith(" then") )
+                                    FiMWhileStatement whileStatement = new FiMWhileStatement
+                                    {
+                                        Lines = (i + 1, i),
+                                        Condition = line.Substring(keyword.Length)
+                                    };
+                                    if ( whileStatement.Condition.EndsWith(" then") )
                                         whileStatement.Condition = whileStatement.Condition.Substring( 0, whileStatement.Condition.Length - " then".Length );
 
                                     while( true ) {
@@ -363,8 +366,10 @@ namespace FiMSharp
                                     int _i = i+1;
                                     int _s = 0;
 
-                                    FiMSwitchStatement switchStatement = new FiMSwitchStatement();
-                                    switchStatement.Switch = line.Substring( keyword.Length );
+                                    FiMSwitchStatement switchStatement = new FiMSwitchStatement
+                                    {
+                                        Switch = line.Substring(keyword.Length)
+                                    };
 
                                     string currStatement = "";
                                     (int, int) currLines = (-1, -1);
@@ -478,28 +483,14 @@ namespace FiMSharp
                 throw new FiMException( "EOF not found" );
             if( is_in_paragraph )
                 throw new FiMException( "EOM not found" );
-
-            Console.WriteLine("[ FiMSharp v0.1 ]");
-            Console.WriteLine( $"Report Name: {this.ReportName}" );
-            Console.WriteLine( $"Student Name: {this.StudentName}" );
-            Console.WriteLine("[@]=======================================[@]");
-
-            if( !string.IsNullOrEmpty(this.MainParagraph) ) {
-                this.Paragraphs[ this.MainParagraph ].Execute( this );
-            } else {
-                Console.WriteLine("<!> Main Method not found!");
-            }
-
-            Console.WriteLine("[@]=======================================[@]");
-
         }
 
-        public Dictionary<int, (string, TokenTypes, object)> Lines = new Dictionary<int, (string, TokenTypes, object)>();
-        public Dictionary<string, FiMVariable> Variables = new Dictionary<string, FiMVariable>();
-        public Dictionary<string, FiMParagraph> Paragraphs = new Dictionary<string, FiMParagraph>();
+        public readonly Dictionary<int, (string, TokenTypes, object)> Lines = new Dictionary<int, (string, TokenTypes, object)>();
+        public readonly Dictionary<string, FiMVariable> Variables = new Dictionary<string, FiMVariable>();
+        public readonly Dictionary<string, FiMParagraph> Paragraphs = new Dictionary<string, FiMParagraph>();
 
-        public string MainParagraph;
-        public string StudentName;
-        public string ReportName;
+        public readonly string MainParagraph;
+        public readonly string StudentName;
+        public readonly string ReportName;
     }
 }

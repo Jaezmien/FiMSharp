@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 using FiMSharp.GlobalVars;
 
-namespace FiMSharp
+namespace FiMSharp.Core
 {
     static partial class Extension {
         public static bool HasDecimal(this float Value) {
@@ -31,7 +30,7 @@ namespace FiMSharp
             return result;
         }
 
-        private static Regex comment_regex = new Regex(@"^(P\.)(P\.)*(S\.)\s.");
+        private readonly static Regex comment_regex = new Regex(@"^(P\.)(P\.)*(S\.)\s.");
         public static bool IsComment( string line ) => comment_regex.IsMatch( line );
 
         // yeah
@@ -135,7 +134,7 @@ namespace FiMSharp
             string new_string = "";
             string buffer = "";
 
-            string CheckBuffer( string buffer_, bool isEnd ) {
+            string CheckBuffer( bool isEnd ) {
                 buffer = buffer.Trim();
                 if( buffer.Length > 0 ) {
                     object value = ParseVariable(buffer, report, variables, out VariableTypes type, isEnd );
@@ -175,7 +174,7 @@ namespace FiMSharp
                 if( c == '"' && !is_escaped )
                 {
                     if( !is_in_string ) {
-                        new_string += CheckBuffer( buffer, false );
+                        new_string += CheckBuffer( false );
                     } else {
                         new_string += buffer;
                     }
@@ -196,7 +195,7 @@ namespace FiMSharp
                 }
             }
 
-            new_string += CheckBuffer( buffer, true );
+            new_string += CheckBuffer( true );
 
             return $"\"{ new_string }\"";
         }
@@ -313,11 +312,19 @@ namespace FiMSharp
         /// Becareful as some boolean false and integer 0 will return true!
         /// </summary>
         public static bool IsNullValue( object value ) {
-            if( value is bool ) return (bool)value == false;
-            if( value is char ) return (char)value == '\0';
-            if( value is string ) return (string)value == "";
-            if( value is float  ) return (float)value == 0f;
-            throw new Exception("Tried checking NullValue for " + value + ", failed checking type");
+            switch (value)
+            {
+                case bool _:
+                    return (bool)value == false;
+                case char _:
+                    return (char)value == '\0';
+                case string _:
+                    return (string)value == "";
+                case float _:
+                    return (float)value == 0f;
+                default:
+                    throw new Exception("Tried checking NullValue for " + value + ", failed checking type");
+            }
         }
         public static (string, FiMVariable) VariableFromTokenizer( FiMReport report, Dictionary<string, FiMVariable> variables, object args ) {
             string _variable_name;
@@ -612,7 +619,7 @@ namespace FiMSharp
             }
 
             if( FiMArithmetic.IsArithmetic(str, out var arith_result) ) {
-                var arithmetic = new FiMArithmetic( str, arith_result, report, variables );
+                var arithmetic = new FiMArithmetic( str, arith_result );
                 float value = arithmetic.Evaluate( report, variables );
                 type = VariableTypes.INTEGER;
                 return value;

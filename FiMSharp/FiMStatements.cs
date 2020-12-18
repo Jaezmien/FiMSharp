@@ -1,22 +1,19 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 using FiMSharp.GlobalVars;
 
-namespace FiMSharp
+namespace FiMSharp.Core
 {
 
-    public interface FiMStatement {}
+    public interface IFiMStatement {}
 
-    public class FiMWhileStatement: FiMStatement {
+    public class FiMWhileStatement: IFiMStatement {
         public (int, int) Lines = (-1, -1);
         public string Condition;
     }
 
-    public class FiMForStatement: FiMStatement {
+    public class FiMForStatement: IFiMStatement {
         public (int, int) Lines = (-1, -1);
         public (string, VariableTypes) Element;
     }
@@ -28,12 +25,12 @@ namespace FiMSharp
         public string Variable;
     }
 
-    public class FiMIfStatement: FiMStatement {
+    public class FiMIfStatement: IFiMStatement {
         public List<(string, (int, int))> Conditions = new List<(string, (int, int))>();
         public bool HasElse; // If true, Conditions.Last will be the else statement
     }
 
-    public class FiMSwitchStatement: FiMStatement {
+    public class FiMSwitchStatement: IFiMStatement {
         public Dictionary<string, (int, int)> Case = new Dictionary<string, (int, int)>();
         public (int, int) Default = (-1, -1);
         public string Switch;
@@ -97,7 +94,7 @@ namespace FiMSharp
             return false;
         }
         public static bool IsStatementStart( string line, FiMStatementTypes type ) {
-            return IsStatementStart(line, out string kw, out FiMStatementTypes t) && t == type;
+            return IsStatementStart(line, out var _, out FiMStatementTypes t) && t == type;
         }
         public static bool IsStatementEnd( string line, FiMStatementTypes type ) {
             if(

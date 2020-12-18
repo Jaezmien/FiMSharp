@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FiMSharp.GlobalVars
+﻿namespace FiMSharp.GlobalVars
 {
     public enum VariableTypes
     {

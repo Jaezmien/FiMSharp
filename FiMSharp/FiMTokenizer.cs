@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+using FiMSharp.Core;
 using FiMSharp.GlobalVars;
 
 namespace FiMSharp.Tokenizer
@@ -129,20 +129,15 @@ namespace FiMSharp.Tokenizer
                     line = line.Substring( Math.Min(var_type_kword.Length + 1, line.Length) ).TrimStart();
                 }
 
-                List<object> args = new List<object>();
+                List<object> args = new List<object>
+                {
+                    var_name,
+                    var_type,
+                    is_const,
+                    FiMMethods.IsVariableTypeArray(var_type, false),
 
-                args.Add( var_name );
-                args.Add( var_type );
-                args.Add( is_const );
-                args.Add( FiMMethods.IsVariableTypeArray( var_type, false ) );
-
-                // if( FiMMethods.IsVariableTypeArray( var_type, true ) ) {
-                //     throw new NotImplementedException("bruh");
-                // } else {
-                //     Console.WriteLine( line );
-                // }
-
-                args.Add( line );
+                    line
+                };
 
                 return_obj.Item2 = args; goto EndToken;
             }
@@ -153,8 +148,10 @@ namespace FiMSharp.Tokenizer
 
                 string keyword = Globals.Methods.Variable_Replace.Where( x => line.Contains($" {x} ") ).FirstOrDefault();
                 string[] line_split = line.Split(new string[] { keyword }, StringSplitOptions.None);
-                List<object> args = new List<object>();
-                args.Add( line_split[0].TrimEnd() ); // Variable
+                List<object> args = new List<object>
+                {
+                    line_split[0].TrimEnd() // Variable
+                };
                 string new_value = string.Join(keyword, line_split.Skip(1)).TrimStart();
                 VariableTypes expected_type;
 
@@ -176,11 +173,13 @@ namespace FiMSharp.Tokenizer
                 return_obj.Item1 = TokenTypes.ARRAY_MODIFY;
 
                 (string result, string variable_name, int variable_index, string keyword) = FiMMethods.MatchArray1( line );
-                
-                List<object> args = new List<object>();
-                args.Add( variable_name );
-                args.Add( variable_index );
-                args.Add( keyword );
+
+                List<object> args = new List<object>
+                {
+                    variable_name,
+                    variable_index,
+                    keyword
+                };
                 string value = line.Substring(result.Length);
 
                 if( FiMMethods.HasVariableTypeDeclaration(value) ) {
@@ -196,12 +195,14 @@ namespace FiMSharp.Tokenizer
                 return_obj.Item1 = TokenTypes.ARRAY_MODIFY2;
 
                 (string result, string variable_name, string variable_index, string keyword) = FiMMethods.MatchArray2( line );
-                
-                List<object> args = new List<object>();
-                args.Add( variable_name );
-                args.Add( variable_index );
-                args.Add( keyword );
-                args.Add( line.Substring(result.Length) );
+
+                List<object> args = new List<object>
+                {
+                    variable_name,
+                    variable_index,
+                    keyword,
+                    line.Substring(result.Length)
+                };
 
                 return_obj.Item2 = args; goto EndToken;
             }

@@ -1,28 +1,29 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 using FiMSharp.GlobalVars;
 
-namespace FiMSharp
+namespace FiMSharp.Core
 {
 
         public class FiMParagraph
     {
-        public string Name;
-        public FiMParagraph( string paragraph_name_ )
+        public readonly string Name;
+        public readonly (int, int) Lines = (-1, -1);
+        public readonly List<(string, VariableTypes)> Parameters;
+        public readonly VariableTypes ReturnType;
+        public readonly bool IsMain;
+        public FiMParagraph( string paragraph_name_, (int, int) lines_, bool main_, List<(string, VariableTypes)> parameters_, VariableTypes return_)
         {
             this.Name = paragraph_name_;
+            this.Lines = lines_;
+            this.IsMain = main_;
+            this.Parameters = parameters_;
+            this.ReturnType = return_;
         }
 
-        public (int, int) Lines = (-1, -1);
-        public List<(string, VariableTypes)> Parameters;
-        public VariableTypes ReturnType;
-        public bool IsMain;
-
-        public (object, VariableTypes) Execute(FiMReport report, int lineBegin, int lineEnd, out Dictionary<string,FiMVariable> changedVariables, Dictionary<string, FiMVariable> variables = null)
+        private (object, VariableTypes) Execute(FiMReport report, int lineBegin, int lineEnd, out Dictionary<string,FiMVariable> changedVariables, Dictionary<string, FiMVariable> variables = null)
         {
             changedVariables = new Dictionary<string, FiMVariable>();
             Dictionary<string, FiMVariable> localVariables = new Dictionary<string, FiMVariable>();

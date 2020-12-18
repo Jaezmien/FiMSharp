@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-
 using FiMSharp.GlobalVars;
-using FiMSharp;
 
-namespace FiMSharp
+namespace FiMSharp.Core
 {
     public class FiMVariable
     {
+        private readonly bool IS_CONSTANT = false;
+        private readonly bool IS_ARRAY = false;
+
+        private object Value = null;
+        public VariableTypes Type = VariableTypes.UNDEFINED;
+
         public FiMVariable(object Value, VariableTypes Type, bool IsConstant = false, bool IsArray = false)
         {
             this.Value = Value;
@@ -23,14 +25,6 @@ namespace FiMSharp
             IS_CONSTANT = IsConstant;
             IS_ARRAY = IsArray;
         }
-
-        private bool IS_CONSTANT = false;
-        private bool IS_ARRAY = false;
-
-        private object Value = null;
-        public VariableTypes Type = VariableTypes.UNDEFINED;
-
-        public bool IsArray() => this.IS_ARRAY;
 
         // Getters
         public (object, VariableTypes) GetValue(int array_index = 0) // 1-based array index
@@ -80,22 +74,6 @@ namespace FiMSharp
                 throw new Exception("[Internal] SetArrayValue must be used on an array");
             var raw_dict = this.Value as Dictionary<int,object>;
             raw_dict[ array_index ] = value;
-            /*if( this.Type == VariableTypes.BOOLEAN_ARRAY)
-            {
-                (raw_array.Cast<bool>().ToList())[ array_index ] = (bool)value;
-            }
-            if (this.Type == VariableTypes.FLOAT_ARRAY)
-            {
-                float new_value = 0;
-                if (array_index < raw_array.Count)
-                    new_value = (raw_array.Cast<float>().ToList())[ array_index ];
-            }
-            if (this.Type == VariableTypes.STRING_ARRAY)
-            {
-                string new_value = "";
-                if (array_index < raw_array.Count)
-                    new_value = (raw_array.Cast<string>().ToList())[ array_index ];
-            }*/
         }
     }
 }

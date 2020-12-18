@@ -1,18 +1,29 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 using FiMSharp;
 
-namespace FiMSharp.Test
+namespace FiMSharpTest
 {
     class Program
     {
         static void Main(string[] args)
         {
             TestingMain(args);
+        }
+
+        public static void ExecuteReport( string[] lines )
+        {
+            FiMReport report = new FiMReport( lines );
+            Console.WriteLine("[ FiMSharp Test v0.1 ]");
+            Console.WriteLine($"Report Name: {report.ReportName}");
+            Console.WriteLine($"Student Name: {report.StudentName}");
+            Console.WriteLine("[@]=======================================[@]");
+            if (!string.IsNullOrEmpty(report.MainParagraph)) {
+                report.Paragraphs[report.MainParagraph].Execute(report);
+            }
+            Console.WriteLine("[@]=======================================[@]");
         }
         static object TestingMain(string[] args)
         {
@@ -32,13 +43,9 @@ namespace FiMSharp.Test
 
                 Stopwatch s = new Stopwatch();
                 s.Start();
-                FiMReport report = new FiMReport( report_lines );
+                ExecuteReport(report_lines);
                 s.Stop();
                 Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
-
-                /*Console.WriteLine(
-                    FiMArithmetic.Evaluate(1,"+",1)
-                );*/
 
                 return 0;
             }
@@ -83,7 +90,7 @@ namespace FiMSharp.Test
 
                     Stopwatch s = new Stopwatch();
                     s.Start();
-                    FiMReport report = new FiMReport( report_lines );
+                    ExecuteReport(report_lines);
                     s.Stop();
                     Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
 
