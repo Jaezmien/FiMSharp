@@ -34,7 +34,7 @@ You can also build and use project `FiMSharp.Test`, you'll need a `Report` direc
 
 [FiM++ Fandom](https://fimpp.fandom.com)
 
-[Language Specification](https://fimpp.fandom.com)
+[Language Specification](https://docs.google.com/document/d/1gU-ZROmZu0Xitw_pfC1ktCDvJH5rM85TxxQf5pg_xmg/edit#)
 
 # Notes
 
