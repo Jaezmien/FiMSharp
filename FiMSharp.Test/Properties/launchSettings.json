@@ -1,7 +1,8 @@
 {
   "profiles": {
     "FiMSharp_Test": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-report \"brainfuck\""
     }
   }
 }

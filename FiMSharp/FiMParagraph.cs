@@ -7,7 +7,7 @@ using FiMSharp.GlobalVars;
 namespace FiMSharp.Core
 {
 
-        public class FiMParagraph
+    public class FiMParagraph
     {
         public readonly string Name;
         public readonly (int, int) Lines = (-1, -1);
@@ -489,10 +489,7 @@ namespace FiMSharp.Core
 
                         //--\\
                         case TokenTypes.COMMENT:
-                        case TokenTypes.IGNORE: {
-                            // do nothing
-                        }
-                        break;
+                        case TokenTypes.IGNORE: break;
                         default: {
                             Console.WriteLine($"Haven't handled { line.Item2 } yet!");
                         }

@@ -23,6 +23,21 @@ namespace FiMSharp.Core
             return and_split_result.All( x => x );
         }
 
+        public static string[][] ToString( string str ) {
+            List<string[]> result = new List<string[]>();
+            string[] and_split = str.Split(new string[] {" and "}, StringSplitOptions.None);
+            for( int a = 0; a < and_split.Length; a++ ) {
+                string and_condition = and_split[a];
+                List<string> _result = new List<string>();
+                string[] or_split = and_condition.Split(new string[] {" or " }, StringSplitOptions.None);
+                for( int o = 0; o < or_split.Length; o++ ) {
+                    _result.Add( or_split[o] );
+                }
+                result.Add( _result.ToArray() );
+            }
+            return result.ToArray();
+        }
+
         public static (string, string) GetConditional( string line ) {
             if( Globals.Methods.Conditional_LessThanEqual.Any(x => line.Contains($" {x} ")) ) {
                 string keyword = Globals.Methods.Conditional_LessThanEqual.Where(x => line.Contains($" {x} ")).FirstOrDefault();

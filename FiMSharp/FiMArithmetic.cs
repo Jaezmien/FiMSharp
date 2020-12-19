@@ -11,9 +11,9 @@ namespace FiMSharp.Core
 {
     public class FiMArithmetic
     {
-        private readonly string left;
-        private readonly string arithmetic;
-        private readonly string right;
+        public readonly string Left;
+        public readonly string Arithmetic;
+        public readonly string Right;
 
         private readonly Dictionary<string, string> shorthand = new Dictionary<string, string>()
         {
@@ -25,14 +25,14 @@ namespace FiMSharp.Core
         };
         public FiMArithmetic(string left_, string arithmetic_, string right_) 
         {
-            left = left_;
-            arithmetic = shorthand[ arithmetic_ ];
-            right = right_;
+            Left = left_;
+            Arithmetic = shorthand[ arithmetic_ ];
+            Right = right_;
         }
         public FiMArithmetic(string _line, (bool, string) check_result)
         {
             string t = check_result.Item2;
-            arithmetic = shorthand[ t ];;
+            Arithmetic = shorthand[ t ];;
 
             string line = _line;
             if( check_result.Item1 ) {
@@ -42,26 +42,26 @@ namespace FiMSharp.Core
                 line = line.Substring( pre.Length + 1 );
                 string[] s = line.Split( new string[] { $" {preinf} " }, StringSplitOptions.None );
 
-                left = s[0].Trim();
-                right = s[1].Trim();
+                Left = s[0].Trim();
+                Right = s[1].Trim();
             } else {
                 // Infix
                 string inf = Globals.Arithmetic[t].Infix.Where(x => line.Contains($" {x} ")).FirstOrDefault();
                 string[] s = line.Split( new string[] { $" {inf} " }, StringSplitOptions.None );
-                left = s[0].Trim();
-                right = s[1].Trim();
+                Left = s[0].Trim();
+                Right = s[1].Trim();
             }
         }
 
         public float Evaluate(FiMReport report, Dictionary<string, FiMVariable> variables)
         {
-            object left_variable = FiMMethods.ParseVariable( left, report, variables, out VariableTypes left_type );
-            object right_variable = FiMMethods.ParseVariable( right, report, variables, out VariableTypes right_type );
+            object left_variable = FiMMethods.ParseVariable( Left, report, variables, out VariableTypes left_type );
+            object right_variable = FiMMethods.ParseVariable( Right, report, variables, out VariableTypes right_type );
 
             if( left_type != VariableTypes.INTEGER || right_type != VariableTypes.INTEGER )
                 throw new FiMException("Arithmetic can only be done with numbers");
 
-            return Evaluate( Convert.ToSingle( left_variable ), arithmetic, Convert.ToSingle( right_variable ) );
+            return Evaluate( Convert.ToSingle( left_variable ), Arithmetic, Convert.ToSingle( right_variable ) );
         }
         public static float Evaluate(float left_, string arithmetic_, float right_)
         {

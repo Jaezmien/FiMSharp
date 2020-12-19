@@ -16,7 +16,7 @@ Today I learned how to play fizzbuzz!
             Babs Seed became Babs Seed"Buzz".
         That's what I would do.
 
-        (Now we check if result is still empty, which means it's not divisibly by 3 or 5!)
+        (Now we check if result is still empty, which means it's not divisible by 3 or 5!)
         If Babs Seed is equal to nothing then,
             Babs Seed became Applebloom. (String conversion!)
         That's what I would do.

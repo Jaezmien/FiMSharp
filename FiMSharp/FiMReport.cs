@@ -69,7 +69,7 @@ namespace FiMSharp
                                 bool _isMain = false;
 
                                 if( line.StartsWith("Today ") ) {
-                                    if( !string.IsNullOrEmpty(this.MainParagraph) ) {
+                                    if( !string.IsNullOrEmpty(this._MainParagraph) ) {
                                         throw new Exception(
                                             FiMMethods.CreateExceptionString("Only one main paragraph expected", line, i+1)
                                         );
@@ -107,7 +107,7 @@ namespace FiMSharp
                                 _paragraphName = line;
                                 _paragraphIndex = i;
 
-                                if( _isMain ) this.MainParagraph = line;
+                                if( _isMain ) this._MainParagraph = line;
                                 is_in_paragraph = true;
                                 continue;
                             }
@@ -136,7 +136,7 @@ namespace FiMSharp
                                 FiMParagraph paragraph = new FiMParagraph(
                                     _paragraphName,
                                     (_paragraphIndex + 1, i - 1),
-                                    _paragraphName == this.MainParagraph,
+                                    _paragraphName == this._MainParagraph,
                                     new List<(string, VariableTypes)>(_paragraphParameters),
                                     _paragraphReturn
                                 );
@@ -483,13 +483,23 @@ namespace FiMSharp
                 throw new FiMException( "EOF not found" );
             if( is_in_paragraph )
                 throw new FiMException( "EOM not found" );
+
+            OriginalLines = lines;
         }
 
         public readonly Dictionary<int, (string, TokenTypes, object)> Lines = new Dictionary<int, (string, TokenTypes, object)>();
         public readonly Dictionary<string, FiMVariable> Variables = new Dictionary<string, FiMVariable>();
         public readonly Dictionary<string, FiMParagraph> Paragraphs = new Dictionary<string, FiMParagraph>();
 
-        public readonly string MainParagraph;
+        public readonly string[] OriginalLines = new string[] {};
+
+        private readonly string _MainParagraph;
+        public FiMParagraph MainParagraph {
+            get {
+                if( !string.IsNullOrEmpty( _MainParagraph ) ) return Paragraphs[ _MainParagraph ];
+                return null;
+            }
+        }
         public readonly string StudentName;
         public readonly string ReportName;
     }

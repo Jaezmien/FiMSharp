@@ -1,14 +1,19 @@
-﻿using System;
+﻿#define TOJS
+
+using System;
 using System.IO;
 using System.Diagnostics;
 
 using FiMSharp;
+using FiMSharp.Javascript;
+
+using Mono.Options;
 
 namespace FiMSharpTest
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main(params string[] args)
         {
             TestingMain(args);
         }
@@ -20,32 +25,48 @@ namespace FiMSharpTest
             Console.WriteLine($"Report Name: {report.ReportName}");
             Console.WriteLine($"Student Name: {report.StudentName}");
             Console.WriteLine("[@]=======================================[@]");
-            if (!string.IsNullOrEmpty(report.MainParagraph)) {
-                report.Paragraphs[report.MainParagraph].Execute(report);
-            }
+            report.MainParagraph.Execute( report );
             Console.WriteLine("[@]=======================================[@]");
+        }
+        public static string[] CompileReport( string[] lines ) {
+            FiMReport report = new FiMReport(lines);
+            return FiMJavascript.Parse(report);
         }
         static object TestingMain(string[] args)
         {
             if (args.Length > 0)
             {
-                // Use args
-                var Parser = new ArgsParser();
-                Parser.Parse(args);
+                string report_name = "";
+                bool toJS = false;
 
-                if( Parser["report"] == null || !File.Exists("Reports/"+ (string)Parser["report"] + ".fim") )
+                OptionSet p = new OptionSet()
+                    .Add("report=", v => report_name = v)
+                    .Add("js", v => toJS = true);
+                p.Parse(args);
+
+                if( string.IsNullOrEmpty(report_name) || !File.Exists("Reports/"+ report_name + ".fim") )
                 {
                     Console.WriteLine("[Console] Invalid report");
                     return 1;
                 }
 
-                string[] report_lines = File.ReadAllLines( "Reports/"+ (string)Parser["report"] + ".fim" );
+                string[] report_lines = File.ReadAllLines( "Reports/"+ report_name + ".fim" );
 
                 Stopwatch s = new Stopwatch();
                 s.Start();
-                ExecuteReport(report_lines);
-                s.Stop();
-                Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
+
+                if( toJS ) {
+                    if (!Directory.Exists("Build/")) Directory.CreateDirectory("Build/");
+                    string[] new_lines = CompileReport(report_lines);
+                    if (!File.Exists("Build/" + report_name + ".js")) File.Create("Build/" + report_name + ".js").Close();
+                    File.WriteAllLines("Build/" + report_name + ".js", new_lines);
+                    Console.WriteLine("[Debug] Code compilation took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
+                }
+                else {
+                    ExecuteReport(report_lines);
+                    s.Stop();
+                    Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
+                }
 
                 return 0;
             }
@@ -90,7 +111,9 @@ namespace FiMSharpTest
 
                     Stopwatch s = new Stopwatch();
                     s.Start();
+
                     ExecuteReport(report_lines);
+
                     s.Stop();
                     Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
 

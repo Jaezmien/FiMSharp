@@ -32,6 +32,8 @@ namespace FiMSharp.Core
 
         private readonly static Regex comment_regex = new Regex(@"^(P\.)(P\.)*(S\.)\s.");
         public static bool IsComment( string line ) => comment_regex.IsMatch( line );
+        private readonly static Regex comment_regex2 = new Regex(@"^(P\.)(P\.)*(S\.)\s");
+        public static string GetComment( string line ) => comment_regex2.Replace( line, "" );
 
         // yeah
         protected static Regex _pre_arrayVariableSet = new Regex(@"^([^\d]+) (\d+) ((?:is|was|ha[sd]|like[sd]?) )");
@@ -444,11 +446,11 @@ namespace FiMSharp.Core
                 return null;
             }
 
-            if( str.StartsWith("'") && str.EndsWith("'") ) {
+            if( Regex.IsMatch(str,"^'.'$") ) {
                 type = VariableTypes.CHAR;
                 return str[1];
             }
-            if( str.StartsWith("\"") && str.EndsWith("\"") ) {
+            if( Regex.IsMatch(str,"^\"[^\"]+\"$") ) {
                 type = VariableTypes.STRING;
                 return str;
             }
@@ -483,7 +485,7 @@ namespace FiMSharp.Core
                 
                 List<object> _params = new List<object>();
                 if( p.Parameters.Count > 0 ) {
-                    if( line.Contains(" using " ) ) {
+                    if( line.StartsWith(" using " ) ) {
                         line = line.Substring(" using ".Length);
 
                         int index = 0;

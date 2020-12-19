@@ -45,6 +45,7 @@ namespace FiMSharp.Tokenizer
                 line = SimpleSanitize( line, out bool isComment );
                 if( isComment ) {
                     return_obj.Item1 = TokenTypes.COMMENT;
+                    return_obj.Item2 = line;
                     return return_obj;
                 }
             } catch(Exception ex) {
