@@ -603,8 +603,9 @@ namespace FiMSharp.Javascript
                     } else {
                         v = Extension.SetIfNullValue((string)v, (VariableTypes)tokenize_result[1] );
                         addOutput($"{t} { var_name } = { Extension.SanitizeVariable((string)v, report) };", 1);
-                    }                }
-                // Paragr
+                    }
+                }
+                // Paragraph
                 else if( report.Paragraphs.Values.Any(x => x.Lines.Item1 == l) ) {
                     FiMParagraph p = report.Paragraphs.Values.Where(x => x.Lines.Item1 == l).FirstOrDefault();
                     ParseParagraph(p);
