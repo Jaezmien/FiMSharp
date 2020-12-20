@@ -25,7 +25,14 @@ namespace FiMSharpTest
             Console.WriteLine($"Report Name: {report.ReportName}");
             Console.WriteLine($"Student Name: {report.StudentName}");
             Console.WriteLine("[@]=======================================[@]");
-            report.MainParagraph.Execute( report );
+            try
+            {
+                report.MainParagraph.Execute(report);
+            }
+            catch( FiMException ex )
+            {
+                Console.WriteLine("[FiMException] " + ex.Message);
+            }
             Console.WriteLine("[@]=======================================[@]");
         }
         public static string[] CompileReport( string[] lines ) {
@@ -95,10 +102,20 @@ namespace FiMSharpTest
                         show = true;
                         report_name = report_name.Substring(".show ".Length);
                     }
+                    if( report_name == ".help" )
+                    {
+                        Console.WriteLine("[FiMTest] All available commands");
+                        Console.WriteLine(".list - Lists all available reports from the \"Reports/\" folder");
+                        Console.WriteLine(".clear - Clears the console screen");
+                        Console.WriteLine(".exit - Exits the program");
+                        Console.WriteLine(".show [report name] - Prints out the report into the console");
+                        Console.WriteLine(".help - Shows all available commands");
+                        continue;
+                    }
 
                     if( !File.Exists("Reports/"+ report_name + ".fim") )
                     {
-                        Console.WriteLine("Invalid report");
+                        Console.WriteLine("[FiMTest] Invalid report " + report_name);
                         continue;
                     }
 

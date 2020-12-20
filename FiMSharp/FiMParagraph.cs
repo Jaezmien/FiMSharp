@@ -98,7 +98,8 @@ namespace FiMSharp.Core
                             string output = FiMMethods.SanitizeString( (string)line.Item3, report, CombineAllVariables() );
                             if( output.StartsWith("\"") && output.EndsWith("\"") )
                                 output = output.Substring( 1, output.Length-2 );
-                            Console.WriteLine($"[FiM] { output }");
+                                    //Console.WriteLine($"[FiM] { output }");
+                            Console.WriteLine(output);
                         }
                         break;
                         case TokenTypes.READ: {

@@ -177,6 +177,9 @@ DocProject/Help/html
 # Click-Once directory
 publish/
 
+.Release/
+bin/
+
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
