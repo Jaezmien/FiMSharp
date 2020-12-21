@@ -1,8 +1,8 @@
-# FiMSharp
+# 🐎 FiMSharp
 
 FiMSharp is a C# interpreter library for the esoteric language, [FiM++](https://esolangs.org/wiki/FiM%2B%2B)
 
-# Usage
+# 🖥 Usage
 
 To use the library, simply include the library to your project:
 
@@ -21,13 +21,35 @@ if( report.MainParagraph != null ) report.MainParagraph.Execute( report );
 
 You can also build and use project `FiMSharp.Test`, you'll need a `Report` directory on its executable file.
 
-# TODO
+# 🔃 Compiling
 
-- Logo
+You'll need [.NET SDK](https://dotnet.microsoft.com/download) to compile the solution from source.
 
-- REPL
+Most of the work can be done by the included `build.bat`. You can look inside the batch file if you want to find the arguments needed to build the optional `FiMSharp.Test` project.
 
-# External Resources
+Included runtimes are:
+    - `win32` - Windows x86-64
+    - `win` - Windows x64
+    - `linux` - Linux-x64
+    - `linuxarm` - Linux ARM
+    - `darwin` - Osx-64
+
+Example: `build.bat win32` builds the .dll and the Win32 executable of `FiMSharp.Test`
+
+# 🏃‍♀️ Running (FiMSharp.Test)
+
+The releases page should include a `bin.zip` which contains:
+- A pre-built .dll for both `FiMSharp` and `FiMSharp.Javascript`
+- Pre-built executables for different platforms listed in the release.
+
+About the program:
+
+- Running the program directly will give you a menu in which you can run reports in the `Report` directory. Type in `.help` to list all the commands
+- Supplying in arguments:
+    - `-report [report name]` - Runs the report
+    - `-js` - Builds the report into a Javascript file instead.
+
+# 📚 External Resources
 
 [Esolangs Page](https://esolangs.org/wiki/FiM%2B%2B)
 
@@ -35,7 +57,9 @@ You can also build and use project `FiMSharp.Test`, you'll need a `Report` direc
 
 [Language Specification](https://docs.google.com/document/d/1gU-ZROmZu0Xitw_pfC1ktCDvJH5rM85TxxQf5pg_xmg/edit#)
 
-# Notes
+[Original EQD Post](http://www.equestriadaily.com/2012/10/editorial-fim-pony-programming-language.html)
+
+# 📝 Notes
 
 - FiMSharp is just a personal hobby project, seeing as FiM++ has never been updated for quite some time now.
 
@@ -44,3 +68,5 @@ You can also build and use project `FiMSharp.Test`, you'll need a `Report` direc
     - [FiMSharp](https://github.com/Jaezmien/FiMSharp/blob/master/.Reports/brainfuck.fim)
 
     - [fimpp](https://github.com/KarolS/fimpp/blob/master/examples/bf.fimpp)
+
+- This is my first semi-compilcated README.md, please yell at me on the issues page if I did something wrong 🙏
