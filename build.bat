@@ -6,14 +6,18 @@ if "%osType%"=="" (set osType=win)
 set binDir=bin/%osType%
 
 :: Clean previous builds
+echo [Build.bat] Cleaning...
 dotnet clean -c Release -o "%binDir%"
 dotnet clean -c Debug -o "%binDir%"
 
 :: Build
-dotnet build FiMSharp -c Release -o "%binDir%"
-dotnet build FiMSharp.Javascript -c Release -o "%binDir%"
+echo [Build.bat] Building FiMSharp...
+dotnet build FiMSharp -c Release -o bin/
+echo [Build.bat] Building FiMSharp.Javascript...
+dotnet build FiMSharp.Javascript -c Release -o bin/
 
 :: Build test program
+echo [Build.bat] Building test program...
 set buildCommand=dotnet publish FiMSharp.Test --self-contained=true -p:PublishSingleFile=True -c Release -o "%binDir%/Playground"
 
 if "%osType%" == "win32" (

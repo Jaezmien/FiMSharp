@@ -146,12 +146,12 @@ namespace FiMSharp.Javascript
                 (string _result, string variable_name, string variable_index, string _) = FiMMethods.MatchArray2( line,true );
                 variable_name = Sanitize( variable_name );
                 variable_index = SanitizeVariable( variable_index, report );
-                return $"{variable_name}[ {variable_index}-1 ]";
+                return $"{variable_name}[ {variable_index} ]";
             }
             else if( FiMMethods.IsMatchArray1(line, true) && !line.Contains("\"") ) {
                 (string _result, string variable_name, int variable_index, string _) = FiMMethods.MatchArray1( line,true );
                 variable_name = Sanitize( variable_name );
-                return $"{variable_name}[ {variable_index}-1 ]";
+                return $"{variable_name}[ {variable_index} ]";
             }
 
             if( once ) {
@@ -329,7 +329,7 @@ namespace FiMSharp.Javascript
             addOutput("// Auto-generated helper functions");
             // fim__a = auto convert variable to array
             // fim__b = convert value to boolean
-            addOutput("function fim__a(x){if(x===undefined)return [];return typeof x[Symbol.iterator]===\"function\"?[...x]:[x]}");
+            addOutput("function fim__a(x){if(x===undefined)return [];return typeof x[Symbol.iterator]===\"function\"?[null,...x]:[null,x]}");
             addOutput("function fim__b(x){if(typeof x===\"boolean\")return x?1:0;return parseFloat(x)}");
             addOutput("");
 
@@ -387,7 +387,7 @@ namespace FiMSharp.Javascript
                                         List<string> __v = new List<string>();
                                         foreach( string val in _v.Split(new string[] {" and "}, StringSplitOptions.None) )
                                             __v.Add( Extension.SanitizeVariable(val, report) );
-                                        addOutput($"{t} { var_name } = [ { string.Join(",", __v) } ];", indent);
+                                        addOutput($"{t} { var_name } = fim__a( [ { string.Join(",", __v) } ] );", indent);
                                     } else {
                                         addOutput($"{t} { var_name } = fim__a( { Extension.SanitizeVariable(_v, report) } );", indent);
                                     }
