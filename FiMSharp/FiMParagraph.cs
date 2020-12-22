@@ -13,7 +13,7 @@ namespace FiMSharp.Core
         public readonly (int, int) Lines = (-1, -1);
         public readonly List<(string, VariableTypes)> Parameters;
         public readonly VariableTypes ReturnType;
-        public readonly bool IsMain;
+        private readonly bool IsMain;
         public FiMParagraph( string paragraph_name_, (int, int) lines_, bool main_, List<(string, VariableTypes)> parameters_, VariableTypes return_)
         {
             this.Name = paragraph_name_;
