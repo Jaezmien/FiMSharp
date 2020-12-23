@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FiMSharp.GlobalVars;
+using FiMSharp.Error;
 
 namespace FiMSharp.Core
 {
@@ -30,7 +31,7 @@ namespace FiMSharp.Core
         public (object, VariableTypes) GetValue(int array_index = 0) // 1-based array index
         {
             if( IS_ARRAY && array_index < 1 )
-                throw new Exception("[Internal] GetValue on Array variables need an index");
+                throw new Exception("GetValue on Array variables need an index");
 
             if( this.Type == VariableTypes.STRING && array_index > 0 )
             {
@@ -66,12 +67,12 @@ namespace FiMSharp.Core
         public void SetValue(object value)
         {
             if( this.IS_CONSTANT && this.Value != FiMMethods.GetNullValue( this.Type ) )
-                throw new Exception("[Internal] Can only use SetValue if constant variable has no values");
+                throw FiMError.Create( FiMErrorType.CANNOT_MODIFY_CONSTANT );
             this.Value = value;
         }
         public void SetArrayValue(int array_index, object value) {
             if( !IS_ARRAY )
-                throw new Exception("[Internal] SetArrayValue must be used on an array");
+                throw new Exception("SetArrayValue must be used on an array");
             var raw_dict = this.Value as Dictionary<int,object>;
             raw_dict[ array_index ] = value;
         }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FiMSharp.GlobalVars;
+using FiMSharp.Error;
 
 namespace FiMSharp.Core
 {
@@ -63,7 +64,7 @@ namespace FiMSharp.Core
                 string keyword = Globals.Methods.Conditional_Equal.Where(x => line.Contains($" {x} ")).FirstOrDefault();
                 return (keyword, "==");
             }
-            throw new FiMException("Conditional not found");
+            throw FiMError.CreatePartial( FiMErrorType.CONDITIONAL_NOT_FOUND );
         }
 
         public static bool HasConditional( string line ) {
@@ -132,13 +133,13 @@ namespace FiMSharp.Core
             }
 
             if( FiMMethods.IsVariableTypeArray( left_type ) || FiMMethods.IsVariableTypeArray( right_type ) )
-                throw new FiMException("Cannot do conditionals on arrays");
+                throw FiMError.CreatePartial( FiMErrorType.CONDITINAL_NO_ARRAYS );
 
             if( left_type != right_type )
-                throw new FiMException("Cannot do conditionals on different variable types");
+                throw FiMError.Create( FiMErrorType.CONDITIONAL_DIFFERENT_TYPES );
 
             if( (conditional == ">" || conditional == "<" || conditional == ">=" || conditional == "<=") && (left_type != VariableTypes.INTEGER || right_type != VariableTypes.INTEGER) )
-                throw new FiMException("Greater than/Less than conditionals can only be used on integers.");
+                throw FiMError.Create( FiMErrorType.CONDITIONALS_INTEGER_ONLY );
 
             bool check = false;
 
