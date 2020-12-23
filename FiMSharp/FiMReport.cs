@@ -45,14 +45,14 @@ namespace FiMSharp
                     try {
                     if( !FiMMethods.IsComment(line) ) {
                         if( !Globals.Punctuations.Any(x => line[line.Length-1] == x) )
-                            throw FiMError.Create( FiMErrorType.MISSING_PUNCTUATION, line, i );
+                            throw FiMError.CreatePartial( FiMErrorType.MISSING_PUNCTUATION);
                         line = line.Substring(0, line.Length-1);
                     }
 
                     if( !is_in_report && line.StartsWith(Globals.ReportStart) )
                     {
                         if( !string.IsNullOrWhiteSpace(this.ReportName) )
-                            throw FiMError.Create( FiMErrorType.EXPECTED_END_OF_REPORT, i: i);
+                            throw FiMError.CreatePartial( FiMErrorType.EXPECTED_END_OF_REPORT );
                         this.ReportName = line.Substring(Globals.ReportStart.Length);
                         is_in_report = true;
                         continue;
@@ -73,7 +73,7 @@ namespace FiMSharp
 
                                 if( line.StartsWith("Today ") ) {
                                     if( !string.IsNullOrEmpty(this._MainParagraph) )
-                                        throw FiMError.Create( FiMErrorType.TOO_MANY_MAIN_PARAGRAPH, line, i);
+                                        throw FiMError.CreatePartial( FiMErrorType.TOO_MANY_MAIN_PARAGRAPH);
                                     line = line.Substring( "Today ".Length );
                                     _isMain = true;
                                 }
@@ -114,7 +114,7 @@ namespace FiMSharp
                             // Global variables
                             var tokenize_result = Tokenizer.FiMTokenizer.TokenizeString( _line );
                             if( tokenize_result.Item1 != TokenTypes.CREATE_VARIABLE )
-                                throw FiMError.Create( FiMErrorType.REPORT_VARIABLE_CREATION_ONLY, line, i );
+                                throw FiMError.CreatePartial( FiMErrorType.REPORT_VARIABLE_CREATION_ONLY );
                             
                             var new_variable = FiMMethods.VariableFromTokenizer( this, this.Variables, tokenize_result.Item2 );
                             this.Variables.Add( new_variable.Item1, new_variable.Item2 );
@@ -124,7 +124,7 @@ namespace FiMSharp
                         {
                             if( line.StartsWith("That's all about " + _paragraphName ) ) {
                                 if( scopeCount != 0 )
-                                    throw FiMError.Create( FiMErrorType.SCOPE_ERROR, f: _paragraphName );
+                                    throw FiMError.CreatePartial( FiMErrorType.SCOPE_ERROR, _paragraphName );
 
                                 FiMParagraph paragraph = new FiMParagraph(
                                     _paragraphName,
@@ -173,7 +173,7 @@ namespace FiMSharp
                                         string l = Tokenizer.FiMTokenizer.SimpleSanitize( lines[_i].TrimStart() );
                                         
                                         if( Extension.IsStatementStart(l, FiMStatementTypes.If ) ) {
-                                            if( _s == 0 && ifStatement.HasElse ) throw FiMError.Create( FiMErrorType.IF_STATEMENT_EXPECTED_END, i: i );
+                                            if( _s == 0 && ifStatement.HasElse ) throw FiMError.Create( FiMErrorType.IF_STATEMENT_EXPECTED_END, l, _i );
                                             else {
                                                 currLines.Item2++;
                                                 _s++;
@@ -181,7 +181,7 @@ namespace FiMSharp
                                         }
                                         else if( Extension.IsStatementStart(l, FiMStatementTypes.ElseIf) ) {
                                             if( _s == 0 ) {
-                                                if( ifStatement.HasElse ) throw FiMError.Create( FiMErrorType.IF_STATEMENT_EXPECTED_END, i: i );
+                                                if( ifStatement.HasElse ) throw FiMError.Create( FiMErrorType.IF_STATEMENT_EXPECTED_END, l, _i );
                                                 blacklist.Add( _i );
                                                 ifStatement.Conditions.Add( ( currStatement, currLines ) );
                                                 Extension.IsStatementStart(l, out string k, out FiMStatementTypes _);
@@ -280,7 +280,7 @@ namespace FiMSharp
 
                                     {
                                         string l = Tokenizer.FiMTokenizer.SimpleSanitize( lines[i].TrimStart(), out var _, false );
-                                        if(!l.EndsWith("...")) throw FiMError.Create( FiMErrorType.MISSING_ELIPSIS, line, i );
+                                        if(!l.EndsWith("...")) throw FiMError.CreatePartial( FiMErrorType.MISSING_ELIPSIS );
                                         line = l.Substring(0, l.Length - "...".Length);
                                     }
 
@@ -322,7 +322,7 @@ namespace FiMSharp
                                         string[] s = line.Split(new string[] { " from " }, StringSplitOptions.None );
 
                                         var type = FiMMethods.GetVariableTypeFromDeclaration( s[0], out string k );
-                                        if( type != VariableTypes.INTEGER ) throw FiMError.Create( FiMErrorType.FORTO_ELEMENT_NUMBER_ONLY, line, i );
+                                        if( type != VariableTypes.INTEGER ) throw FiMError.CreatePartial( FiMErrorType.FORTO_ELEMENT_NUMBER_ONLY );
                                         forStatement.Element = ( s[0].Substring(k.Length+1), type );
 
                                         string[] r = s[1].Split(new string[] { " to " }, StringSplitOptions.None );
@@ -350,7 +350,7 @@ namespace FiMSharp
                                         );
                                     }
                                     else {
-                                        throw FiMError.Create( FiMErrorType.INVALID_FOR_LOOP_TYPE, line, i );
+                                        throw FiMError.CreatePartial( FiMErrorType.INVALID_FOR_LOOP_TYPE );
                                     }
 
                                 }
@@ -371,7 +371,7 @@ namespace FiMSharp
                                     void InsertPrevStatement() {
                                         if( currStatement == "" && isDefault ) {
                                             if( switchStatement.HasDefault() )
-                                                throw FiMError.Create( FiMErrorType.SWITCH_MULTIPLE_DEFAULT );
+                                                throw FiMError.Create( FiMErrorType.SWITCH_MULTIPLE_DEFAULT, Tokenizer.FiMTokenizer.SimpleSanitize( lines[_i].TrimStart() ), _i );
                                             switchStatement.Default = currLines;
                                         }
                                         else if ( currStatement != "" && !isDefault ) {

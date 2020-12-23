@@ -501,7 +501,7 @@ namespace FiMSharp.Core
             if( str.StartsWith("length of ") ) {
                 string var_name = str.Substring("length of ".Length);
                 if( !variables.ContainsKey( var_name ) )
-                    throw FiMError.CreatePartial( FiMErrorType.VARAIBLE_DOESNT_EXIST, var_name );
+                    throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, var_name );
                 //if( !variables[ var_name ].IsArray() )
                 if( !IsVariableTypeArray(variables[var_name].Type, true) )
                     throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_ARRAY_LENGTH );

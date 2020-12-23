@@ -8,7 +8,7 @@ namespace FiMSharp.Error {
         // General stuffs
         MISSING_PUNCTUATION,
         UNEXPECTED_TOKEN, // X
-        VARAIBLE_DOESNT_EXIST, // X
+        VARIABLE_DOESNT_EXIST, // X
         VARIABLE_ALREADY_EXISTS, // X
         UNEXPECTED_TYPE, // expected X, got Y
         TOO_MANY_CHARACTERS,
@@ -24,7 +24,7 @@ namespace FiMSharp.Error {
         EXPECTED_END_OF_REPORT,
         REPORT_NAME_NOT_FOUND,
         STUDENT_NAME_NOT_FOUND,
-        SCOPE_ERROR,
+        SCOPE_ERROR, // X
         SCOPE_REACHED_EOF,
         IF_STATEMENT_EXPECTED_END,
         INVALID_FOR_LOOP_TYPE,
@@ -48,7 +48,7 @@ namespace FiMSharp.Error {
         METHOD_CANNOT_GET_NULL, // X
         METHOD_NON_ARRAY_LENGTH,
         METHOD_NON_NUMBER_SQRT,
-        METHOD_CANNOT_CONVERT,
+        METHOD_CANNOT_CONVERT, // X
         METHOD_ARRAY_INDEX_MUST_BE_INTEGER,
 
         // Paragraph
@@ -60,7 +60,7 @@ namespace FiMSharp.Error {
         PARAGRAPH_NO_RETURN,
 
         // Tokenizer
-        INVALID_VARIABLE_NAME,
+        INVALID_VARIABLE_NAME, // X
 
         // Variable
         CANNOT_MODIFY_CONSTANT,
@@ -73,7 +73,8 @@ namespace FiMSharp.Error {
             switch( t ) {
                 case FiMErrorType.MISSING_PUNCTUATION: e = "Line doesn't end with a punctuation"; break;
                 case FiMErrorType.UNEXPECTED_TOKEN: e = "Unexpected token '{0}'"; break;
-                case FiMErrorType.VARAIBLE_DOESNT_EXIST: e = "Variable '{0}' doesn't exist"; break;
+                case FiMErrorType.VARIABLE_DOESNT_EXIST: e = "Variable '{0}' doesn't exist"; break;
+                case FiMErrorType.VARIABLE_ALREADY_EXISTS: e = "Variable '{0}' already exists"; break;
                 case FiMErrorType.UNEXPECTED_TYPE: e = "Expected type '{0}', got '{1}'"; break;
                 case FiMErrorType.TOO_MANY_CHARACTERS: e = "Too many characters in character literal"; break;
                 case FiMErrorType.RANGE_MUST_BE_NUMBER: e= "Range must be a number"; break;

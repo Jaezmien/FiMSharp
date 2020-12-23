@@ -91,7 +91,7 @@ namespace FiMSharp.Core
                             if( _pname.Contains(" using ") ) _pname = _pname.Split(new string[] {" using "}, StringSplitOptions.None)[0].Trim();
 
                             if( !report.Paragraphs.ContainsKey(_pname) )
-                                throw FiMError.CreatePartial( FiMErrorType.MISSING_PARAGRAPH );
+                                throw FiMError.CreatePartial( FiMErrorType.MISSING_PARAGRAPH, _pname );
 
                             FiMMethods.ParseVariable( (string)line.Item3, report, CombineAllVariables(), out VariableTypes _ );
                         }
@@ -108,7 +108,7 @@ namespace FiMSharp.Core
                             string variable_name = (string)line.Item3;
 
                             if( !HasVariable(variable_name) )
-                                throw FiMError.CreatePartial( FiMErrorType.VARAIBLE_DOESNT_EXIST, variable_name );
+                                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
                             FiMVariable var = GetVariable( variable_name );
 
                             Console.Write("[FiM Input]: ");
@@ -139,7 +139,7 @@ namespace FiMSharp.Core
                             string _variable_value = (string)args[1];
 
                             if( !HasVariable(variable_name) )
-                                throw FiMError.CreatePartial( FiMErrorType.VARAIBLE_DOESNT_EXIST );
+                                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
 
                             FiMVariable var = GetVariable( variable_name );
                             VariableTypes _expected_type = args.Count == 3 ? (VariableTypes)args[2] : var.Type;
@@ -214,7 +214,7 @@ namespace FiMSharp.Core
                                 if( FiMMethods.IsMatchArray1(variable_name, true) ) {
                                     (string _result, string _variable_name, int _variable_index, string _) = FiMMethods.MatchArray1( variable_name ,true );
                                     if( !HasVariable(_variable_name) )
-                                        throw FiMError.CreatePartial( FiMErrorType.VARAIBLE_DOESNT_EXIST, _variable_name );
+                                        throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, CombineAllVariables() );
                                     var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Item1)+1 );
 
@@ -223,14 +223,14 @@ namespace FiMSharp.Core
                                 else if( FiMMethods.IsMatchArray2(variable_name, true) ) {
                                     (string _result, string _variable_name, string _variable_index, string _) = FiMMethods.MatchArray2( variable_name ,true );
                                     if( !HasVariable(_variable_name) )
-                                        throw FiMError.Create( FiMErrorType.VARAIBLE_DOESNT_EXIST, _variable_name );
+                                        throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, report, CombineAllVariables() );
                                     var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Item1)+1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
                                 else {
-                                    throw FiMError.CreatePartial( FiMErrorType.VARAIBLE_DOESNT_EXIST, variable_name );
+                                    throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
                                 }
                             }
                         }
@@ -248,7 +248,7 @@ namespace FiMSharp.Core
                                 if( FiMMethods.IsMatchArray1(variable_name, true) ) {
                                     (string _result, string _variable_name, int _variable_index, string _) = FiMMethods.MatchArray1( variable_name ,true );
                                     if( !HasVariable(_variable_name) )
-                                        throw FiMError.CreatePartial( FiMErrorType.VARAIBLE_DOESNT_EXIST, _variable_name );
+                                        throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, CombineAllVariables() );
                                     var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Item1)-1 );
 
@@ -257,14 +257,14 @@ namespace FiMSharp.Core
                                 else if( FiMMethods.IsMatchArray2(variable_name, true) ) {
                                     (string _result, string _variable_name, string _variable_index, string _) = FiMMethods.MatchArray2( variable_name ,true );
                                     if( !HasVariable(_variable_name) )
-                                        throw FiMError.CreatePartial( FiMErrorType.VARAIBLE_DOESNT_EXIST, _variable_name );
+                                        throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, report, CombineAllVariables() );
                                     var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Item1)-1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
                                 else {
-                                    throw FiMError.CreatePartial( FiMErrorType.VARAIBLE_DOESNT_EXIST, variable_name );
+                                    throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
                                 }
                             }
                         }
@@ -389,15 +389,15 @@ namespace FiMSharp.Core
                             index = statement.Lines.Item2;
 
                             if( HasVariable(statement.Element.Item1) )
-                                throw FiMError.Create( FiMErrorType.VARIABLE_ALREADY_EXISTS, f: statement.Element.Item1 );
+                                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_ALREADY_EXISTS, statement.Element.Item1 );
                             
                             float min = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.Item1, report, CombineAllVariables(), out var min_type) );
                             float max = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.Item2, report, CombineAllVariables(), out var max_type) );
 
                             if( min_type != VariableTypes.INTEGER || max_type != VariableTypes.INTEGER )
-                                throw FiMError.Create( FiMErrorType.RANGE_MUST_BE_NUMBER );
+                                throw FiMError.CreatePartial( FiMErrorType.RANGE_MUST_BE_NUMBER );
 
-                            if( max < min ) throw FiMError.Create( FiMErrorType.EMPTY_INTERVAL );
+                            if( max < min ) throw FiMError.CreatePartial( FiMErrorType.EMPTY_INTERVAL );
 
                             while( min <= max ) {
 

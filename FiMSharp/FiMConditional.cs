@@ -136,10 +136,10 @@ namespace FiMSharp.Core
                 throw FiMError.CreatePartial( FiMErrorType.CONDITINAL_NO_ARRAYS );
 
             if( left_type != right_type )
-                throw FiMError.Create( FiMErrorType.CONDITIONAL_DIFFERENT_TYPES );
+                throw FiMError.CreatePartial( FiMErrorType.CONDITIONAL_DIFFERENT_TYPES );
 
             if( (conditional == ">" || conditional == "<" || conditional == ">=" || conditional == "<=") && (left_type != VariableTypes.INTEGER || right_type != VariableTypes.INTEGER) )
-                throw FiMError.Create( FiMErrorType.CONDITIONALS_INTEGER_ONLY );
+                throw FiMError.CreatePartial( FiMErrorType.CONDITIONALS_INTEGER_ONLY );
 
             bool check = false;
 
