@@ -597,11 +597,14 @@ namespace FiMSharp.Core
                 }
             }
 
-            if( FiMArithmetic.IsArithmetic(str, out var arith_result) ) {
-                var arithmetic = new FiMArithmetic( str, arith_result );
-                float value = arithmetic.Evaluate( report, variables );
-                type = VariableTypes.INTEGER;
-                return value;
+            {
+                if (FiMArithmetic.IsArithmetic(str, out var arith_result))
+                {
+                    var arithmetic = new FiMArithmetic(str, arith_result);
+                    float value = arithmetic.Evaluate(report, variables);
+                    type = VariableTypes.INTEGER;
+                    return value;
+                }
             }
 
             if( run_once ) {

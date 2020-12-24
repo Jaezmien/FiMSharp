@@ -49,15 +49,13 @@ namespace FiMSharp
                         line = line.Substring(0, line.Length-1);
                     }
 
-                    if( !is_in_report && line.StartsWith(Globals.ReportStart) )
+                    if( !is_in_report && line.StartsWith(Globals.ReportStart) && string.IsNullOrWhiteSpace(this.ReportName) )
                     {
-                        if( !string.IsNullOrWhiteSpace(this.ReportName) )
-                            throw FiMError.CreatePartial( FiMErrorType.EXPECTED_END_OF_REPORT );
                         this.ReportName = line.Substring(Globals.ReportStart.Length);
                         is_in_report = true;
                         continue;
                     }
-                    else if( is_in_report && line.StartsWith(Globals.ReportEnd) )
+                    else if( is_in_report && line.StartsWith(Globals.ReportEnd) && string.IsNullOrWhiteSpace(this.StudentName))
                     {
                         this.StudentName = line.Substring(Globals.ReportEnd.Length);
                         is_in_report = false;
@@ -460,6 +458,11 @@ namespace FiMSharp
 
                         }
 
+                    }
+                    else
+                    {
+                        if (!FiMMethods.IsComment(line) && !string.IsNullOrWhiteSpace(this.ReportName))
+                            throw FiMError.CreatePartial(FiMErrorType.EXPECTED_END_OF_REPORT);
                     }
                     }
                     catch( FiMPartialException partial ) {

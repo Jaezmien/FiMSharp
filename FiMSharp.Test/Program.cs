@@ -20,20 +20,20 @@ namespace FiMSharpTest
 
         public static void ExecuteReport( string[] lines )
         {
-            FiMReport report = new FiMReport( lines );
-            Console.WriteLine("[ FiMSharp Test v0.1 ]");
-            Console.WriteLine($"Report Name: {report.ReportName}");
-            Console.WriteLine($"Student Name: {report.StudentName}");
-            Console.WriteLine("[@]=======================================[@]");
             try
             {
+                FiMReport report = new FiMReport(lines);
+                Console.WriteLine("[ FiMSharp Test v0.1 ]");
+                Console.WriteLine($"Report Name: {report.ReportName}");
+                Console.WriteLine($"Student Name: {report.StudentName}");
+                Console.WriteLine("[@]=======================================[@]");
                 report.MainParagraph.Execute(report);
+                Console.WriteLine("[@]=======================================[@]");
             }
-            catch( FiMException ex )
+            catch ( FiMException exception )
             {
-                Console.WriteLine("[FiMException] " + ex.Message);
+                Console.WriteLine(exception.Message);
             }
-            Console.WriteLine("[@]=======================================[@]");
         }
         public static string[] CompileReport( string[] lines ) {
             FiMReport report = new FiMReport(lines);

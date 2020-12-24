@@ -83,6 +83,7 @@ namespace FiMSharp.Error {
 
                 case FiMErrorType.TOO_MANY_MAIN_PARAGRAPH: e = "Expected only one main paragraph"; break;
                 case FiMErrorType.REPORT_VARIABLE_CREATION_ONLY: e = "Expected only variable creation outside of paragraphs"; break;
+                case FiMErrorType.EXPECTED_END_OF_REPORT: e = "Expected end of report"; break;
                 case FiMErrorType.NO_END_OF_REPORT: e = "End of report not found"; break;
                 case FiMErrorType.NO_END_OF_PARAGRAPH: e = "End of paragraph '{0}' not found"; break;
                 case FiMErrorType.REPORT_NAME_NOT_FOUND: e = "Report name not found"; break;
