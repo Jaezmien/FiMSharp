@@ -60,8 +60,6 @@ About the program:
 
 [Original EQD Post](http://www.equestriadaily.com/2012/10/editorial-fim-pony-programming-language.html)
 
-[VSCode Syntax Highlighter](https://github.com/Jaezmien/FiMPP_Syntax)
-
 # 📝 Notes
 
 - FiMSharp is just a personal hobby project, seeing as FiM++ has never been updated for quite some time now.
