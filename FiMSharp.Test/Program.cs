@@ -27,7 +27,7 @@ namespace FiMSharpTest
             Console.WriteLine("[@]=======================================[@]");
             try
             {
-                report.MainParagraph.Execute(report);
+                report.MainParagraph.Execute();
             }
             catch( FiMException ex )
             {
@@ -53,7 +53,7 @@ namespace FiMSharpTest
 
                 if( string.IsNullOrEmpty(report_name) || !File.Exists("Reports/"+ report_name + ".fim") )
                 {
-                    Console.WriteLine("[Console] Invalid report");
+                    Console.WriteLine("[Console] Invalid report" + report_name);
                     return 1;
                 }
 

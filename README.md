@@ -16,7 +16,7 @@ And create a `FiMReport` with the lines of your report!
 FiMReport report = new FiMReport( lines );
 
 // Run the main paragraph!
-if( report.MainParagraph != null ) report.MainParagraph.Execute( report );
+if( report.MainParagraph != null ) report.MainParagraph.Execute();
 ```
 
 You can also build and use project `FiMSharp.Test`, you'll need a `Report` directory on its executable file.

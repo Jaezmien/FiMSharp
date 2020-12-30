@@ -134,6 +134,7 @@ namespace FiMSharp
                                     throw new FiMException( $"Paragraph { _paragraphName } has scoping error!" );
 
                                 FiMParagraph paragraph = new FiMParagraph(
+                                    this,
                                     _paragraphName,
                                     (_paragraphIndex + 1, i - 1),
                                     _paragraphName == this._MainParagraph,
@@ -492,7 +493,6 @@ namespace FiMSharp
         public readonly Dictionary<string, FiMParagraph> Paragraphs = new Dictionary<string, FiMParagraph>();
 
         public readonly string[] OriginalLines = new string[] {};
-
         private readonly string _MainParagraph;
         public FiMParagraph MainParagraph {
             get {
