@@ -4,32 +4,17 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 using FiMSharp.GlobalVars;
+using FiMSharp.Error;
 
 namespace FiMSharp.Core
 {
-    static partial class Extension {
+    static partial class CoreExtension {
         public static bool HasDecimal(this float Value) {
             return Value != Math.Floor(Value);
         }
     }
     public class FiMMethods
     {
-        /// <summary>
-        /// Create an "Exception string".
-        /// Note that this should only be used if it's expected to have an error.
-        /// Actual compiler errors should be a raw Exception string
-        /// </summary>
-        public static string CreateExceptionString( string message, string line, int line_number = 0 )
-        {
-            string result = "";
-
-            if (line_number > 0)
-                result = $"(Line { line_number }): ";
-            result += $"{ message }\n{ line }\n";
-
-            return result;
-        }
-
         private readonly static Regex comment_regex = new Regex(@"^(P\.)(P\.)*(S\.)\s.");
         public static bool IsComment( string line ) => comment_regex.IsMatch( line );
         private readonly static Regex comment_regex2 = new Regex(@"^(P\.)(P\.)*(S\.)\s");
@@ -246,7 +231,7 @@ namespace FiMSharp.Core
                 return VariableTypes.CHAR;
             }
 
-            throw new FiMException("Invalid string");
+            throw FiMError.CreatePartial( FiMErrorType.METHOD_INVALID_STRING, str );
         }
         public static bool HasVariableTypeDeclaration( string str)
         {
@@ -284,7 +269,7 @@ namespace FiMSharp.Core
             if( type == VariableTypes.STRING_ARRAY ) return VariableTypes.STRING;
             if( type == VariableTypes.STRING ) return VariableTypes.CHAR;
 
-            throw new FiMException("Invalid Variable Type");
+            throw FiMError.CreatePartial( FiMErrorType.METHOD_INVALID_SUB_TYPE, type.ToReadableString() );
         }
 
         public static bool ConvertStringToBoolean( string str, out bool result ) {
@@ -325,7 +310,7 @@ namespace FiMSharp.Core
                 case float _:
                     return (float)value == 0f;
                 default:
-                    throw new Exception("Tried checking NullValue for " + value + ", failed checking type");
+                    throw FiMError.CreatePartial( FiMErrorType.METHOD_CANNOT_GET_NULL, value );
             }
         }
         public static (string, FiMVariable) VariableFromTokenizer( FiMReport report, Dictionary<string, FiMVariable> variables, object args ) {
@@ -343,7 +328,7 @@ namespace FiMSharp.Core
                 _variable_value = (string)var_args[4];
             }
             if( variables.ContainsKey( _variable_name ) ) 
-                throw new FiMException( $"Variable { _variable_name } already exists!" );
+                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_ALREADY_EXISTS, _variable_name );
             
             if( _variable_value.Trim().Length == 0 )
                 _variable_value = "nothing";
@@ -358,11 +343,8 @@ namespace FiMSharp.Core
                     // Multiple values
                     foreach( string _value in _variable_value.Split(new string[] {" and "}, StringSplitOptions.None) ) {
                         object value = FiMMethods.ParseVariable( _value.Trim(), report, variables, out VariableTypes _got_type, fallback: expected_type );
-                        if( _got_type != expected_type ) {
-                            throw new FiMException(
-                                $"Expected type initializer { expected_type }, got { _got_type }"
-                            );
-                        }
+                        if( _got_type != expected_type )
+                            throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, expected_type, _got_type );
                         v_values.Add( v_values.Keys.Count+1, value );
                     }
                     variable_value = (object)v_values;
@@ -374,11 +356,8 @@ namespace FiMSharp.Core
                         variable_value = value;
                     }
                     else {
-                        if( _got_type != expected_type ) {
-                            throw new FiMException(
-                                $"Expected type initializer { expected_type }, got { _got_type }"
-                            );
-                        }
+                        if( _got_type != expected_type )
+                            throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, expected_type, _got_type );      
                         v_values.Add( v_values.Keys.Count+1, value );
                         variable_value = (object)v_values;
                     }
@@ -392,9 +371,7 @@ namespace FiMSharp.Core
                         value = value.ToString();
                     }
                     else {
-                        throw new Exception(
-                            $"Expected type initializer { _variable_type }, got { variable_type }"
-                        );
+                        throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, _variable_type, variable_type );
                     }
                 }
 
@@ -427,11 +404,11 @@ namespace FiMSharp.Core
             //FiMVariable _variable = variables[ variable_index ];
             object _var = ParseVariable( variable_index, report, variables, out var _var_type );
             if( _var_type != VariableTypes.INTEGER )
-                throw new FiMException($"Variable as array index must be a number");
+                throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, VariableTypes.INTEGER, _var_type );
             
             float index = Convert.ToSingle( _var );
             if( index.HasDecimal() )
-                throw new FiMException($"Variable as array index must be an integer");
+                throw FiMError.CreatePartial( FiMErrorType.METHOD_ARRAY_INDEX_MUST_BE_INTEGER );
             return ((int)index, variable);
         }
 
@@ -497,7 +474,7 @@ namespace FiMSharp.Core
                             }
                             object value = ParseVariable(param, report, variables, out VariableTypes got_type, fallback: p.Parameters[index].Item2);
                             if( got_type != p.Parameters[index].Item2 )
-                                throw new FiMException($"Expected { p.Parameters[index].Item2 }, got { got_type }");
+                                throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, p.Parameters[index].Item2, got_type );
                             _params.Add( value );
                             index++;
                         }
@@ -524,10 +501,10 @@ namespace FiMSharp.Core
             if( str.StartsWith("length of ") ) {
                 string var_name = str.Substring("length of ".Length);
                 if( !variables.ContainsKey( var_name ) )
-                    throw new Exception($"Cannot find variable { var_name }");
+                    throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, var_name );
                 //if( !variables[ var_name ].IsArray() )
                 if( !IsVariableTypeArray(variables[var_name].Type, true) )
-                    throw new Exception($"Cannot get length of a non-array variable");
+                    throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_ARRAY_LENGTH );
                 
                 var variable = variables[ var_name ];
                 //type = VariableTypeArraySubType( variable.Type );
@@ -543,7 +520,7 @@ namespace FiMSharp.Core
                 string var = str.Substring("char of num ".Length);
                 object value = ParseVariable(var, report, variables, out var value_type);
                 if( value_type != VariableTypes.INTEGER ) 
-                    throw new FiMException("Cannot get ASCII value of a non-number value");
+                    throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_NUMBER_ASCII );
                 type = VariableTypes.CHAR;
                 return (char)(Convert.ToSingle(value));
             }
@@ -551,7 +528,7 @@ namespace FiMSharp.Core
                 string var = str.Substring("num of char ".Length);
                 object value = ParseVariable(var, report, variables, out var value_type);
                 if( value_type != VariableTypes.CHAR ) 
-                    throw new FiMException("Cannot get ASCII number of a non-char value");
+                    throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_CHAR_ASCII );
                 type = VariableTypes.INTEGER;
 
                 string v = value.ToString();
@@ -590,7 +567,7 @@ namespace FiMSharp.Core
                     
                     object value = ParseVariable( var, report, variables, out var var_t );
                     if( var_t != VariableTypes.INTEGER )
-                        throw new Exception($"Cannot square root a non-number value");
+                        throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_NUMBER_SQRT );
                     type = VariableTypes.INTEGER;
                     return Math.Sqrt( (double)Convert.ToSingle(value) );
                 }
@@ -620,15 +597,18 @@ namespace FiMSharp.Core
                 }
             }
 
-            if( FiMArithmetic.IsArithmetic(str, out var arith_result) ) {
-                var arithmetic = new FiMArithmetic( str, arith_result );
-                float value = arithmetic.Evaluate( report, variables );
-                type = VariableTypes.INTEGER;
-                return value;
+            {
+                if (FiMArithmetic.IsArithmetic(str, out var arith_result))
+                {
+                    var arithmetic = new FiMArithmetic(str, arith_result);
+                    float value = arithmetic.Evaluate(report, variables);
+                    type = VariableTypes.INTEGER;
+                    return value;
+                }
             }
 
             if( run_once ) {
-                throw new Exception($"Cannot convert value { str }");
+                throw FiMError.CreatePartial( FiMErrorType.METHOD_CANNOT_CONVERT, str );
             } else {
                 // Sanitize string
                 type = VariableTypes.STRING;

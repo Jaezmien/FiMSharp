@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 
 using FiMSharp.Core;
 using FiMSharp.GlobalVars;
+using FiMSharp.Error;
 
 namespace FiMSharp.Tokenizer
 {
@@ -29,7 +30,7 @@ namespace FiMSharp.Tokenizer
             // Check for punctuation.
             if( removePunctuation ) {
                 if( !Globals.Punctuations.Any(x => line[line.Length-1] == x) ) // Gross but we can't do .EndsWith( string )
-                    throw new Exception( "Line doesn't end with a punctuation." );
+                    throw FiMError.CreatePartial( FiMErrorType.MISSING_PUNCTUATION );
                 line = line.Substring(0, line.Length - 1);
             }
 
@@ -48,8 +49,8 @@ namespace FiMSharp.Tokenizer
                     return_obj.Item2 = line;
                     return return_obj;
                 }
-            } catch(Exception ex) {
-                throw new FiMException(ex.Message);
+            } catch(FiMPartialException partial) {
+                throw partial;
             }
 
             // Console.WriteLine("~ Parsing: " + line);
@@ -105,7 +106,7 @@ namespace FiMSharp.Tokenizer
                 // Check variable name validity
                 {
                     bool valid = true;
-                    if( var_name.StartsWith("\"") || var_name.EndsWith("\"") )
+                    if( Regex.IsMatch( var_name,"^\"[^\"]+\"$") )
                         valid = false;
                     if( Regex.IsMatch( var_name, @"\d") )
                         valid = false;
@@ -113,7 +114,7 @@ namespace FiMSharp.Tokenizer
                         valid = false;
 
                     if( !valid )
-                        throw new FiMException( $"Invalid variable name { var_name }" );
+                        throw FiMError.CreatePartial( FiMErrorType.INVALID_VARIABLE_NAME, var_name );
                 }
 
                 bool is_const = false;

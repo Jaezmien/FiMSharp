@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using FiMSharp.GlobalVars;
+using FiMSharp.Error;
 
 namespace FiMSharp.Core
 {
@@ -59,7 +60,7 @@ namespace FiMSharp.Core
             object right_variable = FiMMethods.ParseVariable( Right, report, variables, out VariableTypes right_type );
 
             if( left_type != VariableTypes.INTEGER || right_type != VariableTypes.INTEGER )
-                throw new FiMException("Arithmetic can only be done with numbers");
+                throw FiMError.CreatePartial(FiMErrorType.ARITHMETIC_NUMBERS_ONLY);
 
             return Evaluate( Convert.ToSingle( left_variable ), Arithmetic, Convert.ToSingle( right_variable ) );
         }
