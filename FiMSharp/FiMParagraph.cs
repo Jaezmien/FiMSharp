@@ -15,8 +15,10 @@ namespace FiMSharp.Core
         public readonly List<(string, VariableTypes)> Parameters;
         public readonly VariableTypes ReturnType;
         private readonly bool IsMain;
-        public FiMParagraph( string paragraph_name_, (int, int) lines_, bool main_, List<(string, VariableTypes)> parameters_, VariableTypes return_)
+        private readonly FiMReport report;
+        public FiMParagraph( FiMReport report, string paragraph_name_, (int, int) lines_, bool main_, List<(string, VariableTypes)> parameters_, VariableTypes return_)
         {
+            this.report = report; // Oh boy, I sure hope this is passed by reference!
             this.Name = paragraph_name_;
             this.Lines = lines_;
             this.IsMain = main_;
@@ -24,7 +26,7 @@ namespace FiMSharp.Core
             this.ReturnType = return_;
         }
 
-        private (object, VariableTypes) Execute(FiMReport report, int lineBegin, int lineEnd, out Dictionary<string,FiMVariable> changedVariables, Dictionary<string, FiMVariable> variables = null)
+        private (object, VariableTypes) Execute(int lineBegin, int lineEnd, out Dictionary<string,FiMVariable> changedVariables, Dictionary<string, FiMVariable> variables = null)
         {
             changedVariables = new Dictionary<string, FiMVariable>();
             Dictionary<string, FiMVariable> localVariables = new Dictionary<string, FiMVariable>();
@@ -292,7 +294,6 @@ namespace FiMSharp.Core
                                     var if_lines = statement.Conditions[i].Item2;
 
                                     var if_result = Execute(
-                                        report,
                                         if_lines.Item1, if_lines.Item2,
                                         out var changedVars, CombineVariables()
                                     );
@@ -318,7 +319,6 @@ namespace FiMSharp.Core
                                 if( result ) {
 
                                     var while_result = Execute(
-                                        report,
                                         statement.Lines.Item1, statement.Lines.Item2,
                                         out var changedVars, CombineVariables()
                                     );
@@ -349,7 +349,6 @@ namespace FiMSharp.Core
                                     (int, int) statement_lines = statement.Case[ s ];
 
                                     var switch_result = Execute(
-                                        report,
                                         statement_lines.Item1, statement_lines.Item2,
                                         out var changedVars, CombineVariables()
                                     );
@@ -368,7 +367,6 @@ namespace FiMSharp.Core
                             if( !success && statement.HasDefault() ) {
 
                                 var switch_result = Execute(
-                                    report,
                                     statement.Default.Item1, statement.Default.Item2,
                                     out var changedVars, CombineVariables()
                                 );
@@ -413,7 +411,6 @@ namespace FiMSharp.Core
                                 );
 
                                 var for_result = Execute(
-                                    report,
                                     statement.Lines.Item1, statement.Lines.Item2,
                                     out var changedVars, _t
                                 );
@@ -445,7 +442,6 @@ namespace FiMSharp.Core
                                 );
 
                                 var for_result = Execute(
-                                    report,
                                     statement.Lines.Item1, statement.Lines.Item2,
                                     out var changedVars, _t
                                 );
@@ -497,7 +493,7 @@ namespace FiMSharp.Core
 
             return (null, VariableTypes.UNDEFINED);
         }
-        public (object, VariableTypes) Execute(FiMReport report, List<object> Params = null)
+        internal (object, VariableTypes) Execute(List<object> Params = null)
         {
             var LocalVariables = new Dictionary<string, FiMVariable>();
 
@@ -516,7 +512,6 @@ namespace FiMSharp.Core
             }
 
             (object returnValue, VariableTypes returnType) = Execute(
-                report,
                 Lines.Item1, Lines.Item2,
                 out var _,
                 LocalVariables
@@ -525,8 +520,34 @@ namespace FiMSharp.Core
             if( returnValue == null && this.ReturnType != VariableTypes.UNDEFINED ) {
                 throw FiMError.Create( FiMErrorType.PARAGRAPH_NO_RETURN );
             }
+            if( returnValue != null && this.IsMain ) {
+                throw new FiMException("Main Paragraph cannot return a variable!");
+            }
 
             return (returnValue, returnType);
+        }
+
+        public dynamic Execute(params object[] Params) {
+            (object value, VariableTypes type) = this.Execute(Params.ToList());
+            if( value == null ) return null;
+            switch( type ) {
+                case VariableTypes.STRING: {
+                    string _s = Convert.ToString(value);
+                    return _s.Substring(1, _s.Length-2);
+                };
+
+                case VariableTypes.BOOLEAN_ARRAY:
+                    return (value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToBoolean(v.Value));
+                case VariableTypes.FLOAT_ARRAY:
+                    return (value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToSingle(v.Value));
+                case VariableTypes.STRING_ARRAY:
+                    return (value as Dictionary<int, object>).ToDictionary(k => k.Key, v => {
+                        string _s = Convert.ToString(v.Value);
+                        return _s.Substring(1, _s.Length-2);
+                    });
+                
+                default: return value;
+            }
         }
     }
 

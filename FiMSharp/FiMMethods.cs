@@ -492,7 +492,7 @@ namespace FiMSharp.Core
                     }
                 }
 
-                (object _value, VariableTypes _type) = p.Execute(report, _params);
+                (object _value, VariableTypes _type) = p.Execute(_params);
 
                 type = _type;
                 return _value;

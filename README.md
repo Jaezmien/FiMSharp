@@ -16,7 +16,7 @@ And create a `FiMReport` with the lines of your report!
 FiMReport report = new FiMReport( lines );
 
 // Run the main paragraph!
-if( report.MainParagraph != null ) report.MainParagraph.Execute( report );
+if( report.MainParagraph != null ) report.MainParagraph.Execute();
 ```
 
 You can also build and use project `FiMSharp.Test`, you'll need a `Report` directory on its executable file.
@@ -59,8 +59,6 @@ About the program:
 [Language Specification](https://docs.google.com/document/d/1gU-ZROmZu0Xitw_pfC1ktCDvJH5rM85TxxQf5pg_xmg/edit#)
 
 [Original EQD Post](http://www.equestriadaily.com/2012/10/editorial-fim-pony-programming-language.html)
-
-[VSCode Syntax Highlighter](https://github.com/Jaezmien/FiMPP_Syntax)
 
 # 📝 Notes
 
