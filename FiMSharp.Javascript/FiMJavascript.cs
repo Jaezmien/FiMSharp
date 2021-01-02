@@ -43,7 +43,8 @@ namespace FiMSharp.Javascript
 
             // im lazy, let's see if this will work
             if( Regex.IsMatch(line,"^'.'$") ) {
-                return $"\"{ line.Substring(1,line.Length - 2) }\"";
+                //return $"\"{ line.Substring(1,line.Length - 2) }\"";
+                return line.Substring(1,line.Length - 2);
             }
             // oh god
             if( Regex.IsMatch(line,"^\"[^\"]+\"$") ) {

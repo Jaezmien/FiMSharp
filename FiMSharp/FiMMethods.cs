@@ -127,27 +127,6 @@ namespace FiMSharp.Core
                     object value = ParseVariable(buffer, report, variables, out VariableTypes type, isEnd );
                     string _value = value.ToString();
 
-                    // i am going to puke
-                    if( 
-                        (
-                            type == VariableTypes.STRING &&
-                            (
-                                (_value).StartsWith("\"") &&
-                                (_value).EndsWith("\"")
-                            )
-                        )
-                        ||
-                        (
-                            type == VariableTypes.CHAR &&
-                            (
-                                (_value).StartsWith("'") &&
-                                (_value).EndsWith("'")
-                            )
-                        )
-                    )
-                    {
-                        return (_value).Substring(1, (_value).Length-2);
-                    }
                     return (_value);
                 }
                 return "";
@@ -549,8 +528,8 @@ namespace FiMSharp.Core
                 type = VariableTypes.INTEGER;
                 if( value_type == VariableTypes.STRING || value_type == VariableTypes.CHAR ) {
                     string v = value.ToString();
-                    if( v.StartsWith("\"") && v.EndsWith("\"") )
-                        v = v.Substring(1, v.Length-2);
+                    //if( v.StartsWith("\"") && v.EndsWith("\"") )
+                    //    v = v.Substring(1, v.Length-2);
                     return int.Parse(v);
                 }
                 else if( value_type == VariableTypes.BOOLEAN ) {

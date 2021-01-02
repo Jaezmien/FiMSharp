@@ -129,8 +129,8 @@ namespace FiMSharp.Core
                         break;
                         case TokenTypes.PRINT: {
                             string output = FiMMethods.SanitizeString( (string)line.Item3, report, CombineAllVariables() );
-                            if( output.StartsWith("\"") && output.EndsWith("\"") )
-                                output = output.Substring( 1, output.Length-2 );
+                            // if( output.StartsWith("\"") && output.EndsWith("\"") )
+                            //     output = output.Substring(1, output.Length-2 );
                                     //Console.WriteLine($"[FiM] { output }");
                             Console.WriteLine(output);
                         }
@@ -480,8 +480,8 @@ namespace FiMSharp.Core
 
                             if( variable.Type == VariableTypes.STRING ) {
                                 string _v = variable.GetValue().Item1.ToString();
-                                if( _v.StartsWith("\"") && _v.EndsWith("\"") )
-                                    _v = _v.Substring(1, _v.Length-2);
+                                //if( _v.StartsWith("\"") && _v.EndsWith("\"") )
+                                //    _v = _v.Substring(1, _v.Length-2);
                                 foreach( char c in _v ) {
                                     var ch = Exec(new FiMVariable( c, statement.Element.Item2, true, false ));
 
@@ -567,7 +567,8 @@ namespace FiMSharp.Core
             switch( type ) {
                 case VariableTypes.STRING: {
                     string _s = Convert.ToString(value);
-                    return _s.Substring(1, _s.Length-2);
+                    //return _s.Substring(1, _s.Length-2);
+                    return _s;
                 };
 
                 case VariableTypes.BOOLEAN_ARRAY:
@@ -577,7 +578,8 @@ namespace FiMSharp.Core
                 case VariableTypes.STRING_ARRAY:
                     return (value as Dictionary<int, object>).ToDictionary(k => k.Key, v => {
                         string _s = Convert.ToString(v.Value);
-                        return _s.Substring(1, _s.Length-2);
+                        //return _s.Substring(1, _s.Length-2);
+                        return _s;
                     });
                 
                 default: return value;

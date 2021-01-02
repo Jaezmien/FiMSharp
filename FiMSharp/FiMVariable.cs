@@ -92,7 +92,8 @@ namespace FiMSharp.Core
                 switch( this.Type ) {
                     case VariableTypes.STRING: {
                         string _s = Convert.ToString(this._Value);
-                        return _s.Substring(1, _s.Length-2);
+                        //return _s.Substring(1, _s.Length-2);
+                        return _s;
                     };
 
                     case VariableTypes.BOOLEAN_ARRAY:
@@ -102,7 +103,8 @@ namespace FiMSharp.Core
                     case VariableTypes.STRING_ARRAY:
                         return (this._Value as Dictionary<int, object>).ToDictionary(k => k.Key, v => {
                             string _s = Convert.ToString(v.Value);
-                            return _s.Substring(1, _s.Length-2);
+                            //return _s.Substring(1, _s.Length-2);
+                            return _s;
                         });
                     
                     default: return this._Value;
@@ -112,7 +114,7 @@ namespace FiMSharp.Core
                 switch( this.Type ) {
                     case VariableTypes.STRING: {
                         if( value.GetType() != typeof(string) ) throw new ArgumentException();       
-                        this._Value = $"\"{value}\"";
+                        this._Value = $"{value}";
                     }
                     break;
                     case VariableTypes.INTEGER: {
