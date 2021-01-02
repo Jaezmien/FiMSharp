@@ -86,7 +86,7 @@ namespace FiMSharp.Core
             }
         }
 
-        // what
+        // i have no idea why but yeah
         private static bool Equals( (object, VariableTypes) x, (object, VariableTypes) y ) {
             dynamic _x;
             dynamic _y;

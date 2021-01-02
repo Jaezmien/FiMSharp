@@ -11,16 +11,24 @@ namespace FiMSharp
 {
     public class FiMException : Exception {
         public FiMException(){}
-        public FiMException(string message) : base("[FiMException] " + message) {}
-        public FiMException(string message, Exception inner) : base("[FiMException] " + message, inner) {}
+        public FiMException(string message) : base(message) {}
+        public FiMException(string message, Exception inner) : base(message, inner) {}
     }
     public class FiMPartialException: Exception {
         public FiMPartialException(){}
         public FiMPartialException(string message) : base( message) {}
         public FiMPartialException(string message, Exception inner) : base(message, inner) {}
     }
+
+    /// <summary>
+    /// A FiM++ instance.
+    /// </summary>
     public class FiMReport
     {
+        /// <summary>
+        /// Creates a FiMReport instance.
+        /// </summary>
+        /// <param name="lines">The complete lines of the FiM++ report.</param>
         public FiMReport(string[] lines)
         {
             bool is_in_report = false;
@@ -488,19 +496,47 @@ namespace FiMSharp
             OriginalLines = lines;
         }
 
+        /// <summary>
+        /// The tokenized lines of the report.
+        /// The key of the dictionary is the line index.
+        /// While the value is a tuple of the original line, the recognized token, and any miscellaneous values.
+        /// </summary>
         public readonly Dictionary<int, (string, TokenTypes, object)> Lines = new Dictionary<int, (string, TokenTypes, object)>();
+
+        /// <summary>
+        /// The global variables in the report.
+        /// </summary>
         public readonly Dictionary<string, FiMVariable> Variables = new Dictionary<string, FiMVariable>();
+
+        /// <summary>
+        /// The paragraphs of the report.
+        /// </summary>
         public readonly Dictionary<string, FiMParagraph> Paragraphs = new Dictionary<string, FiMParagraph>();
 
+        /// <summary>
+        /// The original <c>string[]</c> of the report.
+        /// </summary>
         public readonly string[] OriginalLines = new string[] {};
         private readonly string _MainParagraph;
+
+        /// <summary>
+        /// Grabs the main paragraph (if present).
+        /// </summary>
+        /// <value>A <c>FiMParagraph</c> or <c>null</c></value>
         public FiMParagraph MainParagraph {
             get {
                 if( !string.IsNullOrEmpty( _MainParagraph ) ) return Paragraphs[ _MainParagraph ];
                 return null;
             }
         }
+        
+        /// <summary>
+        /// The name of the student writing the report.
+        /// </summary>
         public readonly string StudentName;
+        /// <summary>
+        /// The name of the report.
+        /// </summary>
         public readonly string ReportName;
     }
 }

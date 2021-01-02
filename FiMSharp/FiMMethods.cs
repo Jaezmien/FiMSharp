@@ -50,7 +50,7 @@ namespace FiMSharp.Core
             => ignore_keyword ? _pre_arrayVariableSetb.IsMatch( line ) : _pre_arrayVariableSet.IsMatch( line );
 
         /// <summary>
-        /// [VARIABLE_INDEX] [KEYWORD] [VARIABLE_NAME] [KEYWORD`
+        /// [VARIABLE_INDEX] [KEYWORD] [VARIABLE_NAME] [KEYWORD]
         /// </summary>
         public static (string, string, string, string) MatchArray2( string line, bool ignore_keyword = false ) {
             if( !ignore_keyword ) {
@@ -432,7 +432,7 @@ namespace FiMSharp.Core
                 return str;
             }
 
-            // What the fuck is this scoping
+            // scoped because out float is contained outside the if scope
             {
                 if( float.TryParse( str, out float result ) ) {
                     type = VariableTypes.INTEGER;
@@ -507,7 +507,6 @@ namespace FiMSharp.Core
                     throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_ARRAY_LENGTH );
                 
                 var variable = variables[ var_name ];
-                //type = VariableTypeArraySubType( variable.Type );
                 type = VariableTypes.INTEGER;
                 if( variable.Type == VariableTypes.STRING ) {
                     return ( variable.GetRawValue() as string ).Length - 2;
@@ -577,8 +576,6 @@ namespace FiMSharp.Core
                 type = VariableTypes.BOOLEAN;
                 return FiMConditional.Evaluate(str, report, variables);
             }
-
-            // Applejack plus 1 of Apple Bloom
 
             if( IsMatchArray2(str,true) ) {
                 (string _result, string variable_name, string variable_index, string _) = FiMMethods.MatchArray2( str,true );

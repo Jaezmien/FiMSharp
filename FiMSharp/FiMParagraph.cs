@@ -10,12 +10,41 @@ namespace FiMSharp.Core
 
     public class FiMParagraph
     {
+
+        /// <summary>
+        /// The name of the paragraph.
+        /// </summary>
         public readonly string Name;
+
+        /// <summary>
+        /// The lines of the paragraph.
+        /// </summary>
         public readonly (int, int) Lines = (-1, -1);
+
+        /// <summary>
+        /// The parameters of the paragraph.
+        /// The <c>string</c> is what variable name the paragraph will assign the value to.
+        /// The <c>VariableTypes</c> is what variable type it is expecting.
+        /// </summary>
         public readonly List<(string, VariableTypes)> Parameters;
+        
+        /// <summary>
+        /// The paragraph variable's return type.
+        /// </summary>
         public readonly VariableTypes ReturnType;
         private readonly bool IsMain;
         private readonly FiMReport report;
+
+        /// <summary>
+        /// Creates a FiMParagraph.
+        /// </summary>
+        /// <param name="report">The report the paragraph is in.</param>
+        /// <param name="paragraph_name_">The name of the paragraph.</param>
+        /// <param name="lines_">The lines of the paragraph.</param>
+        /// <param name="main_">Boolean value whether or not this is the main paragraph.</param>
+        /// <param name="parameters_">The parameters of the paragraph.</param>
+        /// <param name="return_">The return type of the paragraph.</param>
+        /// <returns></returns>
         public FiMParagraph( FiMReport report, string paragraph_name_, (int, int) lines_, bool main_, List<(string, VariableTypes)> parameters_, VariableTypes return_)
         {
             this.report = report; // Oh boy, I sure hope this is passed by reference!
@@ -527,6 +556,11 @@ namespace FiMSharp.Core
             return (returnValue, returnType);
         }
 
+        /// <summary>
+        /// Executes a FiM++ paragraph.
+        /// </summary>
+        /// <param name="Params">The parameters to be sent to the paragraph. See <c>FiMParagaph.Parameters</c> for more info</param>
+        /// <returns>Returns the appropriate variable the paragraph returhs (If not a main paragraph).</returns>
         public dynamic Execute(params object[] Params) {
             (object value, VariableTypes type) = this.Execute(Params.ToList());
             if( value == null ) return null;

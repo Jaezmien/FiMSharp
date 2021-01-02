@@ -51,7 +51,6 @@ namespace FiMSharp.Core
         Switch,
     }
 
-    // shit
     public static partial class Extension {
         public static bool IsStatementStart( string line, out string keyword, out FiMStatementTypes type ) {
             keyword = "";

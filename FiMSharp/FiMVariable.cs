@@ -12,7 +12,11 @@ namespace FiMSharp.Core
         private readonly bool IS_ARRAY = false;
 
         private object _Value = null;
-        public VariableTypes Type = VariableTypes.UNDEFINED;
+
+        /// <summary>
+        /// The <c>VariableTypes</c> of the variable.
+        /// </summary>
+        public readonly VariableTypes Type = VariableTypes.UNDEFINED;
 
         public FiMVariable(object Value, VariableTypes Type, bool IsConstant = false, bool IsArray = false)
         {
@@ -68,17 +72,21 @@ namespace FiMSharp.Core
         internal void SetValue(object value)
         {
             if( this.IS_CONSTANT && this.Value != FiMMethods.GetNullValue( this.Type ) )
-                throw new Exception("[Internal] Can only use SetValue if constant variable has no values");
-            this._Value = value;
+                throw FiMError.Create( FiMErrorType.CANNOT_MODIFY_CONSTANT );
+            this.Value = value;
         }
         internal void SetArrayValue(int array_index, object value) {
             if( !IS_ARRAY )
-                throw new Exception("[Internal] SetArrayValue must be used on an array");
-            var raw_dict = this._Value as Dictionary<int,object>;
+                throw new Exception("SetArrayValue must be used on an array");
+            var raw_dict = this.Value as Dictionary<int,object>;
             raw_dict[ array_index ] = value;
         }
 
         // Public getters
+
+        /// <summary>
+        /// Gets/Sets the value of the variable.
+        /// </summary>
         public dynamic Value {
             get {
                 switch( this.Type ) {
@@ -106,8 +114,7 @@ namespace FiMSharp.Core
         }
 
         /// <summary>
-        /// Check if FiMVariable type is an array.
-        /// Doesn't include strings.
+        /// Check if FiMVariable type is an array (not including strings).
         /// </summary>
         public bool IsArray {
             get {
