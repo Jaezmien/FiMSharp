@@ -109,7 +109,50 @@ namespace FiMSharp.Core
                 }
             }
             set {
-                this._Value = value;
+                switch( this.Type ) {
+                    case VariableTypes.STRING: {
+                        if( value.GetType() != typeof(string) ) throw new ArgumentException();       
+                        this._Value = $"\"{value}\"";
+                    }
+                    break;
+                    case VariableTypes.INTEGER: {
+                        float new_value;
+                        try { new_value = Convert.ToSingle(value); } catch( Exception ) { throw new ArgumentException(); }
+                        this._Value = new_value;
+                    }
+                    break;
+                    case VariableTypes.BOOLEAN: {
+                        if( value.GetType() != typeof(bool) ) throw new ArgumentException();       
+                        this._Value = value;
+                    }
+                    break;
+                    case VariableTypes.CHAR: {
+                        if( value.GetType() != typeof(char) ) throw new ArgumentException();       
+                        this._Value = value;
+                    }
+                    break;
+                    
+                    case VariableTypes.BOOLEAN_ARRAY: {
+                        if( value.GetType() != typeof(Dictionary<int,bool>) ) throw new ArgumentException();
+                        this._Value = value as Dictionary<int, object>;
+                    }
+                    break;
+                    case VariableTypes.FLOAT_ARRAY: {
+                        if( value.GetType() != typeof(Dictionary<int,float>) ) throw new ArgumentException();
+                        this._Value = value as Dictionary<int, object>;
+                    }
+                    break;
+                    case VariableTypes.STRING_ARRAY: {
+                        if( value.GetType() != typeof(Dictionary<int,string>) ) throw new ArgumentException();
+                        this._Value = value as Dictionary<int, object>;
+                    }
+                    break;
+                    
+                    case VariableTypes.UNDEFINED: {
+                        // Can set variable type here
+                    }
+                    break;
+                }
             }
         }
 
