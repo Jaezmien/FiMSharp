@@ -41,12 +41,9 @@ namespace FiMSharp.Javascript
             if( line == "nothing" && fallback != VariableTypes.UNDEFINED)
                 return SetIfNullValue(line, fallback);
 
-            // im lazy, let's see if this will work
             if( Regex.IsMatch(line,"^'.'$") ) {
-                //return $"\"{ line.Substring(1,line.Length - 2) }\"";
                 return line.Substring(1,line.Length - 2);
             }
-            // oh god
             if( Regex.IsMatch(line,"^\"[^\"]+\"$") ) {
                 return line;
             }
@@ -135,7 +132,6 @@ namespace FiMSharp.Javascript
                 return $"({ SanitizeConditional(line, report) })";
             }
 
-            // TODO: Double check if this will destroy arrays
             if( FiMArithmetic.IsArithmetic(line, out var arith_result) ) {
                 var arithmetic = new FiMArithmetic( line, arith_result );
                 string left = SanitizeVariable( arithmetic.Left, report );

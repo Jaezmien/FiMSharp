@@ -42,7 +42,7 @@ namespace FiMSharp.Core
             {
                 string string_value = (this._Value as string);
                 if (array_index >= string_value.Length) return ("", VariableTypes.CHAR);
-                return (string_value[array_index], VariableTypes.CHAR);
+                return (string_value[array_index-1], VariableTypes.CHAR);
                 
             }
 
@@ -71,14 +71,14 @@ namespace FiMSharp.Core
         internal object GetRawValue() => this._Value;
         internal void SetValue(object value)
         {
-            if( this.IS_CONSTANT && this.Value != FiMMethods.GetNullValue( this.Type ) )
+            if( this.IS_CONSTANT && this._Value != FiMMethods.GetNullValue( this.Type ) )
                 throw FiMError.Create( FiMErrorType.CANNOT_MODIFY_CONSTANT );
-            this.Value = value;
+            this._Value = value;
         }
         internal void SetArrayValue(int array_index, object value) {
             if( !IS_ARRAY )
                 throw new Exception("SetArrayValue must be used on an array");
-            var raw_dict = this.Value as Dictionary<int,object>;
+            var raw_dict = this._Value as Dictionary<int,object>;
             raw_dict[ array_index ] = value;
         }
 
@@ -90,22 +90,14 @@ namespace FiMSharp.Core
         public dynamic Value {
             get {
                 switch( this.Type ) {
-                    case VariableTypes.STRING: {
-                        string _s = Convert.ToString(this._Value);
-                        //return _s.Substring(1, _s.Length-2);
-                        return _s;
-                    };
+                    case VariableTypes.STRING: return Convert.ToString(this._Value);
 
                     case VariableTypes.BOOLEAN_ARRAY:
                         return (this._Value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToBoolean(v.Value));
                     case VariableTypes.FLOAT_ARRAY:
                         return (this._Value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToSingle(v.Value));
                     case VariableTypes.STRING_ARRAY:
-                        return (this._Value as Dictionary<int, object>).ToDictionary(k => k.Key, v => {
-                            string _s = Convert.ToString(v.Value);
-                            //return _s.Substring(1, _s.Length-2);
-                            return _s;
-                        });
+                        return (this._Value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToString(v.Value));
                     
                     default: return this._Value;
                 }

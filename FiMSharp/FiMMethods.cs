@@ -163,7 +163,7 @@ namespace FiMSharp.Core
 
             new_string += CheckBuffer( true );
 
-            return $"\"{ new_string }\"";
+            return new_string;
         }
 
         public static string GetOrdinal( int number ) {
@@ -369,18 +369,11 @@ namespace FiMSharp.Core
         }
 
         public static (int, FiMVariable) ParseArray( int index, string variable_name, Dictionary<string, FiMVariable> variables ) {
-            //if( !variables.ContainsKey(variable_name) )
-            //    throw new FiMException( $"Variable { variable_name } doesn't exist!" );
             FiMVariable variable = variables[ variable_name ];
             return (index, variable );
         }
         public static (int, FiMVariable) ParseArray( string variable_index, string variable_name, FiMReport report, Dictionary<string, FiMVariable> variables ) {
-            //if( !variables.ContainsKey(variable_name) )
-            //  throw new FiMException( $"Variable { variable_name } doesn't exist!" );
-            //if( !variables.ContainsKey(variable_index) )
-            //    throw new FiMException( $"Variable { variable_index } doesn't exist!" );
             FiMVariable variable = variables[ variable_name ];
-            //FiMVariable _variable = variables[ variable_index ];
             object _var = ParseVariable( variable_index, report, variables, out var _var_type );
             if( _var_type != VariableTypes.INTEGER )
                 throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, VariableTypes.INTEGER, _var_type );
@@ -408,7 +401,7 @@ namespace FiMSharp.Core
             }
             if( Regex.IsMatch(str,"^\"[^\"]+\"$") ) {
                 type = VariableTypes.STRING;
-                return str;
+                return str.Substring(1, str.Length-2);
             }
 
             // scoped because out float is contained outside the if scope
@@ -430,7 +423,6 @@ namespace FiMSharp.Core
                 var variable = variables[ str ];
 
                 type = variable.Type;
-                //return variable.GetValue().Item1;
                 return variable.GetRawValue();
             }
 
@@ -481,7 +473,6 @@ namespace FiMSharp.Core
                 string var_name = str.Substring("length of ".Length);
                 if( !variables.ContainsKey( var_name ) )
                     throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, var_name );
-                //if( !variables[ var_name ].IsArray() )
                 if( !IsVariableTypeArray(variables[var_name].Type, true) )
                     throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_ARRAY_LENGTH );
                 
@@ -528,8 +519,6 @@ namespace FiMSharp.Core
                 type = VariableTypes.INTEGER;
                 if( value_type == VariableTypes.STRING || value_type == VariableTypes.CHAR ) {
                     string v = value.ToString();
-                    //if( v.StartsWith("\"") && v.EndsWith("\"") )
-                    //    v = v.Substring(1, v.Length-2);
                     return int.Parse(v);
                 }
                 else if( value_type == VariableTypes.BOOLEAN ) {

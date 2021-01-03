@@ -205,7 +205,6 @@ namespace FiMSharp
                                                 blacklist.Add( _i );
                                                 ifStatement.HasElse = true;
                                                 ifStatement.Conditions.Add( ( currStatement, currLines ) );
-                                                //currStatement = ("", "", "");
                                                 currStatement = "";
                                                 currLines = ( _i+1, _i );
                                             }
