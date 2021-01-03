@@ -494,6 +494,9 @@ namespace FiMSharp
 
             OriginalLines = lines;
         }
+        public FiMReport(string lines): this(lines.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)) {
+
+        }
 
         /// <summary>
         /// The tokenized lines of the report.
