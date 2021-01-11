@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FiMSharp.GlobalStructs;
 using FiMSharp.GlobalVars;
 using FiMSharp.Error;
 
@@ -33,7 +34,7 @@ namespace FiMSharp.Core
         }
 
         // Getters
-        internal (object, VariableTypes) GetValue(int array_index = 0) // 1-based array index
+        internal FiMVariableStruct GetValue(int array_index = 0) // 1-based array index
         {
             if( IS_ARRAY && array_index < 1 )
                 throw new Exception("GetValue on Array variables need an index");
@@ -41,8 +42,8 @@ namespace FiMSharp.Core
             if( this.Type == VariableTypes.STRING && array_index > 0 )
             {
                 string string_value = (this._Value as string);
-                if (array_index >= string_value.Length) return ("", VariableTypes.CHAR);
-                return (string_value[array_index-1], VariableTypes.CHAR);
+                if (array_index >= string_value.Length) return new FiMVariableStruct( "", VariableTypes.CHAR );
+                return new FiMVariableStruct( string_value[array_index-1], VariableTypes.CHAR );
                 
             }
 
@@ -51,22 +52,22 @@ namespace FiMSharp.Core
                 var raw_dict = this._Value as Dictionary<int,object>;
                 if( this.Type == VariableTypes.BOOLEAN_ARRAY)
                 {
-                    if (!raw_dict.ContainsKey( array_index )) return (false, VariableTypes.BOOLEAN);
-                    return (raw_dict[array_index], VariableTypes.BOOLEAN);
+                    if (!raw_dict.ContainsKey( array_index )) return new FiMVariableStruct(false, VariableTypes.BOOLEAN );
+                    return new FiMVariableStruct( raw_dict[array_index], VariableTypes.BOOLEAN );
                 }
                 if (this.Type == VariableTypes.FLOAT_ARRAY)
                 {
-                    if (!raw_dict.ContainsKey( array_index )) return (0, VariableTypes.INTEGER);
-                    return (raw_dict[array_index], VariableTypes.INTEGER);
+                    if (!raw_dict.ContainsKey( array_index )) return new FiMVariableStruct(0, VariableTypes.INTEGER );
+                    return new FiMVariableStruct( raw_dict[array_index], VariableTypes.INTEGER );
                 }
                 if (this.Type == VariableTypes.STRING_ARRAY)
                 {
-                    if (!raw_dict.ContainsKey( array_index )) return ("", VariableTypes.STRING);
-                    return (raw_dict[array_index], VariableTypes.STRING);
+                    if (!raw_dict.ContainsKey( array_index )) return new FiMVariableStruct("", VariableTypes.STRING );
+                    return new FiMVariableStruct( raw_dict[array_index], VariableTypes.STRING );
                 }
             }
 
-            return (this._Value, this.Type);
+            return new FiMVariableStruct( this._Value, this.Type );
         }
         internal object GetRawValue() => this._Value;
         internal void SetValue(object value)

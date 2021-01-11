@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using FiMSharp.GlobalStructs;
 using FiMSharp.GlobalVars;
 using FiMSharp.Error;
 
@@ -19,14 +20,14 @@ namespace FiMSharp.Core
         /// <summary>
         /// The lines of the paragraph.
         /// </summary>
-        public readonly (int, int) Lines = (-1, -1);
+        public readonly FiMLine Lines = new FiMLine(-1, -1);
 
         /// <summary>
         /// The parameters of the paragraph.
         /// The <c>string</c> is what variable name the paragraph will assign the value to.
         /// The <c>VariableTypes</c> is what variable type it is expecting.
         /// </summary>
-        public readonly List<(string, VariableTypes)> Parameters;
+        public readonly List<FiMParagraphParameter> Parameters;
         
         /// <summary>
         /// The paragraph variable's return type.
@@ -45,7 +46,7 @@ namespace FiMSharp.Core
         /// <param name="parameters_">The parameters of the paragraph.</param>
         /// <param name="return_">The return type of the paragraph.</param>
         /// <returns></returns>
-        public FiMParagraph( FiMReport report, string paragraph_name_, (int, int) lines_, bool main_, List<(string, VariableTypes)> parameters_, VariableTypes return_)
+        public FiMParagraph( FiMReport report, string paragraph_name_, FiMLine lines_, bool main_, List<FiMParagraphParameter> parameters_, VariableTypes return_)
         {
             this.report = report; // Oh boy, I sure hope this is passed by reference!
             this.Name = paragraph_name_;
@@ -55,7 +56,7 @@ namespace FiMSharp.Core
             this.ReturnType = return_;
         }
 
-        private (object, VariableTypes) Execute(int lineBegin, int lineEnd, out Dictionary<string,FiMVariable> changedVariables, Dictionary<string, FiMVariable> variables = null)
+        private FiMVariableStruct Execute(int lineBegin, int lineEnd, out Dictionary<string,FiMVariable> changedVariables, Dictionary<string, FiMVariable> variables = null)
         {
             changedVariables = new Dictionary<string, FiMVariable>();
             Dictionary<string, FiMVariable> localVariables = new Dictionary<string, FiMVariable>();
@@ -115,25 +116,27 @@ namespace FiMSharp.Core
                     var line = report.Lines[ index ];
 
                     try {
-                    switch( line.Item2 ) {
+                    switch( line.Token ) {
 
                         case TokenTypes.RUN: {
-                            string _pname = (string)line.Item3;
-                            if( _pname.Contains(" using ") ) _pname = _pname.Split(new string[] {" using "}, StringSplitOptions.None)[0].Trim();
+                            
+                            {
+                                string _pname = (string)line.Arguments;
+                                if( _pname.Contains(" using ") ) _pname = _pname.Split(new string[] {" using "}, StringSplitOptions.None)[0].Trim();
 
-                            if( !report.Paragraphs.ContainsKey(_pname) )
-                                throw FiMError.CreatePartial( FiMErrorType.MISSING_PARAGRAPH, _pname );
-
-                            FiMMethods.ParseVariable( (string)line.Item3, report, CombineAllVariables(), out VariableTypes _ );
+                                if( !report.Paragraphs.ContainsKey(_pname) )
+                                    throw FiMError.CreatePartial( FiMErrorType.MISSING_PARAGRAPH, _pname );
+                            }
+                            FiMMethods.ParseVariable( (string)line.Arguments, report, CombineAllVariables(), out VariableTypes _ );
                         }
                         break;
                         case TokenTypes.PRINT: {
-                            string output = FiMMethods.SanitizeString( (string)line.Item3, report, CombineAllVariables() );
+                            string output = FiMMethods.SanitizeString( (string)line.Arguments, report, CombineAllVariables() );
                             Console.WriteLine(output);
                         }
                         break;
                         case TokenTypes.READ: {
-                            string variable_name = (string)line.Item3;
+                            string variable_name = (string)line.Arguments;
 
                             if( !HasVariable(variable_name) )
                                 throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
@@ -157,12 +160,12 @@ namespace FiMSharp.Core
                         break;
                         
                         case TokenTypes.CREATE_VARIABLE: {
-                            var new_variable = FiMMethods.VariableFromTokenizer( report, CombineAllVariables(), line.Item3 );
-                            SetVariable( new_variable.Item1, new_variable.Item2 );
+                            var new_variable = FiMMethods.VariableFromTokenizer( report, CombineAllVariables(), line.Arguments );
+                            SetVariable( new_variable.Name, new_variable.Variable );
                         }
                         break;
                         case TokenTypes.VARIABLE_REPLACE: {
-                            List<object> args = line.Item3 as List<object>;
+                            List<object> args = line.Arguments as List<object>;
                             string variable_name = (string)args[0];
                             string _variable_value = (string)args[1];
 
@@ -185,20 +188,20 @@ namespace FiMSharp.Core
                         break;
 
                         case TokenTypes.ARRAY_MODIFY: {
-                            List<object> args = line.Item3 as List<object>;
+                            List<object> args = line.Arguments as List<object>;
                             string variable_name = (string)args[0];
                             int array_index = (int)args[1];
                             string keyword = (string)args[2];
                             VariableTypes expected_type;
                             string value;
 
-                            (int, FiMVariable) result = FiMMethods.ParseArray( array_index, variable_name, CombineAllVariables() );
+                            var result = FiMMethods.ParseArray( array_index, variable_name, CombineAllVariables() );
 
                             if( args.Count == 5 ) {
                                 expected_type = (VariableTypes)args[3];
                                 value = (string)args[4];
                             } else {
-                                expected_type = FiMMethods.VariableTypeArraySubType( result.Item2.Type );
+                                expected_type = FiMMethods.VariableTypeArraySubType( result.Variable.Type );
                                 value = (string)args[3];
                             }
 
@@ -206,37 +209,37 @@ namespace FiMSharp.Core
                             if( _got_type != expected_type )
                                 throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, expected_type, _got_type );
 
-                            result.Item2.SetArrayValue( result.Item1, new_value );
+                            result.Variable.SetArrayValue( result.Index, new_value );
                             if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                         }
                         break;
                         case TokenTypes.ARRAY_MODIFY2: {
-                            List<object> args = line.Item3 as List<object>;
+                            List<object> args = line.Arguments as List<object>;
                             string variable_name = (string)args[0];
                             string variable_index = (string)args[1];
                             string keyword = (string)args[2];
                             string value = (string)args[3];
 
-                            (int, FiMVariable) result = FiMMethods.ParseArray( variable_index, variable_name, report, CombineAllVariables() );
+                            var result = FiMMethods.ParseArray( variable_index, variable_name, report, CombineAllVariables() );
 
-                            VariableTypes expected_type = FiMMethods.VariableTypeArraySubType( result.Item2.Type );
+                            VariableTypes expected_type = FiMMethods.VariableTypeArraySubType( result.Variable.Type );
                             object new_value = FiMMethods.ParseVariable( value, report, CombineAllVariables(), out VariableTypes _got_type, fallback: expected_type );
                             if( _got_type != expected_type )
                                 throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, expected_type, _got_type );
 
-                            result.Item2.SetArrayValue( result.Item1, new_value );
+                            result.Variable.SetArrayValue( result.Index, new_value );
                             if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                         }
                         break;
 
                         case TokenTypes.VARIABLE_INCREMENT: {
-                            string variable_name = (string)line.Item3;
+                            string variable_name = (string)line.Arguments;
                             if( HasVariable(variable_name) ) {
                                 FiMVariable variable = GetVariable( variable_name );
                                 if( variable.Type != VariableTypes.INTEGER )
                                     throw FiMError.CreatePartial( FiMErrorType.INCREMENT_ONLY_NUMBERS );
 
-                                SetVariableValue( variable_name, Convert.ToSingle(variable.GetValue().Item1) + 1 );
+                                SetVariableValue( variable_name, Convert.ToSingle(variable.GetValue().Value) + 1 );
                                 if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                             } else {
                                 if( FiMMethods.IsMatchArray1(variable_name, true) ) {
@@ -244,7 +247,7 @@ namespace FiMSharp.Core
                                     if( !HasVariable(_variable_name) )
                                         throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, CombineAllVariables() );
-                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Item1)+1 );
+                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Value)+1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
@@ -253,7 +256,7 @@ namespace FiMSharp.Core
                                     if( !HasVariable(_variable_name) )
                                         throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, report, CombineAllVariables() );
-                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Item1)+1 );
+                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Value)+1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
@@ -264,13 +267,13 @@ namespace FiMSharp.Core
                         }
                         break;
                         case TokenTypes.VARIABLE_DECREMENT: {
-                            string variable_name = (string)line.Item3;
+                            string variable_name = (string)line.Arguments;
                             if( HasVariable(variable_name) ) {
                                 FiMVariable variable = GetVariable( variable_name );
                                 if( variable.Type != VariableTypes.INTEGER )
                                     throw FiMError.CreatePartial( FiMErrorType.DECREMENT_ONLY_NUMBERS);
 
-                                SetVariableValue( variable_name, Convert.ToSingle(variable.GetValue().Item1) - 1 );
+                                SetVariableValue( variable_name, Convert.ToSingle(variable.GetValue().Value) - 1 );
                                 if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                             } else {
                                 if( FiMMethods.IsMatchArray1(variable_name, true) ) {
@@ -278,7 +281,7 @@ namespace FiMSharp.Core
                                     if( !HasVariable(_variable_name) )
                                         throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, CombineAllVariables() );
-                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Item1)-1 );
+                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Value)-1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
@@ -287,7 +290,7 @@ namespace FiMSharp.Core
                                     if( !HasVariable(_variable_name) )
                                         throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, report, CombineAllVariables() );
-                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Item1)-1 );
+                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Value)-1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
@@ -299,35 +302,35 @@ namespace FiMSharp.Core
                         break;
 
                         case TokenTypes.RETURN: {
-                            object value = FiMMethods.ParseVariable((string)line.Item3, report, CombineAllVariables(), out VariableTypes t, fallback: this.ReturnType);
+                            object value = FiMMethods.ParseVariable((string)line.Arguments, report, CombineAllVariables(), out VariableTypes t, fallback: this.ReturnType);
                             if( t != this.ReturnType )
                                 throw FiMError.CreatePartial( FiMErrorType.PARAGRAPH_RETURNED_DIFFERENT_TYPE, this.ReturnType, t );
-                            return (value, this.ReturnType );
+                            return new FiMVariableStruct( value, this.ReturnType );
                         }
 
                         case TokenTypes.IF_STATEMENT: {
-                            FiMIfStatement statement = (FiMIfStatement)line.Item3;
-                            index = statement.Conditions.LastOrDefault().Item2.Item2;
+                            FiMIfStatement statement = (FiMIfStatement)line.Arguments;
+                            index = statement.Conditions.LastOrDefault().Lines.End;
 
                             for( int i = 0; i < statement.Conditions.Count; i++ ) {
                                 bool result;
 
                                 if( i == statement.Conditions.Count-1 && statement.HasElse ) result = true;
-                                else result = FiMConditional.Evaluate( statement.Conditions[i].Item1, report, CombineAllVariables() );
+                                else result = FiMConditional.Evaluate( statement.Conditions[i].Condition, report, CombineAllVariables() );
 
                                 if( result == true ) {
 
-                                    var if_lines = statement.Conditions[i].Item2;
+                                    var if_lines = statement.Conditions[i].Lines;
 
                                     var if_result = Execute(
-                                        if_lines.Item1, if_lines.Item2,
+                                        if_lines.Start, if_lines.End,
                                         out var changedVars, CombineVariables()
                                     );
                                     
                                     foreach( var v in changedVars )
                                         SetVariable( v.Key, v.Value );
 
-                                    if( if_result.Item1 != null )
+                                    if( if_result.Value != null )
                                         return if_result;
 
                                     break;       
@@ -336,8 +339,8 @@ namespace FiMSharp.Core
                         }
                         break;
                         case TokenTypes.WHILE_STATEMENT: {
-                            FiMWhileStatement statement = (FiMWhileStatement)line.Item3;
-                            index = statement.Lines.Item2;
+                            FiMWhileStatement statement = (FiMWhileStatement)line.Arguments;
+                            index = statement.Lines.End;
 
                             bool result = false;
                             do {
@@ -345,20 +348,19 @@ namespace FiMSharp.Core
                                 if( result ) {
 
                                     var while_result = Execute(
-                                        statement.Lines.Item1, statement.Lines.Item2,
+                                        statement.Lines.Start, statement.Lines.End,
                                         out var changedVars, CombineVariables()
                                     );
                                     
                                     foreach( var v in changedVars ) SetVariable( v.Key, v.Value );
-                                    if( while_result.Item1 != null ) return while_result;
-
+                                    if( while_result.Value!= null ) return while_result;
                                 }
                             }
                             while( result );
                         }
                         break;
                         case TokenTypes.SWITCH_STATEMENT: {
-                            FiMSwitchStatement statement = (FiMSwitchStatement)line.Item3;
+                            FiMSwitchStatement statement = (FiMSwitchStatement)line.Arguments;
                             index = statement.EndIndex;
 
                             string lvariable = statement.Switch;
@@ -372,18 +374,15 @@ namespace FiMSharp.Core
                                     
                                     success = true;
 
-                                    (int, int) statement_lines = statement.Case[ s ];
+                                    var statement_lines = statement.Case[ s ];
 
                                     var switch_result = Execute(
-                                        statement_lines.Item1, statement_lines.Item2,
+                                        statement_lines.Start, statement_lines.End,
                                         out var changedVars, CombineVariables()
                                     );
 
-                                    foreach( var v in changedVars )
-                                        SetVariable( v.Key, v.Value );
-
-                                    if( switch_result.Item1 != null )
-                                        return switch_result;
+                                    foreach( var v in changedVars ) SetVariable( v.Key, v.Value );
+                                    if( switch_result.Value != null ) return switch_result;
 
                                     break;
                                 }
@@ -393,15 +392,12 @@ namespace FiMSharp.Core
                             if( !success && statement.HasDefault() ) {
 
                                 var switch_result = Execute(
-                                    statement.Default.Item1, statement.Default.Item2,
+                                    statement.Default.Start, statement.Default.End,
                                     out var changedVars, CombineVariables()
                                 );
 
-                                foreach( var v in changedVars )
-                                    SetVariable( v.Key, v.Value );
-
-                                if( switch_result.Item1 != null )
-                                    return switch_result;
+                                foreach( var v in changedVars ) SetVariable( v.Key, v.Value );
+                                if( switch_result.Value != null ) return switch_result;
 
                             }
                             
@@ -409,14 +405,14 @@ namespace FiMSharp.Core
                         break;
 
                         case TokenTypes.FOR_TO_STATEMENT: {
-                            var statement = (FiMForToStatement)line.Item3;
-                            index = statement.Lines.Item2;
+                            var statement = (FiMForToStatement)line.Arguments;
+                            index = statement.Lines.End;
 
-                            if( HasVariable(statement.Element.Item1) )
-                                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_ALREADY_EXISTS, statement.Element.Item1 );
+                            if( HasVariable(statement.Element.Name) )
+                                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_ALREADY_EXISTS, statement.Element.Name );
                             
-                            float min = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.Item1, report, CombineAllVariables(), out var min_type) );
-                            float max = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.Item2, report, CombineAllVariables(), out var max_type) );
+                            float min = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.From, report, CombineAllVariables(), out var min_type) );
+                            float max = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.To, report, CombineAllVariables(), out var max_type) );
 
                             if( min_type != VariableTypes.INTEGER || max_type != VariableTypes.INTEGER )
                                 throw FiMError.CreatePartial( FiMErrorType.RANGE_MUST_BE_NUMBER );
@@ -427,7 +423,7 @@ namespace FiMSharp.Core
 
                                 var _t = CombineVariables();
                                 _t.Add(
-                                    statement.Element.Item1,
+                                    statement.Element.Name,
                                     new FiMVariable(
                                         min,
                                         VariableTypes.INTEGER,
@@ -437,12 +433,12 @@ namespace FiMSharp.Core
                                 );
 
                                 var for_result = Execute(
-                                    statement.Lines.Item1, statement.Lines.Item2,
+                                    statement.Lines.Start, statement.Lines.End,
                                     out var changedVars, _t
                                 );
                                 
                                 foreach( var v in changedVars ) SetVariable( v.Key, v.Value );
-                                if( for_result.Item1 != null ) return for_result;
+                                if( for_result.Value != null ) return for_result;
 
                                 min++;
 
@@ -450,48 +446,48 @@ namespace FiMSharp.Core
                         }
                         break;
                         case TokenTypes.FOR_IN_STATEMENT: {
-                            var statement = (FiMForInStatement)line.Item3;
-                            index = statement.Lines.Item2;
+                            var statement = (FiMForInStatement)line.Arguments;
+                            index = statement.Lines.End;
 
                             FiMVariable variable = GetVariable( statement.Variable );
                             if( !FiMMethods.IsVariableTypeArray( variable.Type, true ) ) 
                                 throw FiMError.CreatePartial( FiMErrorType.FORIN_VARIABLE_ARRAY_ONLY );
 
-                            if( FiMMethods.VariableTypeArraySubType( variable.Type ) != statement.Element.Item2 )
-                                throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, statement.Element.Item2, FiMMethods.VariableTypeArraySubType( variable.Type ) );
+                            if( FiMMethods.VariableTypeArraySubType( variable.Type ) != statement.Element.Type )
+                                throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, statement.Element.Type, FiMMethods.VariableTypeArraySubType( variable.Type ) );
 
-                            ((object, VariableTypes), Dictionary<string, FiMVariable>) Exec( FiMVariable _v ) {
+                            FiMForInStruct Exec( FiMVariable _v ) {
                                 var _t = CombineVariables();
                                 _t.Add(
-                                    statement.Element.Item1,
+                                    statement.Element.Name,
                                     _v
                                 );
 
                                 var for_result = Execute(
-                                    statement.Lines.Item1, statement.Lines.Item2,
+                                    statement.Lines.Start, statement.Lines.End,
                                     out var changedVars, _t
                                 );
                                 
-                                return (for_result, changedVars);
+                                return new FiMForInStruct( for_result, changedVars );
                             }
 
                             if( variable.Type == VariableTypes.STRING ) {
-                                string _v = variable.GetValue().Item1.ToString();
+                                string _v = variable.GetValue().Value.ToString();
                                 foreach( char c in _v ) {
-                                    var ch = Exec(new FiMVariable( c, statement.Element.Item2, true, false ));
+                                    var ch = Exec(new FiMVariable( c, statement.Element.Type, true, false ));
 
-                                    foreach( var v in ch.Item2 ) SetVariable( v.Key, v.Value );
-                                    if( ch.Item1.Item1 != null ) return ch.Item1;
+                                    foreach( var v in ch.Changed ) SetVariable( v.Key, v.Value );
+                                    if( ch.Returned.Value != null ) return ch.Returned;
                                 }
                             }
                             else {
                                 var _v = variable.GetRawValue() as Dictionary<int,object>;
                                 _v = _v.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value); // soart
                                 foreach( object p in _v.Values ) {
-                                    var ch = Exec(new FiMVariable( p, statement.Element.Item2, true, false ));
+                                    var ch = Exec(new FiMVariable( p, statement.Element.Type, true, false ));
 
-                                    foreach( var v in ch.Item2 ) SetVariable( v.Key, v.Value );
-                                    if( ch.Item1.Item1 != null ) return ch.Item1;
+                                    foreach( var v in ch.Changed ) SetVariable( v.Key, v.Value );
+                                    if( ch.Returned.Value != null ) return ch.Returned;
                                 }
                             }
                         }
@@ -508,16 +504,16 @@ namespace FiMSharp.Core
                     }
                     }
                     catch( FiMPartialException partial ) {
-                        throw FiMError.Create( partial, line.Item1, index );
+                        throw FiMError.Create( partial, line.Line, index );
                     }
                 }
 
                 index++;
             }
 
-            return (null, VariableTypes.UNDEFINED);
+            return new FiMVariableStruct( null, VariableTypes.UNDEFINED );
         }
-        internal (object, VariableTypes) Execute(List<object> Params = null)
+        internal FiMVariableStruct Execute(List<object> Params = null)
         {
             var LocalVariables = new Dictionary<string, FiMVariable>();
 
@@ -526,29 +522,29 @@ namespace FiMSharp.Core
                 // Params is the exact count as Parameters
                 // And that both types are the same
                 for( int i = 0; i < Params.Count; i++ ) {
-                    LocalVariables.Add( this.Parameters[i].Item1, new FiMVariable(
+                    LocalVariables.Add( this.Parameters[i].Name, new FiMVariable(
                         Params[i],
-                        this.Parameters[i].Item2,
+                        this.Parameters[i].Type,
                         false, //true,
-                        FiMMethods.IsVariableTypeArray( this.Parameters[i].Item2 )
+                        FiMMethods.IsVariableTypeArray( this.Parameters[i].Type )
                     ) );
                 }
             }
 
-            (object returnValue, VariableTypes returnType) = Execute(
-                Lines.Item1, Lines.Item2,
+            FiMVariableStruct str = Execute(
+                Lines.Start, Lines.End,
                 out var _,
                 LocalVariables
             );
 
-            if( returnValue == null && this.ReturnType != VariableTypes.UNDEFINED ) {
+            if( str.Value == null && this.ReturnType != VariableTypes.UNDEFINED ) {
                 throw FiMError.Create( FiMErrorType.PARAGRAPH_NO_RETURN );
             }
-            if( returnValue != null && this.IsMain ) {
+            if( str.Value != null && this.IsMain ) {
                 throw new FiMException("Main Paragraph cannot return a variable!");
             }
 
-            return (returnValue, returnType);
+            return str;
         }
 
         /// <summary>
@@ -557,7 +553,8 @@ namespace FiMSharp.Core
         /// <param name="Params">The parameters to be sent to the paragraph. See <c>FiMParagaph.Parameters</c> for more info</param>
         /// <returns>Returns the appropriate variable the paragraph returhs (If not a main paragraph).</returns>
         public dynamic Execute(params object[] Params) {
-            (object value, VariableTypes type) = this.Execute(Params.ToList());
+            (object value, VariableTypes type) = this.Execute( Params.ToList() );
+
             if( value == null ) return null;
             switch( type ) {
                 case VariableTypes.STRING: return Convert.ToString(value);

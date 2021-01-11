@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using FiMSharp.Core;
 using FiMSharp.GlobalVars;
 using FiMSharp.Error;
+using FiMSharp.GlobalStructs;
 
 namespace FiMSharp
 {
@@ -37,7 +38,7 @@ namespace FiMSharp
             string _paragraphName = "";
             int _paragraphIndex = -1;
             VariableTypes _paragraphReturn = VariableTypes.UNDEFINED;
-            List<(string, VariableTypes)> _paragraphParameters = new List<(string, VariableTypes)>();
+            List<FiMParagraphParameter> _paragraphParameters = new List<FiMParagraphParameter>();
 
             int scopeCount = 0;
             List<int> blacklist = new List<int>();
@@ -69,6 +70,8 @@ namespace FiMSharp
                         is_in_report = false;
                         continue;
                     }
+
+                    FiMLineToken _lineToken = new FiMLineToken();
 
                     if( is_in_report ) {
 
@@ -103,7 +106,7 @@ namespace FiMSharp
 
                                         foreach( string param in split[1].Split( new string[] { " and " }, StringSplitOptions.None ) ) {
                                             VariableTypes _type = FiMMethods.GetVariableTypeFromDeclaration( param, out string keyword );
-                                            _paragraphParameters.Add( ( param.Substring(keyword.Length + 1), _type ) );
+                                            _paragraphParameters.Add( new FiMParagraphParameter( param.Substring(keyword.Length + 1), _type ) );
                                         }
 
                                         line = split[0];
@@ -119,11 +122,11 @@ namespace FiMSharp
                             }
                             // Global variables
                             var tokenize_result = Tokenizer.FiMTokenizer.TokenizeString( _line );
-                            if( tokenize_result.Item1 != TokenTypes.CREATE_VARIABLE )
+                            if( tokenize_result.Token != TokenTypes.CREATE_VARIABLE )
                                 throw FiMError.CreatePartial( FiMErrorType.REPORT_VARIABLE_CREATION_ONLY );
                             
-                            var new_variable = FiMMethods.VariableFromTokenizer( this, this.Variables, tokenize_result.Item2 );
-                            this.Variables.Add( new_variable.Item1, new_variable.Item2 );
+                            var new_variable = FiMMethods.VariableFromTokenizer( this, this.Variables, tokenize_result.Arguments );
+                            this.Variables.Add( new_variable.Name, new_variable.Variable );
 
                         }
                         else
@@ -135,9 +138,9 @@ namespace FiMSharp
                                 FiMParagraph paragraph = new FiMParagraph(
                                     this,
                                     _paragraphName,
-                                    (_paragraphIndex + 1, i - 1),
+                                    new FiMLine( _paragraphIndex + 1,  i - 1 ),
                                     _paragraphName == this._MainParagraph,
-                                    new List<(string, VariableTypes)>(_paragraphParameters),
+                                    new List<FiMParagraphParameter>(_paragraphParameters),
                                     _paragraphReturn
                                 );
                                 this.Paragraphs.Add( _paragraphName, paragraph );
@@ -163,7 +166,7 @@ namespace FiMSharp
 
                                     // Keep track
                                     string currStatement;
-                                    (int, int) currLines = (i+1, i);
+                                    FiMLine currLines = new FiMLine( i+1, i );
 
                                     string TokenizeStatement( string l ) {
                                         string s = l;
@@ -182,7 +185,7 @@ namespace FiMSharp
                                         if( Extension.IsStatementStart(l, FiMStatementTypes.If ) ) {
                                             if( _s == 0 && ifStatement.HasElse ) throw FiMError.Create( FiMErrorType.IF_STATEMENT_EXPECTED_END, l, _i );
                                             else {
-                                                currLines.Item2++;
+                                                currLines.End++;
                                                 _s++;
                                             }
                                         }
@@ -190,13 +193,13 @@ namespace FiMSharp
                                             if( _s == 0 ) {
                                                 if( ifStatement.HasElse ) throw FiMError.Create( FiMErrorType.IF_STATEMENT_EXPECTED_END, l, _i );
                                                 blacklist.Add( _i );
-                                                ifStatement.Conditions.Add( ( currStatement, currLines ) );
+                                                ifStatement.Conditions.Add( new FiMIfCondition( currStatement, currLines ) );
                                                 Extension.IsStatementStart(l, out string k, out FiMStatementTypes _);
                                                 currStatement = TokenizeStatement( l.Substring(k.Length) );
-                                                currLines = ( _i+1, _i );
+                                                currLines.Start = _i+1; currLines.End = _i;
                                             }
                                             else {
-                                                currLines.Item2++;
+                                                currLines.End++;
                                                 _s++;
                                             }
                                         }
@@ -204,33 +207,33 @@ namespace FiMSharp
                                             if( _s == 0 ) {
                                                 blacklist.Add( _i );
                                                 ifStatement.HasElse = true;
-                                                ifStatement.Conditions.Add( ( currStatement, currLines ) );
+                                                ifStatement.Conditions.Add( new FiMIfCondition( currStatement, currLines ) );
                                                 currStatement = "";
-                                                currLines = ( _i+1, _i );
+                                                currLines.Start = _i+1; currLines.End = _i;
                                             }
                                         }
                                         else if( Extension.IsStatementEnd(l, FiMStatementTypes.If) ) {
                                             if( _s > 0 ) {
-                                                currLines.Item2++;
+                                                currLines.End++;
                                                 _s--;
                                             }
                                             else {
                                                 blacklist.Add( _i );
-                                                ifStatement.Conditions.Add( ( currStatement, currLines ) );
+                                                ifStatement.Conditions.Add( new FiMIfCondition( currStatement, currLines ) );
                                                 break;
                                             }
                                         }
                                         else {
-                                            currLines.Item2++;
+                                            currLines.End++;
                                         }
 
                                         _i++;
                                     }
 
-                                    this.Lines.Add(
-                                        i,
-                                        (line, TokenTypes.IF_STATEMENT, ifStatement)
-                                    );
+                                    _lineToken.Line = line;
+                                    _lineToken.Token = TokenTypes.IF_STATEMENT;
+                                    _lineToken.Arguments = ifStatement;
+                                    this.Lines.Add( i, _lineToken );
                                 }
 
                                 else if( statement_type == FiMStatementTypes.While ) {
@@ -240,7 +243,7 @@ namespace FiMSharp
 
                                     FiMWhileStatement whileStatement = new FiMWhileStatement
                                     {
-                                        Lines = (i + 1, i),
+                                        Lines = new FiMLine( i+1, i ),
                                         Condition = line.Substring(keyword.Length)
                                     };
                                     if ( whileStatement.Condition.EndsWith(" then") )
@@ -254,11 +257,11 @@ namespace FiMSharp
 
                                         if( Extension.IsStatementStart(l, FiMStatementTypes.While ) ) {
                                             _s++;
-                                            whileStatement.Lines.Item2++;
+                                            whileStatement.Lines.End++;
                                         }
                                         else if( Extension.IsStatementEnd(l, FiMStatementTypes.While ) ) {
                                             if( _s > 0 ) {
-                                                whileStatement.Lines.Item2++;
+                                                whileStatement.Lines.End++;
                                                 _s--;
                                             }
                                             else {
@@ -267,7 +270,7 @@ namespace FiMSharp
                                             }
                                         }
                                         else {
-                                            whileStatement.Lines.Item2++;
+                                            whileStatement.Lines.End++;
                                         }
 
                                         _i++;
@@ -275,7 +278,7 @@ namespace FiMSharp
 
                                     this.Lines.Add(
                                         i,
-                                        (line, TokenTypes.WHILE_STATEMENT, whileStatement)
+                                        new FiMLineToken( line, TokenTypes.WHILE_STATEMENT, whileStatement )
                                     );
 
                                 }
@@ -296,7 +299,7 @@ namespace FiMSharp
 
                                     void GrabStatementLines( FiMForStatement s ) {
                                         int _s = 0;
-                                        s.Lines = (_i,_i-1);
+                                        s.Lines.Start = _i; s.Lines.End = _i-1;
                                         while( true ) {
                                             if( _i >= lines.Length )
                                                 throw FiMError.Create( FiMErrorType.SCOPE_REACHED_EOF );
@@ -314,7 +317,7 @@ namespace FiMSharp
                                                 }
                                             }
                                             else {
-                                                s.Lines.Item2++;
+                                                s.Lines.End++;
                                             }
 
                                             _i++;
@@ -329,14 +332,14 @@ namespace FiMSharp
 
                                         var type = FiMMethods.GetVariableTypeFromDeclaration( s[0], out string k );
                                         if( type != VariableTypes.INTEGER ) throw FiMError.CreatePartial( FiMErrorType.FORTO_ELEMENT_NUMBER_ONLY );
-                                        forStatement.Element = ( s[0].Substring(k.Length+1), type );
+                                        forStatement.Element.Name = s[0].Substring(k.Length+1); forStatement.Element.Type = type;
 
                                         string[] r = s[1].Split(new string[] { " to " }, StringSplitOptions.None );
-                                        forStatement.Range = (r[0], r[1]);
+                                        forStatement.Range.From = r[0]; forStatement.Range.To = r[1];
 
                                         this.Lines.Add(
                                             i,
-                                            (line, TokenTypes.FOR_TO_STATEMENT, forStatement)
+                                            new FiMLineToken( line, TokenTypes.FOR_TO_STATEMENT, forStatement )
                                         );
                                     }
                                     else if ( line.Contains(" in ") ) {
@@ -346,13 +349,13 @@ namespace FiMSharp
                                         string[] s = line.Split(new string[] { " in " }, StringSplitOptions.None );
 
                                         var type = FiMMethods.GetVariableTypeFromDeclaration( s[0], out string k );
-                                        forStatement.Element = ( s[0].Substring(k.Length+1), type );
+                                        forStatement.Element.Name = s[0].Substring(k.Length+1); forStatement.Element.Type = type;
 
                                         forStatement.Variable = s[1];
 
                                         this.Lines.Add(
                                             i,
-                                            (line, TokenTypes.FOR_IN_STATEMENT, forStatement)
+                                            new FiMLineToken( line, TokenTypes.FOR_IN_STATEMENT, forStatement )
                                         );
                                     }
                                     else {
@@ -371,7 +374,7 @@ namespace FiMSharp
                                     };
 
                                     string currStatement = "";
-                                    (int, int) currLines = (-1, -1);
+                                    FiMLine currLines = new FiMLine( -1, -1 );
                                     bool isDefault = false;
 
                                     void InsertPrevStatement() {
@@ -385,7 +388,7 @@ namespace FiMSharp
                                         }
 
                                         currStatement = "";
-                                        currLines = (-1, -1);
+                                        currLines.Start = -1; currLines.End = -1;
                                         isDefault = false;
                                     }
 
@@ -414,7 +417,7 @@ namespace FiMSharp
                                                 } else {
                                                     currStatement = l;
                                                 }
-                                                currLines = (_i+1, _i);
+                                                currLines.Start = _i+1; currLines.End = _i;
                                                 blacklist.Add( _i );
                                             }
                                         }
@@ -425,7 +428,7 @@ namespace FiMSharp
                                                 InsertPrevStatement();
                                                 
                                                 isDefault = true;
-                                                currLines = (_i+1, _i);
+                                                currLines.Start = _i+1; currLines.End = _i;
 
                                                 blacklist.Add( _i );
                                             }
@@ -442,7 +445,7 @@ namespace FiMSharp
                                             }
                                         }
                                         else {
-                                            currLines.Item2++;
+                                            currLines.End++;
                                         }
 
                                         _i++;
@@ -450,7 +453,7 @@ namespace FiMSharp
                                     
                                     this.Lines.Add(
                                         i,
-                                        (line, TokenTypes.SWITCH_STATEMENT, switchStatement)
+                                        new FiMLineToken( line, TokenTypes.SWITCH_STATEMENT, switchStatement )
                                     );
                                 }
                             }
@@ -460,7 +463,7 @@ namespace FiMSharp
                                 var tokenize_result = Tokenizer.FiMTokenizer.TokenizeString( _line );
                                 this.Lines.Add(
                                     i,
-                                    (line, tokenize_result.Item1, tokenize_result.Item2)
+                                    new FiMLineToken( line, tokenize_result )
                                 );
                             }
 
@@ -494,16 +497,14 @@ namespace FiMSharp
 
             OriginalLines = lines;
         }
-        public FiMReport(string lines): this(lines.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)) {
-
-        }
+        public FiMReport(string lines): this(lines.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)) {}
 
         /// <summary>
         /// The tokenized lines of the report.
         /// The key of the dictionary is the line index.
         /// While the value is a tuple of the original line, the recognized token, and any miscellaneous values.
         /// </summary>
-        public readonly Dictionary<int, (string, TokenTypes, object)> Lines = new Dictionary<int, (string, TokenTypes, object)>();
+        public readonly Dictionary<int, FiMLineToken> Lines = new Dictionary<int, FiMLineToken>();
 
         /// <summary>
         /// The global variables in the report.

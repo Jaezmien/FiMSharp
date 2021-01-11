@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 using FiMSharp.Core;
+using FiMSharp.GlobalStructs;
 using FiMSharp.GlobalVars;
 using FiMSharp.Error;
 
@@ -37,16 +38,16 @@ namespace FiMSharp.Tokenizer
             return line;
         }
         public static string SimpleSanitize( string line ) => SimpleSanitize( line, out var _ );
-        public static (TokenTypes, object) TokenizeString(string inputLine)
+        public static FiMTokenizerResult TokenizeString(string inputLine)
         {
             string line = inputLine.TrimStart();
-            (TokenTypes, object) return_obj = (TokenTypes.UNDEFINED, null);
+            var return_obj = new FiMTokenizerResult( TokenTypes.UNDEFINED, null );
 
             try {
                 line = SimpleSanitize( line, out bool isComment );
                 if( isComment ) {
-                    return_obj.Item1 = TokenTypes.COMMENT;
-                    return_obj.Item2 = line;
+                    return_obj.Token = TokenTypes.COMMENT;
+                    return_obj.Arguments = line;
                     return return_obj;
                 }
             } catch(FiMPartialException partial) {
@@ -58,31 +59,31 @@ namespace FiMSharp.Tokenizer
             #region Print
             if( Globals.Methods.Print.Any(x => line.StartsWith(x)) )
             {
-                return_obj.Item1 = TokenTypes.PRINT;
+                return_obj.Token = TokenTypes.PRINT;
 
                 string keyword = Globals.Methods.Print.Where(x => line.StartsWith(x)).FirstOrDefault();
                 line = line.Substring(keyword.Length).TrimStart();
 
                 if( keyword == "I remembered " || keyword == "I would " )
-                    return_obj.Item1 = TokenTypes.RUN;
+                    return_obj.Token = TokenTypes.RUN;
 
-                return_obj.Item2 = line; goto EndToken;
+                return_obj.Arguments = line; goto EndToken;
             }
             #endregion
             #region Read
             if( Globals.Methods.Read.Any(x => line.StartsWith(x)) ) {
-                return_obj.Item1 = TokenTypes.READ;
+                return_obj.Token = TokenTypes.READ;
 
                 string keyword = Globals.Methods.Read.Where(x => line.StartsWith(x)).FirstOrDefault();
                 line = line.Substring(keyword.Length).TrimStart();
 
-                return_obj.Item2 = line; goto EndToken;
+                return_obj.Arguments = line; goto EndToken;
             }
             #endregion
             #region Create Variable
             else if( line.StartsWith( Globals.Methods.Variable_Declaration ) )
             {
-                return_obj.Item1 = TokenTypes.CREATE_VARIABLE;
+                return_obj.Token = TokenTypes.CREATE_VARIABLE;
 
                 line = line.Substring(Globals.Methods.Variable_Declaration.Length).TrimStart();
 
@@ -141,12 +142,12 @@ namespace FiMSharp.Tokenizer
                     line
                 };
 
-                return_obj.Item2 = args; goto EndToken;
+                return_obj.Arguments = args; goto EndToken;
             }
             #endregion
             #region Replace Variable Value
             if( Globals.Methods.Variable_Replace.Any( x => line.Contains($" {x} ")) ) {
-                return_obj.Item1 = TokenTypes.VARIABLE_REPLACE;
+                return_obj.Token = TokenTypes.VARIABLE_REPLACE;
 
                 string keyword = Globals.Methods.Variable_Replace.Where( x => line.Contains($" {x} ") ).FirstOrDefault();
                 string[] line_split = line.Split(new string[] { keyword }, StringSplitOptions.None);
@@ -167,12 +168,12 @@ namespace FiMSharp.Tokenizer
                     args.Add( new_value.Trim() );
                 }
 
-                return_obj.Item2 = args; goto EndToken;
+                return_obj.Arguments = args; goto EndToken;
             }
             #endregion
             #region Set Array Value
             if( FiMMethods.IsMatchArray1(line) ) {
-                return_obj.Item1 = TokenTypes.ARRAY_MODIFY;
+                return_obj.Token = TokenTypes.ARRAY_MODIFY;
 
                 (string result, string variable_name, int variable_index, string keyword) = FiMMethods.MatchArray1( line );
 
@@ -191,10 +192,10 @@ namespace FiMSharp.Tokenizer
                     args.Add( value );
                 }
 
-                return_obj.Item2 = args; goto EndToken;
+                return_obj.Arguments = args; goto EndToken;
             }
             else if( FiMMethods.IsMatchArray2(line) ) {
-                return_obj.Item1 = TokenTypes.ARRAY_MODIFY2;
+                return_obj.Token = TokenTypes.ARRAY_MODIFY2;
 
                 (string result, string variable_name, string variable_index, string keyword) = FiMMethods.MatchArray2( line );
 
@@ -206,34 +207,34 @@ namespace FiMSharp.Tokenizer
                     line.Substring(result.Length)
                 };
 
-                return_obj.Item2 = args; goto EndToken;
+                return_obj.Arguments = args; goto EndToken;
             }
             #endregion
             #region Variable Increment
             if( line.StartsWith("There was one more " ) ) {
-                return_obj.Item1 = TokenTypes.VARIABLE_INCREMENT;
-                return_obj.Item2 = line.Substring("There was one more ".Length); goto EndToken;
+                return_obj.Token = TokenTypes.VARIABLE_INCREMENT;
+                return_obj.Arguments = line.Substring("There was one more ".Length); goto EndToken;
             }
             else if( line.EndsWith(" got one more") ) {
-                return_obj.Item1 = TokenTypes.VARIABLE_INCREMENT;
-                return_obj.Item2 = line.Substring(0, line.Length - " got one more".Length); goto EndToken;
+                return_obj.Token = TokenTypes.VARIABLE_INCREMENT;
+                return_obj.Arguments = line.Substring(0, line.Length - " got one more".Length); goto EndToken;
             }
             #endregion
             #region Variable Decrement
             if( line.StartsWith("There was one less " ) ) {
-                return_obj.Item1 = TokenTypes.VARIABLE_DECREMENT;
-                return_obj.Item2 = line.Substring("There was one less ".Length); goto EndToken;
+                return_obj.Token = TokenTypes.VARIABLE_DECREMENT;
+                return_obj.Arguments = line.Substring("There was one less ".Length); goto EndToken;
             }
             else if( line.EndsWith(" got one less") ) {
-                return_obj.Item1 = TokenTypes.VARIABLE_DECREMENT;
-                return_obj.Item2 = line.Substring(0, line.Length - " got one less".Length); goto EndToken;
+                return_obj.Token = TokenTypes.VARIABLE_DECREMENT;
+                return_obj.Arguments = line.Substring(0, line.Length - " got one less".Length); goto EndToken;
             }
             #endregion
             #region Return
             if( line.StartsWith( Globals.Methods.Return ) ) {
-                return_obj.Item1 = TokenTypes.RETURN;
+                return_obj.Token = TokenTypes.RETURN;
                 line = line.Substring( Globals.Methods.Return.Length );
-                return_obj.Item2 = line; goto EndToken;
+                return_obj.Arguments = line; goto EndToken;
             }
             #endregion
 

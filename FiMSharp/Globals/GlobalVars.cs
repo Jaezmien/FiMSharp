@@ -66,7 +66,7 @@ namespace FiMSharp.GlobalVars
             {"Equal", "=="},
         };
         
-        public class ArithmeticStruct {
+        public struct ArithmeticStruct {
             public string[] Prefix { get; set; }
             public string[] PrefixInfix { get; set; }
             public string[] Infix { get; set; }

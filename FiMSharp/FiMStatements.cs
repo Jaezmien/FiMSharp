@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using FiMSharp.GlobalVars;
+using FiMSharp.GlobalStructs;
 
 namespace FiMSharp.Core
 {
@@ -9,34 +10,34 @@ namespace FiMSharp.Core
     public interface IFiMStatement {}
 
     public class FiMWhileStatement: IFiMStatement {
-        public (int, int) Lines = (-1, -1);
+        public FiMLine Lines = new FiMLine(-1, -1);
         public string Condition;
     }
 
     public class FiMForStatement: IFiMStatement {
-        public (int, int) Lines = (-1, -1);
-        public (string, VariableTypes) Element;
+        public FiMLine Lines = new FiMLine(-1, -1);
+        public FiMStatementVariableStruct Element;
     }
     public class FiMForToStatement: FiMForStatement {
         // Reminder: This can be a variable, so we're using strings instead of getting the value directly.
-        public (string, string) Range;
+        public FiMForRange Range;
     }
     public class FiMForInStatement: FiMForStatement {
         public string Variable;
     }
 
     public class FiMIfStatement: IFiMStatement {
-        public List<(string, (int, int))> Conditions = new List<(string, (int, int))>();
+        public List<FiMIfCondition> Conditions = new List<FiMIfCondition>();
         public bool HasElse; // If true, Conditions.Last will be the else statement
     }
 
     public class FiMSwitchStatement: IFiMStatement {
-        public Dictionary<string, (int, int)> Case = new Dictionary<string, (int, int)>();
-        public (int, int) Default = (-1, -1);
+        public Dictionary<string, FiMLine> Case = new Dictionary<string, FiMLine>();
+        public FiMLine Default = new FiMLine(-1, -1);
         public string Switch;
         public int EndIndex;
 
-        public bool HasDefault() => this.Default != (-1, -1);
+        public bool HasDefault() => this.Default.Start != -1 && this.Default.End != -1;
     }
 
     //

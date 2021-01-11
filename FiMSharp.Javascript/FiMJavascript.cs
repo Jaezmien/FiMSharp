@@ -19,6 +19,7 @@ namespace FiMSharp.Javascript
                 buffer = buffer.Replace("_", "__");
                 buffer = buffer.Replace(" ", "_");
                 buffer = buffer.Replace("'","_");
+                buffer = buffer.Replace("-","_");
                 return buffer;
             }
 
@@ -42,7 +43,8 @@ namespace FiMSharp.Javascript
                 return SetIfNullValue(line, fallback);
 
             if( Regex.IsMatch(line,"^'.'$") ) {
-                return line.Substring(1,line.Length - 2);
+                //return line.Substring(1,line.Length - 2);
+                return line;
             }
             if( Regex.IsMatch(line,"^\"[^\"]+\"$") ) {
                 return line;
@@ -76,13 +78,13 @@ namespace FiMSharp.Javascript
 
                         if( _params.Count < p.Parameters.Count ) {
                             for( int x = _params.Count; x < p.Parameters.Count; x++ ) {
-                                VariableTypes t = p.Parameters[x].Item2;
+                                VariableTypes t = p.Parameters[x].Type;
                                 _params.Add( SetIfNullValue(null, t) );
                             }
                         }
                     } else {
                         p.Parameters.ForEach(x => {
-                            _params.Add( SetIfNullValue(null, x.Item2) );
+                            _params.Add( SetIfNullValue(null, x.Type) );
                         });
                     }
                 }
@@ -269,7 +271,9 @@ namespace FiMSharp.Javascript
                 for( int y = 0; y < str[x].Length; y++ ) {
                     string l = str[x][y];
                     string left, right;
+
                     (string kw, string condition) = FiMConditional.GetConditional( l );
+
                     left  = l.Split( new string[] {$" {kw} "}, StringSplitOptions.None )[0];
                     right = l.Split( new string[] {$" {kw} "}, StringSplitOptions.None )[1];
 
@@ -333,6 +337,7 @@ namespace FiMSharp.Javascript
             addOutput( "Princess_Celestia = function() {}" ); // Base class
 
             string report_name = report.ReportName.Replace("_", "__").Replace(" ", "_");
+            if( int.TryParse(report_name[0].ToString(), out int _) ) report_name = "_" + report_name;
             addOutput( $"function { report_name }() {{" );
 
             void ParseParagraphLines( int line_start, int line_end, int indent = 2 ) {
@@ -349,7 +354,7 @@ namespace FiMSharp.Javascript
                     } else {
 
                         var line = report.Lines[i];
-                        switch( line.Item2 ) {
+                        switch( line.Token ) {
                             case TokenTypes.IGNORE: break;
                             case TokenTypes.COMMENT: {
                                 // addOutput( $"// { (string)line.Item3 }", indent );
@@ -357,23 +362,23 @@ namespace FiMSharp.Javascript
                             break;
 
                             case TokenTypes.RUN: {
-                                string _pname = (string)line.Item3;
+                                string _pname = (string)line.Arguments;
                                 // if( _pname.Contains(" using ") ) _pname = _pname.Split(new string[] {" using "}, StringSplitOptions.None)[0].Trim();
 
                                 addOutput( $"{ Extension.SanitizeVariable(_pname, report) };", indent );
                             }
                             break;
                             case TokenTypes.PRINT: {
-                                addOutput( $"console.log( { Extension.SanitizeVariable((string)line.Item3, report, false) } );" , indent );
+                                addOutput( $"console.log( { Extension.SanitizeVariable((string)line.Arguments, report, false) } );" , indent );
                             }
                             break;
                             case TokenTypes.READ: {
-                                addOutput( $"{ Extension.SanitizeVariable((string)line.Item3, report)} = readline();", indent );
+                                addOutput( $"{ Extension.SanitizeVariable((string)line.Arguments, report)} = readline();", indent );
                             }
                             break;
 
                             case TokenTypes.CREATE_VARIABLE: {
-                                var tokenize_result = line.Item3 as List<object>;
+                                var tokenize_result = line.Arguments as List<object>;
                                 string t = (bool)tokenize_result[2] ? "const" : "let";
                                 object v = tokenize_result[4];
                                 bool a = (bool)tokenize_result[3];
@@ -395,7 +400,7 @@ namespace FiMSharp.Javascript
                             }
                             break;
                             case TokenTypes.VARIABLE_REPLACE: {
-                                var tokenize_result = line.Item3 as List<object>;
+                                var tokenize_result = line.Arguments as List<object>;
                                 string n = (string)tokenize_result[0]; n = Extension.Sanitize(n);
                                 string v = (string)tokenize_result[1]; v = Extension.SanitizeVariable(v, report, false);
                                 addOutput($"{ n } = { v };", indent);
@@ -404,7 +409,7 @@ namespace FiMSharp.Javascript
 
                             case TokenTypes.ARRAY_MODIFY: {
                                 // x y becomes z
-                                List<object> args = line.Item3 as List<object>;
+                                List<object> args = line.Arguments as List<object>;
                                 string variable_name = (string)args[0];
                                 int array_index = (int)args[1];
                                 string keyword = (string)args[2];
@@ -426,7 +431,7 @@ namespace FiMSharp.Javascript
                             break;
                             case TokenTypes.ARRAY_MODIFY2: {
                                 // y of x becomes z
-                                List<object> args = line.Item3 as List<object>;
+                                List<object> args = line.Arguments as List<object>;
                                 string variable_name = (string)args[0];
                                 string variable_index = (string)args[1];
                                 string keyword = (string)args[2];
@@ -441,7 +446,7 @@ namespace FiMSharp.Javascript
                             break;
 
                             case TokenTypes.VARIABLE_INCREMENT: {
-                                string variable_name = (string)line.Item3;
+                                string variable_name = (string)line.Arguments;
                                 variable_name = Extension.SanitizeVariable( variable_name, report );
 
                                 if( variable_name.Contains("[") && variable_name.Contains("]") ) {
@@ -452,7 +457,7 @@ namespace FiMSharp.Javascript
                             }
                             break;
                             case TokenTypes.VARIABLE_DECREMENT: {
-                                string variable_name = (string)line.Item3;
+                                string variable_name = (string)line.Arguments;
                                 variable_name = Extension.SanitizeVariable( variable_name, report );
                                 
                                 if( variable_name.Contains("[") && variable_name.Contains("]") ) {
@@ -464,35 +469,35 @@ namespace FiMSharp.Javascript
                             break;
 
                             case TokenTypes.RETURN: {
-                                addOutput( $"return { Extension.SanitizeVariable((string)line.Item3, report)};", indent);
+                                addOutput( $"return { Extension.SanitizeVariable((string)line.Arguments, report)};", indent);
                             }
                             break;
 
                             case TokenTypes.IF_STATEMENT: {
-                                FiMIfStatement statement = (FiMIfStatement)line.Item3;
-                                i = statement.Conditions.LastOrDefault().Item2.Item2;
+                                FiMIfStatement statement = (FiMIfStatement)line.Arguments;
+                                i = statement.Conditions.LastOrDefault().Lines.End;
 
                                 for( int con = 0; con < statement.Conditions.Count; con++ ) {
                                     var condition = statement.Conditions[ con ];
-                                    string _c = condition.Item1;
+                                    string _c = condition.Condition;
                                     if( _c != "" )
-                                        _c = Extension.SanitizeConditional(condition.Item1, report);
+                                        _c = Extension.SanitizeConditional(condition.Condition, report);
 
                                     if( con == 0 ) {
                                         // If
                                         addOutput( $"if ( { _c } ) {{", indent );
-                                        ParseParagraphLines( condition.Item2.Item1, condition.Item2.Item2, indent + 1 );
+                                        ParseParagraphLines( condition.Lines.Start, condition.Lines.End, indent + 1 );
                                         addOutput( "}", indent );
                                     }
                                     else if( con == statement.Conditions.Count - 1 && statement.HasElse ) {
                                         // Else
                                         addOutput( $"else {{", indent );
-                                        ParseParagraphLines( condition.Item2.Item1, condition.Item2.Item2, indent + 1 );
+                                        ParseParagraphLines( condition.Lines.Start, condition.Lines.End, indent + 1 );
                                         addOutput( "}", indent );
                                     } else {
                                         // Else if
                                         addOutput( $"else if ( { _c } ) {{", indent );
-                                        ParseParagraphLines( condition.Item2.Item1, condition.Item2.Item2, indent + 1 );
+                                        ParseParagraphLines( condition.Lines.Start, condition.Lines.End, indent + 1 );
                                         addOutput( "}", indent );
                                     }
                                 }
@@ -501,19 +506,19 @@ namespace FiMSharp.Javascript
                             }
                             break;
                             case TokenTypes.WHILE_STATEMENT: {
-                                FiMWhileStatement statement = (FiMWhileStatement)line.Item3;
-                                i = statement.Lines.Item2;
+                                FiMWhileStatement statement = (FiMWhileStatement)line.Arguments;
+                                i = statement.Lines.End;
                                 string _c = Extension.SanitizeConditional(statement.Condition, report);
 
                                 addOutput($"while({ _c }) {{", indent);
-                                ParseParagraphLines( statement.Lines.Item1, statement.Lines.Item2, indent + 1);
+                                ParseParagraphLines( statement.Lines.Start, statement.Lines.End, indent + 1);
                                 addOutput("}", indent);
 
                                 i++;
                             }
                             break;
                             case TokenTypes.SWITCH_STATEMENT: {
-                                FiMSwitchStatement statement = (FiMSwitchStatement)line.Item3;
+                                FiMSwitchStatement statement = (FiMSwitchStatement)line.Arguments;
                                 i = statement.EndIndex;
 
                                 string lvariable = statement.Switch;
@@ -523,7 +528,7 @@ namespace FiMSharp.Javascript
                                 foreach( string s in statement.Case.Keys ) {
 
                                     addOutput($"case { Extension.SanitizeVariable(s, report) }: {{", indent+1);
-                                    ParseParagraphLines( statement.Case[s].Item1, statement.Case[s].Item2, indent+2 );
+                                    ParseParagraphLines( statement.Case[s].Start, statement.Case[s].End, indent+2 );
                                     addOutput($"}}", indent+1);
                                     addOutput($"break;", indent+1);
 
@@ -535,29 +540,29 @@ namespace FiMSharp.Javascript
                             break;
                             
                             case TokenTypes.FOR_TO_STATEMENT: {
-                                var statement = (FiMForToStatement)line.Item3;
-                                i = statement.Lines.Item2;
+                                var statement = (FiMForToStatement)line.Arguments;
+                                i = statement.Lines.End;
 
-                                string min = Extension.SanitizeVariable( statement.Range.Item1, report );
-                                string max = Extension.SanitizeVariable( statement.Range.Item2, report );
+                                string min = Extension.SanitizeVariable( statement.Range.From, report );
+                                string max = Extension.SanitizeVariable( statement.Range.To, report );
 
-                                string var_name = Extension.Sanitize( statement.Element.Item1 );
+                                string var_name = Extension.Sanitize( statement.Element.Name );
                                 addOutput($"for( let {var_name} = {min}; {var_name} <= {max}; {var_name}++ ) {{", indent);
-                                ParseParagraphLines( statement.Lines.Item1, statement.Lines.Item2, indent+1 );
+                                ParseParagraphLines( statement.Lines.Start, statement.Lines.End, indent+1 );
                                 addOutput($"}}",indent);
 
                                 i++;
                             }
                             break;
                             case TokenTypes.FOR_IN_STATEMENT: {
-                                var statement = (FiMForInStatement)line.Item3;
-                                i = statement.Lines.Item2;
+                                var statement = (FiMForInStatement)line.Arguments;
+                                i = statement.Lines.End;
 
-                                string el = Extension.Sanitize( statement.Element.Item1 );
+                                string el = Extension.Sanitize( statement.Element.Name );
                                 string va = Extension.Sanitize( statement.Variable );
 
                                 addOutput($"for( let {el} of { va } ) {{", indent);
-                                ParseParagraphLines( statement.Lines.Item1, statement.Lines.Item2, indent+1);
+                                ParseParagraphLines( statement.Lines.Start, statement.Lines.End, indent+1);
                                 addOutput($"}}", indent);
 
                                 i++;
@@ -572,8 +577,8 @@ namespace FiMSharp.Javascript
             }
             void ParseParagraph( FiMParagraph p )
             {
-                addOutput($"this.{ Extension.Sanitize(p.Name) } = function({ string.Join(",", p.Parameters.Select(x => x.Item1) ) }) {{", 1);
-                ParseParagraphLines( p.Lines.Item1, p.Lines.Item2 );
+                addOutput($"this.{ Extension.Sanitize(p.Name) } = function({ string.Join(",", p.Parameters.Select(x => Extension.Sanitize(x.Name) ) ) }) {{", 1);
+                ParseParagraphLines( p.Lines.Start, p.Lines.End );
                 addOutput("}", 1);
             }
 
@@ -582,7 +587,7 @@ namespace FiMSharp.Javascript
                 string line = report.OriginalLines[l].TrimStart();
                 // Variable
                 if( line.StartsWith( Globals.Methods.Variable_Declaration ) ) {
-                    var tokenize_result = Tokenizer.FiMTokenizer.TokenizeString( line ).Item2 as List<object>;
+                    var tokenize_result = Tokenizer.FiMTokenizer.TokenizeString( line ).Arguments as List<object>;
                     string t = (bool)tokenize_result[2] ? "const" : "let";
                     object v = tokenize_result[4];
                     bool a = (bool)tokenize_result[3];
@@ -603,10 +608,10 @@ namespace FiMSharp.Javascript
                     }
                 }
                 // Paragraph
-                else if( report.Paragraphs.Values.Any(x => x.Lines.Item1 == l) ) {
-                    FiMParagraph p = report.Paragraphs.Values.Where(x => x.Lines.Item1 == l).FirstOrDefault();
+                else if( report.Paragraphs.Values.Any(x => x.Lines.Start == l) ) {
+                    FiMParagraph p = report.Paragraphs.Values.Where(x => x.Lines.Start == l).FirstOrDefault();
                     ParseParagraph(p);
-                    l = p.Lines.Item2;
+                    l = p.Lines.End;
                 }
                 // Comments
                 else if( FiMMethods.IsComment( line ) ) {

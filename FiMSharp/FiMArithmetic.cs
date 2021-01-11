@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using FiMSharp.GlobalStructs;
 using FiMSharp.GlobalVars;
 using FiMSharp.Error;
 
@@ -30,13 +31,13 @@ namespace FiMSharp.Core
             Arithmetic = shorthand[ arithmetic_ ];
             Right = right_;
         }
-        public FiMArithmetic(string _line, (bool, string) check_result)
+        public FiMArithmetic(string _line, FiMArithmethicResult check_result)
         {
-            string t = check_result.Item2;
+            string t = check_result.Type;
             Arithmetic = shorthand[ t ];;
 
             string line = _line;
-            if( check_result.Item1 ) {
+            if( check_result.IsPrefix ) {
                 // Prefix
                 string pre = Globals.Arithmetic[t].Prefix.Where(x => line.StartsWith(x)).FirstOrDefault();
                 string preinf = Globals.Arithmetic[t].PrefixInfix.Where(x => line.Contains($" {x} ")).FirstOrDefault();
@@ -85,18 +86,19 @@ namespace FiMSharp.Core
         }
 
         /// <returns>out: (isPrefix, type)</returns>
-        public static bool IsArithmetic( string line, out (bool, string) result ) {
-            result = (false, "");
+        public static bool IsArithmetic( string line, out FiMArithmethicResult result ) {
+            result = new FiMArithmethicResult( false, "" );
 
             foreach( string type in Globals.Arithmetic.Keys ) {
                 var keywords = Globals.Arithmetic[ type ];
                 
                 if( keywords.Prefix.Any(x => line.StartsWith(x)) && keywords.PrefixInfix.Any(x => line.Contains($" {x} ")) ) {
-                    result.Item1 = true; result.Item2 = type;
+                    result.IsPrefix = true;
+                    result.Type = type;
                     return true;
                 }
                 else if( keywords.Infix.Any(x => line.Contains($" {x} ")) ) {
-                    result.Item1 = false; result.Item2 = type;
+                    result.Type = type;
                     return true;
                 }
             }

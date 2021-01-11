@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+using FiMSharp.GlobalStructs;
 using FiMSharp.GlobalVars;
 using FiMSharp.Error;
 
@@ -29,21 +30,31 @@ namespace FiMSharp.Core
         /// <summary>
         /// [VARIABLE_NAME] [INDEX] [KEYWORD]
         /// </summary>
-        public static (string, string, int, string) MatchArray1( string line, bool ignore_keyword = false ) {
+        public static FiMArrayMatch1 MatchArray1( string line, bool ignore_keyword = false ) {
             if( !ignore_keyword ) {
                 var match = _pre_arrayVariableSet.Match( line );
                 string variable_name = match.Groups[1].Value;
                 int variable_index = int.Parse( match.Groups[2].Value );
                 string keyword = match.Groups[3].Value;
 
-                return( match.Value, variable_name, variable_index, keyword );
+                return new FiMArrayMatch1(
+                    match.Value,
+                    variable_name,
+                    variable_index,
+                    keyword
+                );
             } else {
                 var match = _pre_arrayVariableSetb.Match( line );
                 string variable_name = match.Groups[1].Value;
                 int variable_index = int.Parse( match.Groups[2].Value );
                 string keyword = "";
 
-                return( match.Value, variable_name, variable_index, keyword );
+                return new FiMArrayMatch1(
+                    match.Value,
+                    variable_name,
+                    variable_index,
+                    keyword
+                );
             }
         }
         public static bool IsMatchArray1( string line, bool ignore_keyword = false )
@@ -52,21 +63,31 @@ namespace FiMSharp.Core
         /// <summary>
         /// [VARIABLE_INDEX] [KEYWORD] [VARIABLE_NAME] [KEYWORD]
         /// </summary>
-        public static (string, string, string, string) MatchArray2( string line, bool ignore_keyword = false ) {
+        public static FiMArrayMatch2 MatchArray2( string line, bool ignore_keyword = false ) {
             if( !ignore_keyword ) {
                 var match = _pre_arrayVariableSet2.Match( line );
                 string variable_name = match.Groups[3].Value;
                 string variable_index = match.Groups[1].Value;
                 string keyword = match.Groups[4].Value;
     
-                return( match.Value, variable_name, variable_index, keyword );
+                return new FiMArrayMatch2(
+                    match.Value,
+                    variable_name,
+                    variable_index,
+                    keyword
+                );
             } else {
                 var match = _pre_arrayVariableSet2b.Match( line );
                 string variable_name = match.Groups[3].Value;
                 string variable_index = match.Groups[1].Value;
                 string keyword = "";
 
-                return( match.Value, variable_name, variable_index, keyword );
+                return new FiMArrayMatch2(
+                    match.Value,
+                    variable_name,
+                    variable_index,
+                    keyword
+                );
             }
         }
         public static bool IsMatchArray2( string line, bool ignore_keyword = false )
@@ -292,7 +313,7 @@ namespace FiMSharp.Core
                     throw FiMError.CreatePartial( FiMErrorType.METHOD_CANNOT_GET_NULL, value );
             }
         }
-        public static (string, FiMVariable) VariableFromTokenizer( FiMReport report, Dictionary<string, FiMVariable> variables, object args ) {
+        public static FiMVariableTokenizer VariableFromTokenizer( FiMReport report, Dictionary<string, FiMVariable> variables, object args ) {
             string _variable_name;
             VariableTypes _variable_type;
             bool _variable_const;
@@ -357,7 +378,7 @@ namespace FiMSharp.Core
                 variable_value = value;
             }
 
-            return (
+            return new FiMVariableTokenizer(
                 _variable_name,
                 new FiMVariable(
                     variable_value,
@@ -368,20 +389,19 @@ namespace FiMSharp.Core
             );
         }
 
-        public static (int, FiMVariable) ParseArray( int index, string variable_name, Dictionary<string, FiMVariable> variables ) {
+        public static FiMParsedArray ParseArray( int index, string variable_name, Dictionary<string, FiMVariable> variables ) {
             FiMVariable variable = variables[ variable_name ];
-            return (index, variable );
+            return new FiMParsedArray( index, variable );
         }
-        public static (int, FiMVariable) ParseArray( string variable_index, string variable_name, FiMReport report, Dictionary<string, FiMVariable> variables ) {
+        public static FiMParsedArray ParseArray( string variable_index, string variable_name, FiMReport report, Dictionary<string, FiMVariable> variables ) {
             FiMVariable variable = variables[ variable_name ];
             object _var = ParseVariable( variable_index, report, variables, out var _var_type );
             if( _var_type != VariableTypes.INTEGER )
                 throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, VariableTypes.INTEGER, _var_type );
-            
             float index = Convert.ToSingle( _var );
             if( index.HasDecimal() )
                 throw FiMError.CreatePartial( FiMErrorType.METHOD_ARRAY_INDEX_MUST_BE_INTEGER );
-            return ((int)index, variable);
+            return new FiMParsedArray( (int)index, variable );
         }
 
         public static object ParseVariable( string str, FiMReport report, Dictionary<string, FiMVariable> variables, out VariableTypes type, bool run_once = true, VariableTypes fallback = VariableTypes.UNDEFINED) {
@@ -443,30 +463,30 @@ namespace FiMSharp.Core
                                 GetVariableTypeFromDeclaration(param, out string kw);
                                 param = param.Substring(kw.Length + 1);
                             }
-                            object value = ParseVariable(param, report, variables, out VariableTypes got_type, fallback: p.Parameters[index].Item2);
-                            if( got_type != p.Parameters[index].Item2 )
-                                throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, p.Parameters[index].Item2, got_type );
+                            object value = ParseVariable(param, report, variables, out VariableTypes got_type, fallback: p.Parameters[index].Type);
+                            if( got_type != p.Parameters[index].Type )
+                                throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, p.Parameters[index].Type, got_type );
                             _params.Add( value );
                             index++;
                         }
 
                         if( _params.Count < p.Parameters.Count ) {
                             for( int x = _params.Count; x < p.Parameters.Count; x++ ) {
-                                VariableTypes t = p.Parameters[x].Item2;
+                                VariableTypes t = p.Parameters[x].Type;
                                 _params.Add( GetNullValue(t) );
                             }
                         }
                     } else {
                         p.Parameters.ForEach(x => {
-                            _params.Add( GetNullValue( x.Item2 ) );
+                            _params.Add( GetNullValue( x.Type ) );
                         });
                     }
                 }
 
-                (object _value, VariableTypes _type) = p.Execute(_params);
+                var ret = p.Execute(_params);
 
-                type = _type;
-                return _value;
+                type = ret.Type;
+                return ret.Value;
             }
 
             if( str.StartsWith("length of ") ) {
@@ -548,17 +568,17 @@ namespace FiMSharp.Core
             if( IsMatchArray2(str,true) ) {
                 (string _result, string variable_name, string variable_index, string _) = FiMMethods.MatchArray2( str,true );
                 if( variables.ContainsKey(variable_name) ) {
-                    (int, FiMVariable) result = ParseArray( variable_index, variable_name, report, variables );
-                    type = VariableTypeArraySubType( result.Item2.Type );
-                    return result.Item2.GetValue( result.Item1 ).Item1;
+                    var result = ParseArray( variable_index, variable_name, report, variables );
+                    type = VariableTypeArraySubType( result.Variable.Type );
+                    return result.Variable.GetValue( result.Index ).Value;
                 }
             }
             else if( IsMatchArray1(str,true) ) {
                 (string _result, string variable_name, int variable_index, string _) = FiMMethods.MatchArray1( str,true );
                 if( variables.ContainsKey(variable_name) ) {
-                    (int, FiMVariable) result = ParseArray( variable_index, variable_name, variables );
-                    type = VariableTypeArraySubType( result.Item2.Type );
-                    return result.Item2.GetValue( result.Item1 ).Item1;
+                    var result = ParseArray( variable_index, variable_name, variables );
+                    type = VariableTypeArraySubType( result.Variable.Type );
+                    return result.Variable.GetValue( result.Index ).Value;
                 }
             }
 
