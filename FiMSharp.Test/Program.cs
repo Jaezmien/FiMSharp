@@ -39,6 +39,18 @@ namespace FiMSharpTest
             FiMReport report = new FiMReport(lines);
             return FiMJavascript.Parse(report);
         }
+
+        public static bool FindReport( string report_name, out string[] lines ) {
+            string[] file_extensions = {".fim", ".fpp", ".fimpp"};
+            foreach(string ext in file_extensions) {
+                if( File.Exists("Reports/"+ report_name + ext ) ) {
+                    lines = File.ReadAllLines( "Reports/"+ report_name + ext );
+                    return true;
+                }
+            }
+            lines = new string[] {};
+            return false;
+        }
         static object TestingMain(string[] args)
         {
             if (args.Length > 0)
@@ -51,13 +63,11 @@ namespace FiMSharpTest
                     .Add("js", v => toJS = true);
                 p.Parse(args);
 
-                if( string.IsNullOrEmpty(report_name) || !File.Exists("Reports/"+ report_name + ".fim") )
+                if( string.IsNullOrEmpty(report_name) || !FindReport(report_name, out string[] report_lines) )
                 {
                     Console.WriteLine("[Console] Invalid report " + report_name);
                     return 1;
                 }
-
-                string[] report_lines = File.ReadAllLines( "Reports/"+ report_name + ".fim" );
 
                 Stopwatch s = new Stopwatch();
                 s.Start();
@@ -84,6 +94,7 @@ namespace FiMSharpTest
                     Console.Write("> ");
                     string report_name = Console.ReadLine();
                     bool show = false;
+                    bool js = false;
 
                     if( report_name == ".list" ) {
                         foreach(string path in Directory.GetFiles("Reports/")) {
@@ -98,10 +109,6 @@ namespace FiMSharpTest
                     if( report_name == ".exit" ) {
                         break;
                     }
-                    if( report_name.StartsWith(".show " ) ) {
-                        show = true;
-                        report_name = report_name.Substring(".show ".Length);
-                    }
                     if( report_name == ".help" )
                     {
                         Console.WriteLine("[FiMTest] All available commands");
@@ -110,16 +117,24 @@ namespace FiMSharpTest
                         Console.WriteLine(".exit - Exits the program");
                         Console.WriteLine(".show [report name] - Prints out the report into the console");
                         Console.WriteLine(".help - Shows all available commands");
+                        Console.WriteLine(".js [report name] - Compiles report to Javascript instead");
                         continue;
                     }
 
-                    if( !File.Exists("Reports/"+ report_name + ".fim") )
+                    if( report_name.StartsWith(".show " ) ) {
+                        show = true;
+                        report_name = report_name.Substring(".show ".Length);
+                    }
+                    else if( report_name.StartsWith(".js " ) ) {
+                        js = true;
+                        report_name = report_name.Substring(".js ".Length);
+                    }
+
+                    if( string.IsNullOrEmpty(report_name) || !FindReport(report_name, out string[] report_lines) )
                     {
-                        Console.WriteLine("[FiMTest] Invalid report " + report_name);
+                        Console.WriteLine("[Console] Invalid report " + report_name);
                         continue;
                     }
-
-                    string[] report_lines = File.ReadAllLines( "Reports/"+ report_name + ".fim" );
 
                     if( show ) {
                         foreach(string line in report_lines) Console.WriteLine(line);
@@ -128,11 +143,21 @@ namespace FiMSharpTest
 
                     Stopwatch s = new Stopwatch();
                     s.Start();
+                    
+                    if( js ) {
+                        if (!Directory.Exists("Build/")) Directory.CreateDirectory("Build/");
+                        string[] new_lines = CompileReport(report_lines);
+                        if (!File.Exists("Build/" + report_name + ".js")) File.Create("Build/" + report_name + ".js").Close();
+                        File.WriteAllLines("Build/" + report_name + ".js", new_lines);
 
-                    ExecuteReport(report_lines);
+                        s.Stop();
+                        Console.WriteLine("[Debug] Code compilation took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
+                    } else {
+                        ExecuteReport(report_lines);
 
-                    s.Stop();
-                    Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
+                        s.Stop();
+                        Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
+                    }
 
                     End:
                     Console.WriteLine();
