@@ -1,5 +1,7 @@
 # 🐎 FiMSharp
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/Jaezmien/FiMSharp?style=flat-square) ![Nuget](https://img.shields.io/nuget/v/FiMSharp?style=flat-square)
+
 FiMSharp is a [FiM++](https://esolangs.org/wiki/FiM%2B%2B) interpreter library written in C#.
 
 # 🖥 Usage
