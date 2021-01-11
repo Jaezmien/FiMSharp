@@ -23,7 +23,7 @@ namespace FiMSharpTest
             try
             {
                 FiMReport report = new FiMReport(lines);
-                Console.WriteLine("[ FiMSharp Test v0.2 ]");
+                Console.WriteLine("[ FiMSharp Test v0.3 ]");
                 Console.WriteLine($"Report Name: {report.ReportName}");
                 Console.WriteLine($"Student Name: {report.StudentName}");
                 Console.WriteLine("[@]=======================================[@]");
@@ -53,7 +53,7 @@ namespace FiMSharpTest
 
                 if( string.IsNullOrEmpty(report_name) || !File.Exists("Reports/"+ report_name + ".fim") )
                 {
-                    Console.WriteLine("[Console] Invalid report" + report_name);
+                    Console.WriteLine("[Console] Invalid report " + report_name);
                     return 1;
                 }
 
