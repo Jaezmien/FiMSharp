@@ -390,10 +390,14 @@ namespace FiMSharp.Core
         }
 
         public static FiMParsedArray ParseArray( int index, string variable_name, Dictionary<string, FiMVariable> variables ) {
+            if( !variables.ContainsKey(variable_name) )
+                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
             FiMVariable variable = variables[ variable_name ];
             return new FiMParsedArray( index, variable );
         }
         public static FiMParsedArray ParseArray( string variable_index, string variable_name, FiMReport report, Dictionary<string, FiMVariable> variables ) {
+            if( !variables.ContainsKey(variable_name) )
+                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
             FiMVariable variable = variables[ variable_name ];
             object _var = ParseVariable( variable_index, report, variables, out var _var_type );
             if( _var_type != VariableTypes.INTEGER )

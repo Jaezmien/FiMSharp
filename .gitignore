@@ -374,3 +374,4 @@ obj/
 # because vs code at least opens faster than vs
 .vscode/
 bin.zip
+FiMSharp.Test/Reports/*.fim

@@ -46,8 +46,8 @@ namespace FiMSharp
                 if( blacklist.Contains(i) ) continue;
 
                 string line = lines[i];
-                string _line = line;
                 line = FiMMethods.RemoveStringParentheses( line ).TrimStart();
+                string _line = line;
 
                 if( line.Trim().Length > 0 ) {
            
@@ -180,7 +180,12 @@ namespace FiMSharp
                                         if( _i >= lines.Length )
                                             throw FiMError.Create( FiMErrorType.SCOPE_REACHED_EOF );
 
-                                        string l = Tokenizer.FiMTokenizer.SimpleSanitize( lines[_i].TrimStart() );
+                                        string l;
+                                        try {
+                                            l = Tokenizer.FiMTokenizer.SimpleSanitize( lines[_i].TrimStart() );
+                                        } catch( FiMPartialException partial ) {
+                                            throw FiMError.Create( partial, lines[_i].TrimStart(), _i );
+                                        }
                                         
                                         if( Extension.IsStatementStart(l, FiMStatementTypes.If ) ) {
                                             if( _s == 0 && ifStatement.HasElse ) throw FiMError.Create( FiMErrorType.IF_STATEMENT_EXPECTED_END, l, _i );
@@ -253,7 +258,12 @@ namespace FiMSharp
                                         if( _i >= lines.Length )
                                             throw FiMError.Create( FiMErrorType.SCOPE_REACHED_EOF );
 
-                                        string l = Tokenizer.FiMTokenizer.SimpleSanitize( lines[_i].TrimStart() );
+                                        string l;
+                                        try {
+                                            l = Tokenizer.FiMTokenizer.SimpleSanitize( lines[_i].TrimStart() );
+                                        } catch( FiMPartialException partial ) {
+                                            throw FiMError.Create( partial, lines[_i].TrimStart(), _i );
+                                        }
 
                                         if( Extension.IsStatementStart(l, FiMStatementTypes.While ) ) {
                                             _s++;
@@ -304,7 +314,12 @@ namespace FiMSharp
                                             if( _i >= lines.Length )
                                                 throw FiMError.Create( FiMErrorType.SCOPE_REACHED_EOF );
 
-                                            string l = Tokenizer.FiMTokenizer.SimpleSanitize( lines[_i].TrimStart() );
+                                            string l;
+                                            try {
+                                                l = Tokenizer.FiMTokenizer.SimpleSanitize( lines[_i].TrimStart() );
+                                            } catch( FiMPartialException partial ) {
+                                                throw FiMError.Create( partial, lines[_i].TrimStart(), _i );
+                                            }
 
                                             if( Extension.IsStatementStart(l, FiMStatementTypes.For ) ) {
                                                 _s++;
@@ -477,7 +492,7 @@ namespace FiMSharp
                     }
                     }
                     catch( FiMPartialException partial ) {
-                        throw FiMError.Create( partial, line, i );
+                        throw FiMError.Create( partial, _line, i );
                     }
 
                 } else {
