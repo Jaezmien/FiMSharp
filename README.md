@@ -27,7 +27,7 @@ You can also build and use project `FiMSharp.Test`, you'll need a `Report` direc
 
 You'll need [.NET SDK](https://dotnet.microsoft.com/download) to compile the solution from source.
 
-Most of the work can be done by the included makefule. You can look inside the file if you want to find the arguments needed to build the optional `FiMSharp.Test` project.
+Most of the work can be done by the included makefile. You can look inside the file if you want to find the arguments needed to build the optional `FiMSharp.Test` project.
 
 Included runtimes are:
 
