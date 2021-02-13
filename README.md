@@ -27,7 +27,7 @@ You can also build and use project `FiMSharp.Test`, you'll need a `Report` direc
 
 You'll need [.NET SDK](https://dotnet.microsoft.com/download) to compile the solution from source.
 
-Most of the work can be done by the included `build.bat`. You can look inside the batch file if you want to find the arguments needed to build the optional `FiMSharp.Test` project.
+Most of the work can be done by the included makefule. You can look inside the file if you want to find the arguments needed to build the optional `FiMSharp.Test` project.
 
 Included runtimes are:
 
@@ -37,7 +37,7 @@ Included runtimes are:
 - `linuxarm` - Linux ARM
 - `darwin` - Osx-64
 
-Example: `build.bat win32` builds the .dll and the Win32 executable of `FiMSharp.Test`
+Example: `make win32` builds the .dll and the Win32 executable of `FiMSharp.Test`
 
 # 🏃‍♀️ Running (FiMSharp.Test)
 
@@ -60,7 +60,9 @@ About the program:
 
 [Language Specification](https://docs.google.com/document/d/1gU-ZROmZu0Xitw_pfC1ktCDvJH5rM85TxxQf5pg_xmg/edit#)
 
-[Original EQD Post](http://www.equestriadaily.com/2012/10/editorial-fim-pony-programming-language.html)
+[Original EQD Post](https://www.equestriadaily.com/2012/10/editorial-fim-pony-programming-language.html)
+
+[Online Interpreter using Blazor](https://fimsharp.web.app)
 
 # 📝 Notes
 
