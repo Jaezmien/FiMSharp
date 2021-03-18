@@ -27,6 +27,9 @@ namespace FiMSharp.Tokenizer
             line = FiMMethods.RemoveStringParentheses( line );
 
             if( line.Length == 0 ) return line;
+            
+            // Replace curly with straight
+            line = line.Replace("“", "\"").Replace("”","\"").Replace("‘","'").Replace("’","'").Replace("…","...");
 
             // Check for punctuation.
             if( removePunctuation ) {
