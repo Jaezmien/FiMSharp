@@ -37,13 +37,29 @@ Included runtimes are:
 - `linuxarm` - Linux ARM
 - `darwin` - OSX-64
 
-Example: `make win32` builds the the Win32 executable of `FiMSharp.Test`
+You can use this command to build the Win32 executable of `FiMSharp.Test`
+```
+make win32
+```
 
 # 🏃‍♀️ Running (FiMSharp.Test)
 
 The releases page should include a `bin.zip` which contains:
 - A pre-built .dll for both `FiMSharp` and `FiMSharp.Javascript`
 - Pre-built executables for different platforms listed in the release.
+
+# 🐳 Running from Docker
+
+FiMSharp is also available on Docker as [Docker container](). While it makes it easy to setup FiMSharp at many machine, it comes with a large filesize.
+
+```
+docker pull jaezmien/fimsharp
+```
+
+Example usage:
+```
+docker run jaezmien/fimsharp Report/hello.fim
+```
 
 # 📚 External Resources
 
@@ -56,6 +72,8 @@ The releases page should include a `bin.zip` which contains:
 [Original EQD Post](https://www.equestriadaily.com/2012/10/editorial-fim-pony-programming-language.html)
 
 [Online Interpreter using Blazor](https://fimsharp.web.app)
+
+[Docker Container](https://hub.docker.com/r/jaezmien/fimsharp)
 
 # 📝 Notes
 
