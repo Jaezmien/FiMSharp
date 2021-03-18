@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <Authors>Jaezmien Naejara</Authors>
-    <Version>0.3</Version>
+    <Version>0.3.1</Version>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/Jaezmien/FiMSharp/FiMSharp.Javascript</RepositoryUrl>
     <PackageTags>fimpp, fim++, javascript</PackageTags>
