@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Diagnostics;
 
 using FiMSharp;
@@ -16,17 +15,21 @@ namespace FiMSharpTest
     {
         static void Main(params string[] args) { TestingMain(args); }
 
-        public static void ExecuteReport( string[] lines )
+        public static void ExecuteReport( string[] lines, bool prettify )
         {
             try
             {
                 FiMReport report = new FiMReport(lines);
-                Console.WriteLine("[ FiMSharp Test v0.3 ]");
-                Console.WriteLine($"Report Name: {report.ReportName}");
-                Console.WriteLine($"Student Name: {report.StudentName}");
-                Console.WriteLine("[@]=======================================[@]");
+                if( prettify ) {
+                    Console.WriteLine("[ FiMSharp Test v0.3 ]");
+                    Console.WriteLine($"Report Name: {report.ReportName}");
+                    Console.WriteLine($"Student Name: {report.StudentName}");
+                    Console.WriteLine("[@]=======================================[@]");
+                }
                 report.MainParagraph.Execute();
-                Console.WriteLine("[@]=======================================[@]");
+                if( prettify ) {
+                    Console.WriteLine("[@]=======================================[@]");
+                }
             }
             catch ( FiMException exception )
             {
@@ -52,11 +55,13 @@ namespace FiMSharpTest
             {
                 string report_name = "";
                 string toJS = "";
+                bool prettify = false;
 
                 OptionSet p = new OptionSet()
                     .Add("r|report=", "The directory to the report.", v => report_name = v)
                     .Add("js=", "Converts the report into a Javascript file and outputs into a directory.", v => toJS = v)
-                    .Add("tojs", "Converts the report into a Javascript file.", v => toJS = ".");
+                    .Add("tojs", "Converts the report into a Javascript file.", v => toJS = ".")
+                    .Add("p|prettify", "Prettify console output", v => prettify = true);
                 p.Parse(args);
 
                 if( string.IsNullOrEmpty(report_name) || !FindReport(report_name, out string[] report_lines) )
@@ -84,12 +89,12 @@ namespace FiMSharpTest
 
                     if (!File.Exists(new_directory)) File.Create(new_directory).Close();
                     File.WriteAllLines(new_directory, new_lines);
-                    Console.WriteLine("[Debug] Code compilation took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
+                    if( prettify ) Console.WriteLine("[Debug] Code compilation took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
                 }
                 else {
-                    ExecuteReport(report_lines);
+                    ExecuteReport(report_lines, prettify);
                     s.Stop();
-                    Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
+                    if( prettify ) Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
                 }
 
                 return 0;
