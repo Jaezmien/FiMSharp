@@ -21,13 +21,13 @@ FiMReport report = new FiMReport( lines );
 if( report.MainParagraph != null ) report.MainParagraph.Execute();
 ```
 
-You can also build and use project `FiMSharp.Test`, you'll need a `Report` directory on its executable file.
+You can also build and use `FiMSharp.Test`.
 
 # 🔃 Compiling
 
 You'll need [.NET SDK](https://dotnet.microsoft.com/download) to compile the solution from source.
 
-Most of the work can be done by the included makefile. You can look inside the file if you want to find the arguments needed to build the optional `FiMSharp.Test` project.
+Most of the work can be done by the included makefile.
 
 Included runtimes are:
 
@@ -35,22 +35,15 @@ Included runtimes are:
 - `win` - Windows x64
 - `linux` - Linux-x64
 - `linuxarm` - Linux ARM
-- `darwin` - Osx-64
+- `darwin` - OSX-64
 
-Example: `make win32` builds the .dll and the Win32 executable of `FiMSharp.Test`
+Example: `make win32` builds the the Win32 executable of `FiMSharp.Test`
 
 # 🏃‍♀️ Running (FiMSharp.Test)
 
 The releases page should include a `bin.zip` which contains:
 - A pre-built .dll for both `FiMSharp` and `FiMSharp.Javascript`
 - Pre-built executables for different platforms listed in the release.
-
-About the program:
-
-- Running the program directly will give you a menu in which you can run reports in the `Report` directory. Type in `.help` to list all the commands
-- Supplying in arguments:
-    - `-report [report name]` - Runs the report
-    - `-js` - Builds the report into a Javascript file instead.
 
 # 📚 External Resources
 
@@ -68,9 +61,9 @@ About the program:
 
 - FiMSharp is just a personal hobby project, seeing as FiM++ has never been updated for quite some time now.
 
-- The syntax here is different from what [fimpp](https://github.com/KarolS/fimpp) does. You can see the difference in readability in the Brainfuck Interpreter example:
+- The syntax used here follows the proposed `Sparkle 1.0` syntax, unlike what [fimpp](https://github.com/KarolS/fimpp) uses. You can see the difference in readability in the Brainfuck Interpreter example:
 
-    - [FiMSharp](https://github.com/Jaezmien/FiMSharp/blob/master/.Reports/brainfuck.fim)
+    - [FiMSharp](https://github.com/Jaezmien/FiMSharp/blob/master/Reports/brainfuck.fim)
 
     - [fimpp](https://github.com/KarolS/fimpp/blob/master/examples/bf.fimpp)
 
