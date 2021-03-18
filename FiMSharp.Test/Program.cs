@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 using FiMSharp;
@@ -56,14 +57,25 @@ namespace FiMSharpTest
                 string report_name = "";
                 string toJS = "";
                 bool prettify = false;
+                bool show_help = false;
 
                 OptionSet p = new OptionSet()
-                    .Add("r|report=", "The directory to the report.", v => report_name = v)
-                    .Add("js=", "Converts the report into a Javascript file and outputs into a directory.", v => toJS = v)
+                    .Add("js=", "Converts the report into a Javascript file and outputs into {DIRECTORY}.", v => toJS = v)
                     .Add("tojs", "Converts the report into a Javascript file.", v => toJS = ".")
-                    .Add("p|prettify", "Prettify console output", v => prettify = true);
-                p.Parse(args);
+                    .Add("p|prettify", "Prettify console output.", v => prettify = true)
+                    .Add("h|help", "Show this message and exit.", v => show_help = true);
+                List<string> extra = p.Parse(args);
 
+                if( show_help ) {
+                    Console.WriteLine("Usage: FiMSharp.Test.exe [OPTIONS]+ reportDirectory");
+                    Console.WriteLine("Interprets the specified FiM++ report.");
+                    Console.WriteLine();
+                    Console.WriteLine("Options:");
+                    p.WriteOptionDescriptions( Console.Out );
+                    return 0;
+                }
+
+                if( extra.Count > 0 ) report_name = extra[0];
                 if( string.IsNullOrEmpty(report_name) || !FindReport(report_name, out string[] report_lines) )
                 {
                     Console.WriteLine("[Console] Invalid report " + report_name);
