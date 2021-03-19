@@ -352,6 +352,13 @@ namespace FiMSharp
                                         string[] r = s[1].Split(new string[] { " to " }, StringSplitOptions.None );
                                         forStatement.Range.From = r[0]; forStatement.Range.To = r[1];
 
+                                        forStatement.Range.By = "";
+                                        if( forStatement.Range.To.Contains(" by ") ) {
+                                            string[] intv = forStatement.Range.To.Split(new string[] { " by " }, StringSplitOptions.None );
+                                            forStatement.Range.To = intv[0];
+                                            forStatement.Range.By = intv[1];
+                                        }
+
                                         this.Lines.Add(
                                             i,
                                             new FiMLineToken( line, TokenTypes.FOR_TO_STATEMENT, forStatement )

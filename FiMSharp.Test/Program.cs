@@ -22,7 +22,7 @@ namespace FiMSharpTest
             {
                 FiMReport report = new FiMReport(lines);
                 if( prettify ) {
-                    Console.WriteLine("[ FiMSharp Test v0.3 ]");
+                    Console.WriteLine("[ FiMSharp Test v0.3.2 ]");
                     Console.WriteLine($"Report Name: {report.ReportName}");
                     Console.WriteLine($"Student Name: {report.StudentName}");
                     Console.WriteLine("[@]=======================================[@]");

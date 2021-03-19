@@ -36,15 +36,13 @@ namespace FiMSharp.Core
         // Getters
         internal FiMVariableStruct GetValue(int array_index = 0) // 1-based array index
         {
-            if( IS_ARRAY && array_index < 1 )
-                throw new Exception("GetValue on Array variables need an index");
+            if( IS_ARRAY && array_index < 1 ) throw FiMError.CreatePartial( FiMErrorType.INDEX_MUST_BE_POSITIVE );
 
             if( this.Type == VariableTypes.STRING && array_index > 0 )
             {
                 string string_value = (this._Value as string);
                 if (array_index >= string_value.Length) return new FiMVariableStruct( "", VariableTypes.CHAR );
                 return new FiMVariableStruct( string_value[array_index-1], VariableTypes.CHAR );
-                
             }
 
             if( IS_ARRAY )
@@ -73,7 +71,7 @@ namespace FiMSharp.Core
         internal void SetValue(object value)
         {
             if( this.IS_CONSTANT && this._Value != FiMMethods.GetNullValue( this.Type ) )
-                throw FiMError.Create( FiMErrorType.CANNOT_MODIFY_CONSTANT );
+                throw FiMError.CreatePartial( FiMErrorType.CANNOT_MODIFY_CONSTANT );
             this._Value = value;
         }
         internal void SetArrayValue(int array_index, object value) {

@@ -15,6 +15,8 @@ namespace FiMSharp.Error {
         RANGE_MUST_BE_NUMBER,
         EMPTY_INTERVAL,
         MISSING_PARAGRAPH, // X
+        INDEX_MUST_BE_POSITIVE,
+        INTERVAL_MUST_BE_NUMBER,
 
         // Report
         TOO_MANY_MAIN_PARAGRAPH, // Might change soon when multiple main paragraphs becomes official in a next version. This is messy
@@ -80,6 +82,8 @@ namespace FiMSharp.Error {
                 case FiMErrorType.RANGE_MUST_BE_NUMBER: e= "Range must be a number"; break;
                 case FiMErrorType.EMPTY_INTERVAL: e = "Interval is empty"; break;
                 case FiMErrorType.MISSING_PARAGRAPH: e = "Paragraph '{0}' doesn't exist"; break;
+                case FiMErrorType.INDEX_MUST_BE_POSITIVE: e = "Index must be a non-zero positive integer"; break;
+                case FiMErrorType.INTERVAL_MUST_BE_NUMBER: e = "Interval must be a number"; break;
 
                 case FiMErrorType.TOO_MANY_MAIN_PARAGRAPH: e = "Expected only one main paragraph"; break;
                 case FiMErrorType.REPORT_VARIABLE_CREATION_ONLY: e = "Expected only variable creation outside of paragraphs"; break;

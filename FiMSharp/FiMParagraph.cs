@@ -63,9 +63,14 @@ namespace FiMSharp.Core
 
             // Ain't sure if this is efficient lol
             FiMVariable GetVariable( string var_name ) {
-                if( report.Variables.ContainsKey(var_name) ) return report.Variables[ var_name ];
-                if( variables != null && variables.ContainsKey(var_name) ) return variables[ var_name ];
-                return localVariables[ var_name ];
+                try {
+                    if( report.Variables.ContainsKey(var_name) ) return report.Variables[ var_name ];
+                    if( variables != null && variables.ContainsKey(var_name) ) return variables[ var_name ];
+                    return localVariables[ var_name ];
+                }
+                catch {
+                    throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, var_name );
+                }
             }
             void SetVariable( string var_name, FiMVariable var ) {
                 if( report.Variables.ContainsKey(var_name) ) report.Variables[ var_name ] = var;
@@ -408,19 +413,20 @@ namespace FiMSharp.Core
                             var statement = (FiMForToStatement)line.Arguments;
                             index = statement.Lines.End;
 
-                            if( HasVariable(statement.Element.Name) )
-                                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_ALREADY_EXISTS, statement.Element.Name );
+                            if( HasVariable(statement.Element.Name) ) throw FiMError.CreatePartial( FiMErrorType.VARIABLE_ALREADY_EXISTS, statement.Element.Name );
                             
                             float min = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.From, report, CombineAllVariables(), out var min_type) );
                             float max = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.To, report, CombineAllVariables(), out var max_type) );
 
-                            if( min_type != VariableTypes.INTEGER || max_type != VariableTypes.INTEGER )
-                                throw FiMError.CreatePartial( FiMErrorType.RANGE_MUST_BE_NUMBER );
+                            if( min_type != VariableTypes.INTEGER || max_type != VariableTypes.INTEGER ) throw FiMError.CreatePartial( FiMErrorType.RANGE_MUST_BE_NUMBER );
 
-                            if( max < min ) throw FiMError.CreatePartial( FiMErrorType.EMPTY_INTERVAL );
+                            float interval = 1;
+                            VariableTypes interval_type = VariableTypes.INTEGER;
+                            if( statement.Range.By.Length > 0 ) interval = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.By, report, CombineAllVariables(), out interval_type) );
+                            if( interval_type != VariableTypes.INTEGER ) throw FiMError.CreatePartial( FiMErrorType.INTERVAL_MUST_BE_NUMBER );
 
-                            while( min <= max ) {
-
+                            int sign = min > max ? -1 : 1;
+                            while( sign == 1 ? min <= max : min >= max ) {
                                 var _t = CombineVariables();
                                 _t.Add(
                                     statement.Element.Name,
@@ -440,8 +446,7 @@ namespace FiMSharp.Core
                                 foreach( var v in changedVars ) SetVariable( v.Key, v.Value );
                                 if( for_result.Value != null ) return for_result;
 
-                                min++;
-
+                                min += interval * sign;
                             }
                         }
                         break;

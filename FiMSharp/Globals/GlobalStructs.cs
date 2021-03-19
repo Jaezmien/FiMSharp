@@ -79,6 +79,7 @@ namespace FiMSharp.GlobalStructs
     public struct FiMForRange {
         public string From;
         public string To;
+        public string By;
     }
     public struct FiMConditionalKeyword {
         public string Keyword;
