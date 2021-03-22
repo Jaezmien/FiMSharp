@@ -519,8 +519,6 @@ namespace FiMSharp
                 throw FiMError.Create( FiMErrorType.STUDENT_NAME_NOT_FOUND );
 
             OriginalLines = lines;
-            ConsoleOutput = Console.Out;
-            ConsoleInput = Console.In;
         }
         public FiMReport(string lines): this(lines.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)) {}
 
@@ -567,7 +565,7 @@ namespace FiMSharp
         /// </summary>
         public readonly string ReportName;
 
-        public TextWriter ConsoleOutput;
-        public TextReader ConsoleInput;
+        public TextWriter ConsoleOutput = Console.Out;
+        public TextReader ConsoleInput = Console.In;
     }
 }

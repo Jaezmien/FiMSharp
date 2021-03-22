@@ -149,7 +149,7 @@ namespace FiMSharp.Core
 
                             if( arguments.Length > 1 ) {
                                 string output = FiMMethods.SanitizeString( arguments[1], report, CombineAllVariables() );
-                                this.report.ConsoleOutput.Write(output);
+                                this.report.ConsoleOutput.WriteLine(output);
                             }
                             string input = this.report.ConsoleInput.ReadLine();
 
