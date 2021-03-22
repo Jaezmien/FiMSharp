@@ -8,6 +8,7 @@
         PRINT,
         RUN,
         READ,
+        PROMPT,
         COMMENT,
         IGNORE,
         VARIABLE_REPLACE,

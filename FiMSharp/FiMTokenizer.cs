@@ -73,14 +73,31 @@ namespace FiMSharp.Tokenizer
                 return_obj.Arguments = line; goto EndToken;
             }
             #endregion
-            #region Read
+            #region Read & Prompt
             if( Globals.Methods.Read.Any(x => line.StartsWith(x)) ) {
                 return_obj.Token = TokenTypes.READ;
 
                 string keyword = Globals.Methods.Read.Where(x => line.StartsWith(x)).FirstOrDefault();
                 line = line.Substring(keyword.Length).TrimStart();
 
-                return_obj.Arguments = line; goto EndToken;
+                if( line.Contains("\"") ) {
+                    List<string> prompt = new List<string>();
+                    List<string> var_name = new List<string>();
+
+                    string[] line_split = line.Split(' ');
+                    bool isPrompt = false;
+                    foreach( string s in line_split ) {
+                        if( s.Contains("\"") && !isPrompt ) isPrompt = true;
+
+                        if( isPrompt ) prompt.Add( s );
+                        else var_name.Add( s );
+                    }
+
+                    return_obj.Token = TokenTypes.PROMPT;
+                    return_obj.Arguments = new string[] { string.Join(" ", var_name).Trim(), string.Join(" ", prompt).Trim() }; goto EndToken;    
+                }
+
+                return_obj.Arguments = new string[] { line }; goto EndToken;
             }
             #endregion
             #region Create Variable

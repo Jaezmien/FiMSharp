@@ -124,31 +124,34 @@ namespace FiMSharp.Core
                     switch( line.Token ) {
 
                         case TokenTypes.RUN: {
-                            
                             {
                                 string _pname = (string)line.Arguments;
                                 if( _pname.Contains(" using ") ) _pname = _pname.Split(new string[] {" using "}, StringSplitOptions.None)[0].Trim();
 
-                                if( !report.Paragraphs.ContainsKey(_pname) )
-                                    throw FiMError.CreatePartial( FiMErrorType.MISSING_PARAGRAPH, _pname );
+                                if( !report.Paragraphs.ContainsKey(_pname) ) throw FiMError.CreatePartial( FiMErrorType.MISSING_PARAGRAPH, _pname );
                             }
                             FiMMethods.ParseVariable( (string)line.Arguments, report, CombineAllVariables(), out VariableTypes _ );
                         }
                         break;
                         case TokenTypes.PRINT: {
                             string output = FiMMethods.SanitizeString( (string)line.Arguments, report, CombineAllVariables() );
-                            Console.WriteLine(output);
+                            this.report.ConsoleOutput.WriteLine(output);
                         }
                         break;
-                        case TokenTypes.READ: {
-                            string variable_name = (string)line.Arguments;
 
-                            if( !HasVariable(variable_name) )
-                                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
+                        case TokenTypes.PROMPT:
+                        case TokenTypes.READ: {
+                            string[] arguments = (string[])line.Arguments;
+                            string variable_name = arguments[0];
+
+                            if( !HasVariable(variable_name) ) throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
                             FiMVariable var = GetVariable( variable_name );
 
-                            Console.Write("[FiM Input]: ");
-                            string input = Console.ReadLine();
+                            if( arguments.Length > 1 ) {
+                                string output = FiMMethods.SanitizeString( arguments[1], report, CombineAllVariables() );
+                                this.report.ConsoleOutput.Write(output);
+                            }
+                            string input = this.report.ConsoleInput.ReadLine();
 
                             if( var.Type == VariableTypes.STRING ) input = $"\"{input}\"";
                             else if( var.Type == VariableTypes.CHAR ) {
@@ -157,8 +160,7 @@ namespace FiMSharp.Core
                             }
 
                             object new_value = FiMMethods.ParseVariable( input, report, CombineAllVariables(), out var input_type, fallback: VariableTypes.STRING );
-                            if( input_type != var.Type ) 
-                                throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, var.Type, input_type );
+                            if( input_type != var.Type ) throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, var.Type, input_type );
 
                             SetVariableValue( variable_name, new_value );
                         }
@@ -174,16 +176,14 @@ namespace FiMSharp.Core
                             string variable_name = (string)args[0];
                             string _variable_value = (string)args[1];
 
-                            if( !HasVariable(variable_name) )
-                                throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
+                            if( !HasVariable(variable_name) ) throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, variable_name );
 
                             FiMVariable var = GetVariable( variable_name );
                             VariableTypes _expected_type = args.Count == 3 ? (VariableTypes)args[2] : var.Type;
 
                             object new_value = FiMMethods.ParseVariable( _variable_value, report, CombineAllVariables(), out VariableTypes _got_type, run_once: false, fallback: _expected_type );
                             if( _got_type != _expected_type ) {
-                                if( _expected_type != VariableTypes.STRING )
-                                    throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, _expected_type, _got_type );
+                                if( _expected_type != VariableTypes.STRING ) throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, _expected_type, _got_type );
                                 new_value = new_value.ToString(); // :^)
                             }
                                 

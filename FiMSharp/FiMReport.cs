@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text.RegularExpressions;
 
 using FiMSharp.Core;
@@ -518,6 +519,8 @@ namespace FiMSharp
                 throw FiMError.Create( FiMErrorType.STUDENT_NAME_NOT_FOUND );
 
             OriginalLines = lines;
+            ConsoleOutput = Console.Out;
+            ConsoleInput = Console.In;
         }
         public FiMReport(string lines): this(lines.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)) {}
 
@@ -563,5 +566,8 @@ namespace FiMSharp
         /// The name of the report.
         /// </summary>
         public readonly string ReportName;
+
+        public TextWriter ConsoleOutput;
+        public TextReader ConsoleInput;
     }
 }
