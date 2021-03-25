@@ -383,8 +383,15 @@ namespace FiMSharp.Javascript
                                 addOutput( $"console.log( { Extension.SanitizeVariable((string)line.Arguments, report, false) } );" , indent );
                             }
                             break;
+                            case TokenTypes.PROMPT:
                             case TokenTypes.READ: {
-                                addOutput( $"{ Extension.SanitizeVariable((string)line.Arguments, report)} = readline();", indent );
+
+                                string[] arguments = (string[])line.Arguments;
+                                string variable_name = arguments[0];
+                                string prompt = "";
+
+                                if( arguments.Length > 1 ) prompt = Extension.SanitizeVariable(arguments[1], report);
+                                addOutput( $"{ Extension.SanitizeVariable(variable_name, report)} = prompt(" + prompt + ");", indent );
                             }
                             break;
 
@@ -450,7 +457,7 @@ namespace FiMSharp.Javascript
 
                                 value = Extension.SetIfNullValue( value );
                                 value = Extension.Sanitize( value );
-                                variable_index = Extension.SanitizeVariable( variable_index, report );
+                                variable_index = Extension.SanitizeVariable( variable_index, report, alternate_Arithmetic: true );
 
                                 addOutput($"{ Extension.Sanitize(variable_name) }[ {variable_index}-1 ] = { value };", indent);
                             }
@@ -556,11 +563,16 @@ namespace FiMSharp.Javascript
 
                                 string min = Extension.SanitizeVariable( statement.Range.From, report );
                                 string max = Extension.SanitizeVariable( statement.Range.To, report );
+                                string interval = statement.Range.By.Length > 0 ? Extension.SanitizeVariable( statement.Range.By, report ) : $"({min}>{max}?-1:1)";
 
                                 string var_name = Extension.Sanitize( statement.Element.Name );
-                                addOutput($"for( let {var_name} = {min}; {var_name} <= {max}; {var_name}++ ) {{", indent);
-                                ParseParagraphLines( statement.Lines.Start, statement.Lines.End, indent+1 );
-                                addOutput($"}}",indent);
+                                addOutput("{", indent);
+                                addOutput($"let {var_name} = {min}", indent+1);
+                                addOutput($"while( {interval} > 0 ? {var_name} <= {max} : {var_name} >= {max} ) {{", indent+1);
+                                ParseParagraphLines( statement.Lines.Start, statement.Lines.End, indent+2 );
+                                addOutput($"{var_name} += {interval}", indent+2);
+                                addOutput($"}}",indent+1);
+                                addOutput("}", indent);
 
                                 i++;
                             }

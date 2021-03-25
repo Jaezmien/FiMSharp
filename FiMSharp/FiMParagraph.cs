@@ -423,10 +423,10 @@ namespace FiMSharp.Core
                             float interval = 1;
                             VariableTypes interval_type = VariableTypes.INTEGER;
                             if( statement.Range.By.Length > 0 ) interval = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.By, report, CombineAllVariables(), out interval_type) );
+                            else if( min > max ) interval = -1;
                             if( interval_type != VariableTypes.INTEGER ) throw FiMError.CreatePartial( FiMErrorType.INTERVAL_MUST_BE_NUMBER );
 
-                            int sign = min > max ? -1 : 1;
-                            while( sign == 1 ? min <= max : min >= max ) {
+                            while( interval > 0 ? min <= max : min >= max ) {
                                 var _t = CombineVariables();
                                 _t.Add(
                                     statement.Element.Name,
@@ -446,7 +446,7 @@ namespace FiMSharp.Core
                                 foreach( var v in changedVars ) SetVariable( v.Key, v.Value );
                                 if( for_result.Value != null ) return for_result;
 
-                                min += interval * sign;
+                                min += interval;
                             }
                         }
                         break;
