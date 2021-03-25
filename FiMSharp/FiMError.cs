@@ -48,7 +48,8 @@ namespace FiMSharp.Error {
         METHOD_NON_NUMBER_ASCII,
         METHOD_NON_CHAR_ASCII,
         METHOD_CANNOT_GET_NULL, // X
-        METHOD_NON_ARRAY_LENGTH,
+        METHOD_NON_ARRAY_COUNT,
+        METHOD_NON_STRING_LENGTH,
         METHOD_NON_NUMBER_SQRT,
         METHOD_CANNOT_CONVERT, // X
         METHOD_ARRAY_INDEX_MUST_BE_INTEGER,
@@ -111,7 +112,8 @@ namespace FiMSharp.Error {
                 case FiMErrorType.METHOD_NON_NUMBER_ASCII: e = "Cannot get ASCII value of a non-number value"; break;
                 case FiMErrorType.METHOD_NON_CHAR_ASCII: e = "Canot get ASCII number of a non-char value"; break;
                 case FiMErrorType.METHOD_CANNOT_GET_NULL: e = "Cannot get null value of '{0}'"; break;
-                case FiMErrorType.METHOD_NON_ARRAY_LENGTH: e = "Cannot get length of a non-array variable"; break;
+                case FiMErrorType.METHOD_NON_ARRAY_COUNT: e = "Cannot get the count a non-array variable"; break;
+                case FiMErrorType.METHOD_NON_STRING_LENGTH: e = "Cannot get the length of a non-string variable"; break;
                 case FiMErrorType.METHOD_NON_NUMBER_SQRT: e = "Cannot get square root of a non-number value"; break;
                 case FiMErrorType.METHOD_CANNOT_CONVERT: e = "Cannot convert value '{0}'"; break;
                 case FiMErrorType.METHOD_ARRAY_INDEX_MUST_BE_INTEGER: e = "Array index must be an integer"; break;

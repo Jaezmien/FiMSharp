@@ -97,6 +97,11 @@ namespace FiMSharp.Javascript
                 var = SanitizeVariable( var, report );
                 return $"{ var }.length";
             }
+            if( line.StartsWith("count of ") ) {
+                string var = line.Substring("count of ".Length);
+                var = SanitizeVariable( var, report );
+                return $"fim__d({ var })";
+            }
 
             if( line.StartsWith("char of num " ) ) {
                 string var = line.Substring("char of num ".Length);
@@ -343,6 +348,8 @@ namespace FiMSharp.Javascript
             // fim__b = convert value to boolean
             addOutput("function fim__a(x){if(x===undefined)return [];return typeof x[Symbol.iterator]===\"function\"?[...x]:[x]}");
             addOutput("function fim__b(x){if(typeof x===\"boolean\")return x?1:0;return parseFloat(x)}");
+            addOutput("function fim__c(x,y){x[y]=undefined;while(x[x.length-1]===undefined)x.length-=1}");
+            addOutput("function fim__d(x){return x.filter(y => y).length}");
             addOutput("");
 
             addOutput( "Princess_Celestia = function() {}" ); // Base class
@@ -444,7 +451,8 @@ namespace FiMSharp.Javascript
                                 value = Extension.SetIfNullValue( value, expected_type );
                                 value = Extension.Sanitize( value );
 
-                                addOutput($"{ Extension.Sanitize(variable_name) }[ {array_index}-1 ] = { value };", indent);
+                                if( value == "null" ) addOutput($"fim__c({ Extension.Sanitize(variable_name) }, {array_index}-1);", indent);
+                                else addOutput($"{ Extension.Sanitize(variable_name) }[ {array_index}-1 ] = { value };", indent);
                             }
                             break;
                             case TokenTypes.ARRAY_MODIFY2: {
@@ -459,7 +467,8 @@ namespace FiMSharp.Javascript
                                 value = Extension.Sanitize( value );
                                 variable_index = Extension.SanitizeVariable( variable_index, report, alternate_Arithmetic: true );
 
-                                addOutput($"{ Extension.Sanitize(variable_name) }[ {variable_index}-1 ] = { value };", indent);
+                                if( value == "null" ) addOutput($"fim__c({ Extension.Sanitize(variable_name) }, {variable_index}-1);", indent);
+                                else addOutput($"{ Extension.Sanitize(variable_name) }[ {variable_index}-1 ] = { value };", indent);
                             }
                             break;
 

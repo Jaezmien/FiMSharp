@@ -497,16 +497,22 @@ namespace FiMSharp.Core
                 string var_name = str.Substring("length of ".Length);
                 if( !variables.ContainsKey( var_name ) )
                     throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, var_name );
-                if( !IsVariableTypeArray(variables[var_name].Type, true) )
-                    throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_ARRAY_LENGTH );
+                if( variables[var_name].Type != VariableTypes.STRING )
+                    throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_STRING_LENGTH );
                 
-                var variable = variables[ var_name ];
                 type = VariableTypes.INTEGER;
-                if( variable.Type == VariableTypes.STRING ) {
-                    return ( variable.GetRawValue() as string ).Length - 2;
-                } else {
-                    return ( variable.GetRawValue() as Dictionary<int,object> ).Keys.Count;
-                }
+                return ( variables[ var_name ].GetRawValue() as string ).Length - 2;
+            }
+
+            if( str.StartsWith("count of ") ) {
+                string var_name = str.Substring("count of ".Length);
+                if( !variables.ContainsKey( var_name ) )
+                    throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, var_name );
+                if( !IsVariableTypeArray(variables[var_name].Type) )
+                    throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_ARRAY_COUNT );
+                
+                type = VariableTypes.INTEGER;
+                return ( variables[ var_name ].GetRawValue() as Dictionary<int,object> ).Keys.Count;
             }
 
             if( str.StartsWith("char of num " ) ) {

@@ -78,7 +78,9 @@ namespace FiMSharp.Core
             if( !IS_ARRAY )
                 throw new Exception("SetArrayValue must be used on an array");
             var raw_dict = this._Value as Dictionary<int,object>;
-            raw_dict[ array_index ] = value;
+
+            if( FiMMethods.IsNullValue(value) ) raw_dict.Remove( array_index );
+            else raw_dict[ array_index ] = value;
         }
 
         // Public getters
