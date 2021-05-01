@@ -264,7 +264,9 @@ namespace FiMSharp.GlobalVars
             "divide",
             "divided by",
             "over",
-            "of",
+			"modulo",
+			"mod",
+			"the remainder of"
         };
     }
 }

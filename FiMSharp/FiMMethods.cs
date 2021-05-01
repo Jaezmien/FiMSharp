@@ -37,6 +37,8 @@ namespace FiMSharp.Core
                 int variable_index = int.Parse( match.Groups[2].Value );
                 string keyword = match.Groups[3].Value;
 
+				if( Globals.Keywords.Any(x => variable_name.EndsWith($" {x}")) ) throw new Exception("Possible false positive for arithmetic.");
+
                 return new FiMArrayMatch1(
                     match.Value,
                     variable_name,
@@ -48,6 +50,8 @@ namespace FiMSharp.Core
                 string variable_name = match.Groups[1].Value;
                 int variable_index = int.Parse( match.Groups[2].Value );
                 string keyword = "";
+
+				if( Globals.Keywords.Any(x => variable_name.EndsWith($" {x}")) ) throw new Exception("Possible false positive for arithmetic.");
 
                 return new FiMArrayMatch1(
                     match.Value,
@@ -576,20 +580,24 @@ namespace FiMSharp.Core
             }
 
             if( IsMatchArray2(str,true) ) {
-                (string _result, string variable_name, string variable_index, string _) = FiMMethods.MatchArray2( str,true );
-                if( variables.ContainsKey(variable_name) ) {
-                    var result = ParseArray( variable_index, variable_name, report, variables );
-                    type = VariableTypeArraySubType( result.Variable.Type );
-                    return result.Variable.GetValue( result.Index ).Value;
-                }
+				try {
+                	(string _result, string variable_name, string variable_index, string _) = FiMMethods.MatchArray2( str,true );
+                	if( variables.ContainsKey(variable_name) ) {
+                	    var result = ParseArray( variable_index, variable_name, report, variables );
+                	    type = VariableTypeArraySubType( result.Variable.Type );
+                	    return result.Variable.GetValue( result.Index ).Value;
+                	}
+				} catch(Exception) {}
             }
             else if( IsMatchArray1(str,true) ) {
-                (string _result, string variable_name, int variable_index, string _) = FiMMethods.MatchArray1( str,true );
-                if( variables.ContainsKey(variable_name) ) {
-                    var result = ParseArray( variable_index, variable_name, variables );
-                    type = VariableTypeArraySubType( result.Variable.Type );
-                    return result.Variable.GetValue( result.Index ).Value;
-                }
+                try {
+					(string _result, string variable_name, int variable_index, string _) = FiMMethods.MatchArray1( str,true );
+                	if( variables.ContainsKey(variable_name) ) {
+                	    var result = ParseArray( variable_index, variable_name, variables );
+                	    type = VariableTypeArraySubType( result.Variable.Type );
+                	    return result.Variable.GetValue( result.Index ).Value;
+                	}
+				} catch(Exception) {}
             }
 
             {

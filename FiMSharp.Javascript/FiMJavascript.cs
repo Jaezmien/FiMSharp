@@ -139,6 +139,8 @@ namespace FiMSharp.Javascript
                 return $"({ SanitizeConditional(line, report) })";
             }
 
+			// TODO: Check if alternate_Arithmetic is still needed
+
             if( alternate_Arithmetic ) {
                 if( FiMArithmetic.IsArithmetic(line, out var arith_result) ) {
                     var arithmetic = new FiMArithmetic( line, arith_result );
@@ -149,15 +151,19 @@ namespace FiMSharp.Javascript
             }
 
             if( FiMMethods.IsMatchArray2(line, true ) && !line.Contains("\"") ) {
-                (string _result, string variable_name, string variable_index, string _) = FiMMethods.MatchArray2( line,true );
-                variable_name = Sanitize( variable_name );
-                variable_index = SanitizeVariable( variable_index, report, alternate_Arithmetic: true );
-                return $"{variable_name}[ {variable_index}-1 ]";
+                try {
+					(string _result, string variable_name, string variable_index, string _) = FiMMethods.MatchArray2( line,true );
+                	variable_name = Sanitize( variable_name );
+                	variable_index = SanitizeVariable( variable_index, report, alternate_Arithmetic: true );
+                	return $"{variable_name}[ {variable_index}-1 ]";
+				} catch (Exception) {}
             }
             else if( FiMMethods.IsMatchArray1(line, true) && !line.Contains("\"") ) {
-                (string _result, string variable_name, int variable_index, string _) = FiMMethods.MatchArray1( line,true );
-                variable_name = Sanitize( variable_name );
-                return $"{variable_name}[ {variable_index}-1 ]";
+                try {
+					(string _result, string variable_name, int variable_index, string _) = FiMMethods.MatchArray1( line,true );
+                	variable_name = Sanitize( variable_name );
+                	return $"{variable_name}[ {variable_index}-1 ]";
+				} catch (Exception) {}
             }
 
             if( !alternate_Arithmetic ) {
