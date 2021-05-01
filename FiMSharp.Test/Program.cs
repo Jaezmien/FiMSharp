@@ -87,6 +87,22 @@ namespace FiMSharpTest
 					Console.WriteLine("[Console] Invalid report " + report_name);
 					return 1;
 				}
+
+				try
+				{
+					report_name = Path.GetFullPath(report_name);
+				}
+				catch (UriFormatException)
+				{
+					Console.WriteLine("[Console] Invalid report path " + report_name);
+					return 1;
+				}
+				catch (Exception)
+				{
+					Console.WriteLine("[Console] Error while parsing report path " + report_name);
+					return 1;
+				}
+
 				string report_filename = Path.GetFileNameWithoutExtension(report_name);
 
 				Stopwatch s = new Stopwatch();
@@ -106,6 +122,21 @@ namespace FiMSharpTest
 							return 1;
 						}
 						new_directory = (toJS.EndsWith("/") ? toJS.Substring(0, toJS.Length - 1) : toJS) + "/" + report_filename + ".js";
+					}
+
+					try
+					{
+						new_directory = Path.GetFullPath(new_directory);
+					}
+					catch (UriFormatException)
+					{
+						Console.WriteLine("[Console] Invalid js output path " + new_directory);
+						return 1;
+					}
+					catch (Exception)
+					{
+						Console.WriteLine("[Console] Error while parsing js output path " + new_directory);
+						return 1;
 					}
 
 					if (!File.Exists(new_directory)) File.Create(new_directory).Close();
