@@ -20,4 +20,5 @@ FROM mcr.microsoft.com/dotnet/runtime:5.0
 WORKDIR /app
 COPY --from=base /app .
 COPY Reports Reports/
+RUN mkdir Outputs/
 ENTRYPOINT [ "/app/FiMSharp.Test" ]
