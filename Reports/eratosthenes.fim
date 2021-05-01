@@ -28,7 +28,7 @@ I learned how to find the primes using the number n to get many numbers.
 
     For every number k from 2 to n...
         If k of t is equal to 1 then,
-            Did you know that prime index is the number length of primes?
+            Did you know that prime index is the number count of primes?
             prime index got one more.
             prime index of primes is k.
         That's what I would do.
