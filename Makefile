@@ -18,3 +18,6 @@ linuxarm:
 
 darwin:
 	dotnet publish FiMSharp.Test --self-contained=true -p:PublishSingleFile=True -c Release -o "bin/darwin" --runtime osx-x64
+
+nuget:
+	dotnet pack -o Nuget/ -c Release
