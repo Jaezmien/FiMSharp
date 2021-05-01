@@ -55,19 +55,19 @@ The releases page should include a `bin.zip` which contains:
 FiMSharp is also available on Docker as [Docker container](https://hub.docker.com/r/jaezmien/fimsharp). While it makes it easy to setup FiMSharp at many machine, it comes with a large filesize.
 
 ```
-docker pull jaezmien/fimsharp:0.3.2
+docker pull jaezmien/fimsharp:0.3.3
 ```
 
 Example usage:
 
 ```
-docker run jaezmien/fimsharp:0.3.2 Reports/hello.fim
+docker run jaezmien/fimsharp:0.3.3 Reports/hello.fim
 ```
 
 For reports which require user inputs, you'll need to add the `-i` flag.
 
 ```
-docker run -i jaezmien/fimsharp:0.3.2 Reports/input.fim
+docker run -i jaezmien/fimsharp:0.3.3 Reports/input.fim
 ```
 
 # 📚 External Resources
