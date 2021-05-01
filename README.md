@@ -31,13 +31,14 @@ Most of the work can be done by the included makefile.
 
 Included runtimes are:
 
-- `win32` - Windows x86-64
-- `win` - Windows x64
-- `linux` - Linux-x64
-- `linuxarm` - Linux ARM
-- `darwin` - OSX-64
+-   `win32` - Windows x86-64
+-   `win` - Windows x64
+-   `linux` - Linux-x64
+-   `linuxarm` - Linux ARM
+-   `darwin` - OSX-64
 
 You can use this command to build the Win32 executable of `FiMSharp.Test`
+
 ```
 make win32
 ```
@@ -45,20 +46,28 @@ make win32
 # 🏃‍♀️ Running (FiMSharp.Test)
 
 The releases page should include a `bin.zip` which contains:
-- A pre-built .dll for both `FiMSharp` and `FiMSharp.Javascript`
-- Pre-built executables for different platforms listed in the release.
+
+-   A pre-built .dll for both `FiMSharp` and `FiMSharp.Javascript`
+-   Pre-built executables for different platforms listed in the release.
 
 # 🐳 Running from Docker
 
 FiMSharp is also available on Docker as [Docker container](https://hub.docker.com/r/jaezmien/fimsharp). While it makes it easy to setup FiMSharp at many machine, it comes with a large filesize.
 
 ```
-docker pull jaezmien/fimsharp:0.3.1
+docker pull jaezmien/fimsharp:0.3.2
 ```
 
 Example usage:
+
 ```
-docker run jaezmien/fimsharp:0.3.1 Report/hello.fim
+docker run jaezmien/fimsharp:0.3.2 Reports/hello.fim
+```
+
+For reports which require user inputs, you'll need to add the `-i` flag.
+
+```
+docker run -i jaezmien/fimsharp:0.3.2 Reports/input.fim
 ```
 
 # 📚 External Resources
@@ -77,12 +86,12 @@ docker run jaezmien/fimsharp:0.3.1 Report/hello.fim
 
 # 📝 Notes
 
-- FiMSharp is just a personal hobby project, seeing as FiM++ has never been updated for quite some time now.
+-   FiMSharp is just a personal hobby project, seeing as FiM++ has never been updated for quite some time now.
 
-- The syntax used here follows the proposed `Sparkle 1.0` syntax, unlike what [fimpp](https://github.com/KarolS/fimpp) uses. You can see the difference in readability in the Brainfuck Interpreter example:
+-   The syntax used here follows the proposed `Sparkle 1.0` syntax, unlike what [fimpp](https://github.com/KarolS/fimpp) uses. You can see the difference in readability in the Brainfuck Interpreter example:
 
-    - [FiMSharp](https://github.com/Jaezmien/FiMSharp/blob/master/Reports/brainfuck.fim)
+    -   [FiMSharp](https://github.com/Jaezmien/FiMSharp/blob/master/Reports/brainfuck.fim)
 
-    - [fimpp](https://github.com/KarolS/fimpp/blob/master/examples/bf.fimpp)
+    -   [fimpp](https://github.com/KarolS/fimpp/blob/master/examples/bf.fimpp)
 
-- This is my first semi-compilcated README.md, please yell at me on the issues page if I did something wrong 🙏
+-   This is my first semi-compilcated README.md, please yell at me on the issues page if I did something wrong 🙏
