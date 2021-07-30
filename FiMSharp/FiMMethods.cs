@@ -10,7 +10,7 @@ using FiMSharp.Error;
 namespace FiMSharp.Core
 {
     static partial class CoreExtension {
-        public static bool HasDecimal(this float Value) {
+        public static bool HasDecimal(this double Value) {
             return Value != Math.Floor(Value);
         }
     }
@@ -195,7 +195,7 @@ namespace FiMSharp.Core
             string s = number.ToString();
             if(s.Length > 1) s = s.Substring(s.Length-1);
 
-            float n = int.Parse(s);
+            int n = int.Parse(s);
             if( n > 10 && n < 20 ) return "th";
             if( n == 1 ) return "st";
             if( n == 2 ) return "nd";
@@ -215,7 +215,7 @@ namespace FiMSharp.Core
             }
             if( Globals.Methods.Variable_Number_Array.Any( x => str.StartsWith(x) ) ) {
                 keyword = Globals.Methods.Variable_Number_Array.Where( x => str.StartsWith(x) ).FirstOrDefault();
-                return VariableTypes.FLOAT_ARRAY;
+                return VariableTypes.DOUBLE_ARRAY;
             }
             if( Globals.Methods.Variable_Number.Any( x => str.StartsWith(x) ) ) {
                 keyword = Globals.Methods.Variable_Number.Where( x => str.StartsWith(x) ).FirstOrDefault();
@@ -260,7 +260,7 @@ namespace FiMSharp.Core
         public static bool IsVariableTypeArray( VariableTypes type, bool include_string = false ) {
             List<VariableTypes> check = new List<VariableTypes>() {
                 VariableTypes.BOOLEAN_ARRAY,
-                VariableTypes.FLOAT_ARRAY,
+                VariableTypes.DOUBLE_ARRAY,
                 VariableTypes.STRING_ARRAY,
             };
             if( include_string ) check.Add( VariableTypes.STRING );
@@ -269,7 +269,7 @@ namespace FiMSharp.Core
         }
         public static VariableTypes VariableTypeArraySubType( VariableTypes type ) {
             if( type == VariableTypes.BOOLEAN_ARRAY ) return VariableTypes.BOOLEAN;
-            if( type == VariableTypes.FLOAT_ARRAY ) return VariableTypes.INTEGER;
+            if( type == VariableTypes.DOUBLE_ARRAY ) return VariableTypes.INTEGER;
             if( type == VariableTypes.STRING_ARRAY ) return VariableTypes.STRING;
             if( type == VariableTypes.STRING ) return VariableTypes.CHAR;
 
@@ -294,7 +294,7 @@ namespace FiMSharp.Core
                 case VariableTypes.BOOLEAN: return false;
                 case VariableTypes.CHAR: return '\0';
                 case VariableTypes.STRING: return "";
-                case VariableTypes.INTEGER: return 0f;
+                case VariableTypes.INTEGER: return 0d;
                 default: return null;
             }
         }
@@ -311,8 +311,8 @@ namespace FiMSharp.Core
                     return (char)value == '\0';
                 case string _:
                     return (string)value == "";
-                case float _:
-                    return (float)value == 0f;
+                case double _:
+                    return (double)value == 0d;
                 default:
                     throw FiMError.CreatePartial( FiMErrorType.METHOD_CANNOT_GET_NULL, value );
             }
@@ -406,11 +406,13 @@ namespace FiMSharp.Core
             object _var = ParseVariable( variable_index, report, variables, out var _var_type );
             if( _var_type != VariableTypes.INTEGER )
                 throw FiMError.CreatePartial( FiMErrorType.UNEXPECTED_TYPE, VariableTypes.INTEGER, _var_type );
-            float index = Convert.ToSingle( _var );
+            double index = Convert.ToDouble( _var );
             if( index.HasDecimal() )
                 throw FiMError.CreatePartial( FiMErrorType.METHOD_ARRAY_INDEX_MUST_BE_INTEGER );
             return new FiMParsedArray( (int)index, variable );
         }
+
+        private static Random _random = new Random();
 
         public static object ParseVariable( string str, FiMReport report, Dictionary<string, FiMVariable> variables, out VariableTypes type, bool run_once = true, VariableTypes fallback = VariableTypes.UNDEFINED) {
             type = VariableTypes.UNDEFINED;
@@ -432,9 +434,9 @@ namespace FiMSharp.Core
                 return str.Substring(1, str.Length-2);
             }
 
-            // scoped because out float is contained outside the if scope
+            // scoped because out double is contained outside the if scope
             {
-                if( float.TryParse( str, out float result ) ) {
+                if( double.TryParse( str, out double result ) ) {
                     type = VariableTypes.INTEGER;
                     return result;
                 }
@@ -525,7 +527,7 @@ namespace FiMSharp.Core
                 if( value_type != VariableTypes.INTEGER ) 
                     throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_NUMBER_ASCII );
                 type = VariableTypes.CHAR;
-                return (char)(Convert.ToSingle(value));
+                return (char)(Convert.ToDouble(value));
             }
             if( str.StartsWith("num of char ") ) {
                 string var = str.Substring("num of char ".Length);
@@ -559,6 +561,40 @@ namespace FiMSharp.Core
                     return ((bool)value) ? 1 : 0 ;
                 }
             }
+
+            if( str == "a random number" )
+            {
+                type = VariableTypes.INTEGER;
+                return _random.NextDouble();
+            }
+            else if( str.StartsWith("a random number between ") )
+            {
+                type = VariableTypes.INTEGER;
+                string _var = str.Substring("a random number between ".Length);
+                string[] vars = _var.Split(new string[] { " and " }, StringSplitOptions.None);
+                if( vars.Length != 2 )
+                    throw FiMError.CreatePartial(FiMErrorType.INVALID_ARGUMENT_COUNT, new object[] { 2, vars.Length });
+
+                object min_var = ParseVariable(vars[0], report, variables, out var min_var_type);
+                object max_var = ParseVariable(vars[1], report, variables, out var max_var_type);
+
+                if (min_var_type != VariableTypes.INTEGER || min_var_type != VariableTypes.INTEGER)
+                {
+                    VariableTypes _t = min_var_type != VariableTypes.INTEGER ? min_var_type : max_var_type;
+                    throw FiMError.CreatePartial(FiMErrorType.UNEXPECTED_TYPE, VariableTypes.INTEGER, _t);
+                }
+
+                if ( ((double)min_var).HasDecimal() )
+                    throw FiMError.CreatePartial(FiMErrorType.PARAMETER_MUST_BE_INTEGER);
+                if (((double)max_var).HasDecimal())
+                    throw FiMError.CreatePartial(FiMErrorType.PARAMETER_MUST_BE_INTEGER);
+
+                int min = int.Parse(min_var.ToString());
+                int max = int.Parse(max_var.ToString());
+
+                if (max < min) throw FiMError.CreatePartial(FiMErrorType.EMPTY_RANGE);
+                return _random.Next(min, max + 1);
+            }
             
             {
                 string[] sqrt = {"sqrt of ","square root of"};
@@ -570,7 +606,7 @@ namespace FiMSharp.Core
                     if( var_t != VariableTypes.INTEGER )
                         throw FiMError.CreatePartial( FiMErrorType.METHOD_NON_NUMBER_SQRT );
                     type = VariableTypes.INTEGER;
-                    return Math.Sqrt( (double)Convert.ToSingle(value) );
+                    return Math.Sqrt( (double)Convert.ToDouble(value) );
                 }
             }
             
@@ -604,7 +640,7 @@ namespace FiMSharp.Core
                 if (FiMArithmetic.IsArithmetic(str, out var arith_result))
                 {
                     var arithmetic = new FiMArithmetic(str, arith_result);
-                    float value = arithmetic.Evaluate(report, variables);
+                    double value = arithmetic.Evaluate(report, variables);
                     type = VariableTypes.INTEGER;
                     return value;
                 }

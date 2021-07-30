@@ -3,7 +3,7 @@
     public enum VariableTypes
     {
         INTEGER,
-        FLOAT_ARRAY,
+        DOUBLE_ARRAY,
 
         CHAR,
         STRING,
@@ -20,7 +20,7 @@
                 case VariableTypes.BOOLEAN: return "Boolean";
                 case VariableTypes.BOOLEAN_ARRAY: return "Boolean Array";
                 case VariableTypes.CHAR: return "Character";
-                case VariableTypes.FLOAT_ARRAY: return "Number Array";
+                case VariableTypes.DOUBLE_ARRAY: return "Number Array";
                 case VariableTypes.INTEGER: return "Number";
                 case VariableTypes.STRING: return "String";
                 case VariableTypes.STRING_ARRAY: return "String Array";

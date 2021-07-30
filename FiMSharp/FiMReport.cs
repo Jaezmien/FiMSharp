@@ -371,6 +371,8 @@ namespace FiMSharp
 
                                         string[] s = line.Split(new string[] { " in " }, StringSplitOptions.None );
 
+                                        // Check if there's a type.
+
                                         var type = FiMMethods.GetVariableTypeFromDeclaration( s[0], out string k );
                                         forStatement.Element.Name = s[0].Substring(k.Length+1); forStatement.Element.Type = type;
 

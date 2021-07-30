@@ -49,8 +49,8 @@ namespace FiMSharp.Javascript
             if( Regex.IsMatch(line,"^\"[^\"]+\"$") ) {
                 return line;
             }
-            if( float.TryParse(line, out float float_result) ) {
-                return float_result.ToString();
+            if( double.TryParse(line, out double double_result) ) {
+                return double_result.ToString();
             }
             if( FiMMethods.ConvertStringToBoolean(line, out bool bool_result) ) {
                 return bool_result ? "true" : "false";
@@ -135,8 +135,19 @@ namespace FiMSharp.Javascript
                 }
             }
 
-            if( FiMConditional.HasConditional(line) ) {
-                return $"({ SanitizeConditional(line, report) })";
+            if (line == "a random number")
+            {
+                return $"Math.random()";
+            }
+            else if (line.StartsWith("a random number between "))
+            {
+                string _var = line.Substring("a random number between ".Length);
+                string[] vars = _var.Split(new string[] { " and " }, StringSplitOptions.None);
+
+                string min_var = SanitizeVariable(vars[0], report);
+                string max_var = SanitizeVariable(vars[1], report);
+
+                return $"Math.floor( Math.random() * ({max_var}-{min_var} + 1) + {min_var} )";
             }
 
 			// TODO: Check if alternate_Arithmetic is still needed
@@ -351,7 +362,9 @@ namespace FiMSharp.Javascript
 
             addOutput("// Auto-generated helper functions");
             // fim__a = auto convert variable to array
-            // fim__b = convert value to boolean
+            // fim__b = convert boolean to number
+            // fim__c = trim array
+            // fim__d = get array count
             addOutput("function fim__a(x){if(x===undefined)return [];return typeof x[Symbol.iterator]===\"function\"?[...x]:[x]}");
             addOutput("function fim__b(x){if(typeof x===\"boolean\")return x?1:0;return parseFloat(x)}");
             addOutput("function fim__c(x,y){x[y]=undefined;while(x[x.length-1]===undefined)x.length-=1}");
@@ -455,7 +468,7 @@ namespace FiMSharp.Javascript
                                 }
 
                                 value = Extension.SetIfNullValue( value, expected_type );
-                                value = Extension.Sanitize( value );
+                                value = Extension.SanitizeVariable(value, report);
 
                                 if( value == "null" ) addOutput($"fim__c({ Extension.Sanitize(variable_name) }, {array_index}-1);", indent);
                                 else addOutput($"{ Extension.Sanitize(variable_name) }[ {array_index}-1 ] = { value };", indent);
@@ -470,7 +483,7 @@ namespace FiMSharp.Javascript
                                 string value = (string)args[3];
 
                                 value = Extension.SetIfNullValue( value );
-                                value = Extension.Sanitize( value );
+                                value = Extension.SanitizeVariable(value, report);
                                 variable_index = Extension.SanitizeVariable( variable_index, report, alternate_Arithmetic: true );
 
                                 if( value == "null" ) addOutput($"fim__c({ Extension.Sanitize(variable_name) }, {variable_index}-1);", indent);

@@ -55,7 +55,7 @@ namespace FiMSharp.Core
             }
         }
 
-        public float Evaluate(FiMReport report, Dictionary<string, FiMVariable> variables)
+        public double Evaluate(FiMReport report, Dictionary<string, FiMVariable> variables)
         {
             object left_variable = FiMMethods.ParseVariable( Left, report, variables, out VariableTypes left_type );
             object right_variable = FiMMethods.ParseVariable( Right, report, variables, out VariableTypes right_type );
@@ -63,12 +63,12 @@ namespace FiMSharp.Core
             if( left_type != VariableTypes.INTEGER || right_type != VariableTypes.INTEGER )
                 throw FiMError.CreatePartial(FiMErrorType.ARITHMETIC_NUMBERS_ONLY);
 
-            return Evaluate( Convert.ToSingle( left_variable ), Arithmetic, Convert.ToSingle( right_variable ) );
+            return Evaluate( Convert.ToDouble( left_variable ), Arithmetic, Convert.ToDouble( right_variable ) );
         }
-        public static float Evaluate(float left_, string arithmetic_, float right_)
+        public static double Evaluate(double left_, string arithmetic_, double right_)
         {
             #if ARITH_HARDCODED
-                float value = 0.0f;
+                double value = 0.0f;
                 switch( arithmetic_ ) {
                     case "+": value = left_ + right_; break;
                     case "-": value = left_ - right_; break;
@@ -79,7 +79,7 @@ namespace FiMSharp.Core
                 return value;
             #else
                 var dt = new DataTable(); // /shrug
-                var value = Convert.ToSingle(dt.Compute($"{ left_ } { arithmetic_ } {right_ }", ""));
+                var value = Convert.ToDouble(dt.Compute($"{ left_ } { arithmetic_ } {right_ }", ""));
 
                 return value;
             #endif

@@ -113,14 +113,14 @@ namespace FiMSharp.Core
 
             switch( x.Type ) {
                 case VariableTypes.BOOLEAN: _x = Convert.ToBoolean(x.Value); break;
-                case VariableTypes.INTEGER: _x =  Convert.ToSingle(x.Value); break;
+                case VariableTypes.INTEGER: _x =  Convert.ToDouble(x.Value); break;
                 case VariableTypes.STRING:  _x =  Convert.ToString(x.Value); break;
                 case VariableTypes.CHAR:    _x =    Convert.ToChar(x.Value); break;
                 default: _x = null; break;
             }
             switch( y.Type ) {
                 case VariableTypes.BOOLEAN: _y = Convert.ToBoolean(y.Value); break;
-                case VariableTypes.INTEGER:  _y = Convert.ToSingle(y.Value); break;
+                case VariableTypes.INTEGER:  _y = Convert.ToDouble(y.Value); break;
                 case VariableTypes.STRING:   _y = Convert.ToString(y.Value); break;
                 case VariableTypes.CHAR:       _y = Convert.ToChar(y.Value); break;
                 default: _y = null; break;
@@ -166,10 +166,10 @@ namespace FiMSharp.Core
             switch( conditional ) {
                 case "==": check = Equals(new FiMVariableStruct(left_value,left_type), new FiMVariableStruct(right_value,right_type)); break;
                 case "!=": check = !Equals(new FiMVariableStruct(left_value,left_type), new FiMVariableStruct(right_value,right_type)); break;
-                case ">":  check = Convert.ToSingle(left_value) >  Convert.ToSingle(right_value); break;
-                case "<":  check = Convert.ToSingle(left_value) <  Convert.ToSingle(right_value); break;
-                case ">=": check = Convert.ToSingle(left_value) >= Convert.ToSingle(right_value); break;
-                case "<=": check = Convert.ToSingle(left_value) <= Convert.ToSingle(right_value); break;
+                case ">":  check = Convert.ToDouble(left_value) >  Convert.ToDouble(right_value); break;
+                case "<":  check = Convert.ToDouble(left_value) <  Convert.ToDouble(right_value); break;
+                case ">=": check = Convert.ToDouble(left_value) >= Convert.ToDouble(right_value); break;
+                case "<=": check = Convert.ToDouble(left_value) <= Convert.ToDouble(right_value); break;
             }
             return check;
         }

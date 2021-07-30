@@ -17,6 +17,8 @@ namespace FiMSharp.Error {
         MISSING_PARAGRAPH, // X
         INDEX_MUST_BE_POSITIVE,
         INTERVAL_MUST_BE_NUMBER,
+        PARAMETER_MUST_BE_INTEGER,
+        EMPTY_RANGE,
 
         // Report
         TOO_MANY_MAIN_PARAGRAPH, // Might change soon when multiple main paragraphs becomes official in a next version. This is messy
@@ -53,6 +55,7 @@ namespace FiMSharp.Error {
         METHOD_NON_NUMBER_SQRT,
         METHOD_CANNOT_CONVERT, // X
         METHOD_ARRAY_INDEX_MUST_BE_INTEGER,
+        INVALID_ARGUMENT_COUNT, // Expected X, got Y
 
         // Paragraph
         INCREMENT_ONLY_NUMBERS,
@@ -85,6 +88,8 @@ namespace FiMSharp.Error {
                 case FiMErrorType.MISSING_PARAGRAPH: e = "Paragraph '{0}' doesn't exist"; break;
                 case FiMErrorType.INDEX_MUST_BE_POSITIVE: e = "Index must be a non-zero positive integer"; break;
                 case FiMErrorType.INTERVAL_MUST_BE_NUMBER: e = "Interval must be a number"; break;
+                case FiMErrorType.PARAMETER_MUST_BE_INTEGER: e = "Parameter must be integer"; break;
+                case FiMErrorType.EMPTY_RANGE: e = "Range is empty"; break;
 
                 case FiMErrorType.TOO_MANY_MAIN_PARAGRAPH: e = "Expected only one main paragraph"; break;
                 case FiMErrorType.REPORT_VARIABLE_CREATION_ONLY: e = "Expected only variable creation outside of paragraphs"; break;
@@ -117,6 +122,7 @@ namespace FiMSharp.Error {
                 case FiMErrorType.METHOD_NON_NUMBER_SQRT: e = "Cannot get square root of a non-number value"; break;
                 case FiMErrorType.METHOD_CANNOT_CONVERT: e = "Cannot convert value '{0}'"; break;
                 case FiMErrorType.METHOD_ARRAY_INDEX_MUST_BE_INTEGER: e = "Array index must be an integer"; break;
+                case FiMErrorType.INVALID_ARGUMENT_COUNT: e = "Invalid argument count: Expected {0}, got {1}"; break;
 
                 case FiMErrorType.INCREMENT_ONLY_NUMBERS: e = "Cannot increment non-number variables"; break;
                 case FiMErrorType.DECREMENT_ONLY_NUMBERS: e = "Cannot decrement non-number variables"; break;

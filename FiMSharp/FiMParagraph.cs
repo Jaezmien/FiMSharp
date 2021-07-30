@@ -244,7 +244,7 @@ namespace FiMSharp.Core
                                 if( variable.Type != VariableTypes.INTEGER )
                                     throw FiMError.CreatePartial( FiMErrorType.INCREMENT_ONLY_NUMBERS );
 
-                                SetVariableValue( variable_name, Convert.ToSingle(variable.GetValue().Value) + 1 );
+                                SetVariableValue( variable_name, Convert.ToDouble(variable.GetValue().Value) + 1 );
                                 if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                             } else {
                                 if( FiMMethods.IsMatchArray1(variable_name, true) ) {
@@ -252,7 +252,7 @@ namespace FiMSharp.Core
                                     if( !HasVariable(_variable_name) )
                                         throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, CombineAllVariables() );
-                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Value)+1 );
+                                    var.SetArrayValue( i, Convert.ToDouble(var.GetValue(i).Value)+1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
@@ -261,7 +261,7 @@ namespace FiMSharp.Core
                                     if( !HasVariable(_variable_name) )
                                         throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, report, CombineAllVariables() );
-                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Value)+1 );
+                                    var.SetArrayValue( i, Convert.ToDouble(var.GetValue(i).Value)+1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
@@ -278,7 +278,7 @@ namespace FiMSharp.Core
                                 if( variable.Type != VariableTypes.INTEGER )
                                     throw FiMError.CreatePartial( FiMErrorType.DECREMENT_ONLY_NUMBERS);
 
-                                SetVariableValue( variable_name, Convert.ToSingle(variable.GetValue().Value) - 1 );
+                                SetVariableValue( variable_name, Convert.ToDouble(variable.GetValue().Value) - 1 );
                                 if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                             } else {
                                 if( FiMMethods.IsMatchArray1(variable_name, true) ) {
@@ -286,7 +286,7 @@ namespace FiMSharp.Core
                                     if( !HasVariable(_variable_name) )
                                         throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, CombineAllVariables() );
-                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Value)-1 );
+                                    var.SetArrayValue( i, Convert.ToDouble(var.GetValue(i).Value)-1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
@@ -295,7 +295,7 @@ namespace FiMSharp.Core
                                     if( !HasVariable(_variable_name) )
                                         throw FiMError.CreatePartial( FiMErrorType.VARIABLE_DOESNT_EXIST, _variable_name );
                                     (int i, FiMVariable var) = FiMMethods.ParseArray( _variable_index, _variable_name, report, CombineAllVariables() );
-                                    var.SetArrayValue( i, Convert.ToSingle(var.GetValue(i).Value)-1 );
+                                    var.SetArrayValue( i, Convert.ToDouble(var.GetValue(i).Value)-1 );
 
                                     if( IsScopeVariable( variable_name ) ) changedVariables[variable_name] = GetVariable(variable_name);
                                 }
@@ -415,14 +415,14 @@ namespace FiMSharp.Core
 
                             if( HasVariable(statement.Element.Name) ) throw FiMError.CreatePartial( FiMErrorType.VARIABLE_ALREADY_EXISTS, statement.Element.Name );
                             
-                            float min = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.From, report, CombineAllVariables(), out var min_type) );
-                            float max = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.To, report, CombineAllVariables(), out var max_type) );
+                            double min = Convert.ToDouble( FiMMethods.ParseVariable(statement.Range.From, report, CombineAllVariables(), out var min_type) );
+                            double max = Convert.ToDouble( FiMMethods.ParseVariable(statement.Range.To, report, CombineAllVariables(), out var max_type) );
 
                             if( min_type != VariableTypes.INTEGER || max_type != VariableTypes.INTEGER ) throw FiMError.CreatePartial( FiMErrorType.RANGE_MUST_BE_NUMBER );
 
-                            float interval = 1;
+                            double interval = 1;
                             VariableTypes interval_type = VariableTypes.INTEGER;
-                            if( statement.Range.By.Length > 0 ) interval = Convert.ToSingle( FiMMethods.ParseVariable(statement.Range.By, report, CombineAllVariables(), out interval_type) );
+                            if( statement.Range.By.Length > 0 ) interval = Convert.ToDouble( FiMMethods.ParseVariable(statement.Range.By, report, CombineAllVariables(), out interval_type) );
                             else if( min > max ) interval = -1;
                             if( interval_type != VariableTypes.INTEGER ) throw FiMError.CreatePartial( FiMErrorType.INTERVAL_MUST_BE_NUMBER );
 
@@ -566,8 +566,8 @@ namespace FiMSharp.Core
 
                 case VariableTypes.BOOLEAN_ARRAY:
                     return (value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToBoolean(v.Value));
-                case VariableTypes.FLOAT_ARRAY:
-                    return (value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToSingle(v.Value));
+                case VariableTypes.DOUBLE_ARRAY:
+                    return (value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToDouble(v.Value));
                 case VariableTypes.STRING_ARRAY:
                     return (value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToString(v.Value));
                 

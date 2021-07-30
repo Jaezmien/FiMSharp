@@ -53,7 +53,7 @@ namespace FiMSharp.Core
                     if (!raw_dict.ContainsKey( array_index )) return new FiMVariableStruct(false, VariableTypes.BOOLEAN );
                     return new FiMVariableStruct( raw_dict[array_index], VariableTypes.BOOLEAN );
                 }
-                if (this.Type == VariableTypes.FLOAT_ARRAY)
+                if (this.Type == VariableTypes.DOUBLE_ARRAY)
                 {
                     if (!raw_dict.ContainsKey( array_index )) return new FiMVariableStruct(0, VariableTypes.INTEGER );
                     return new FiMVariableStruct( raw_dict[array_index], VariableTypes.INTEGER );
@@ -95,8 +95,8 @@ namespace FiMSharp.Core
 
                     case VariableTypes.BOOLEAN_ARRAY:
                         return (this._Value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToBoolean(v.Value));
-                    case VariableTypes.FLOAT_ARRAY:
-                        return (this._Value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToSingle(v.Value));
+                    case VariableTypes.DOUBLE_ARRAY:
+                        return (this._Value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToDouble(v.Value));
                     case VariableTypes.STRING_ARRAY:
                         return (this._Value as Dictionary<int, object>).ToDictionary(k => k.Key, v => Convert.ToString(v.Value));
                     
@@ -111,8 +111,8 @@ namespace FiMSharp.Core
                     }
                     break;
                     case VariableTypes.INTEGER: {
-                        float new_value;
-                        try { new_value = Convert.ToSingle(value); } catch( Exception ) { throw new ArgumentException(); }
+                        double new_value;
+                        try { new_value = Convert.ToDouble(value); } catch( Exception ) { throw new ArgumentException(); }
                         this._Value = new_value;
                     }
                     break;
@@ -132,8 +132,8 @@ namespace FiMSharp.Core
                         this._Value = value as Dictionary<int, object>;
                     }
                     break;
-                    case VariableTypes.FLOAT_ARRAY: {
-                        if( value.GetType() != typeof(Dictionary<int,float>) ) throw new ArgumentException();
+                    case VariableTypes.DOUBLE_ARRAY: {
+                        if( value.GetType() != typeof(Dictionary<int,double>) ) throw new ArgumentException();
                         this._Value = value as Dictionary<int, object>;
                     }
                     break;
