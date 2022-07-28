@@ -83,25 +83,23 @@ namespace FiMSharp
 						{
 							i++;
 							var n = node as KirinFunctionStart;
-							var fn = new KirinFunction(n);
 
 							var s = new KirinStatement(-1, -1);
-							while (nodes[i].NodeType != "KirinFunctionEnd")
-							{
-								var sn = nodes[i++];
-								s.PushNode(sn);
-							}
+							while (nodes[i].NodeType != "KirinFunctionEnd") s.PushNode(nodes[i++]);
 
 							var en = nodes[i] as KirinFunctionEnd;
 							if (en.NodeType == "KirinFunctionEnd" && en.Name != n.Name)
 								throw new Exception($"Method '{n.Name}' does not end with the same name");
 
+							var firstNode = s.Body.First() as KirinNode;
+							var lastNode = s.Body.Last() as KirinNode;
+							s.Start = firstNode.Start; 
+							s.Length = (lastNode.Start + lastNode.Length) - firstNode.Start;
 
-							s.Start = n.Start;
-							s.Length = (en.Start + en.Length) - n.Start;
-							fn.Statement = s;
-							fn.Start = s.Start;
-							fn.Length = s.Length;
+							var fn = new KirinFunction(n.Start, (en.Start + en.Length) - n.Start, n)
+							{
+								Statement = s
+							};
 
 							program.PushNode(fn);
 						}
