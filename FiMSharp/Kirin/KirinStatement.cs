@@ -46,12 +46,12 @@ namespace FiMSharp.Kirin
 					}
 					else
 					{
-						throw new Exception($"Paragraph contains a non-KirinExecutable node ('{node.Type}')");
+						throw new Exception($"Paragraph contains a non-KirinExecutable node ('{node.NodeType}')");
 					}
 				}
 				var n = (KirinExecutableNode)node;
 
-				if (n.Type == "KirinVariableDeclaration") localVariables++;
+				if (n.NodeType == "KirinVariableDeclaration") localVariables++;
 
 				object r;
 #if DEBUG
@@ -67,7 +67,7 @@ namespace FiMSharp.Kirin
 				}
 #endif
 
-				if ( n.Type == "KirinReturn" )
+				if ( n.NodeType == "KirinReturn" )
 				{
 					result = ((KirinValue)r).Value;
 					break;

@@ -13,10 +13,16 @@ namespace FiMSharp
 			this.KValue = value;
 		}
 
-		public FiMVariable(string name, object value, bool constant = false) : this(name, new KirinValue(value) { Constant = constant } ) { }
+		public FiMVariable(string name, object value, bool constant = false) :
+			this(name, new KirinValue(value) { Constant = constant } ) { }
 
 		public readonly string Name;
 		private readonly KirinValue KValue;
+
+		public KirinVariableType Type
+		{
+			get { return this.KValue.Type; }
+		}
 		public object Value
 		{
 			get { return this.KValue.Value; }

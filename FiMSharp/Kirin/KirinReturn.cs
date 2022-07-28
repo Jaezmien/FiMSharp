@@ -36,9 +36,9 @@ namespace FiMSharp.Kirin
 			var value = new KirinValue(this.RawParameters, report);
 			if( this.ExpectedType != KirinVariableType.UNKNOWN )
 			{
-				if (value.VarType != this.ExpectedType)
+				if (value.Type != this.ExpectedType)
 					throw new Exception("Expected " + this.ExpectedType.AsNamedString() +
-						", got " + value.VarType.AsNamedString());
+						", got " + value.Type.AsNamedString());
 			}
 			return value;
 		}

@@ -5,6 +5,44 @@ using System.Linq;
 
 namespace FiMSharp.Kirin
 {
+	static class KirinValueHelper
+	{
+		public static char AsChar(this KirinValue value)
+		{
+			if (value.Type != KirinVariableType.CHAR) throw new Exception("Value is not a character");
+			return Convert.ToChar(value.Value);
+		}
+		public static string AsString(this KirinValue value)
+		{
+			if (value.Type != KirinVariableType.STRING) throw new Exception("Value is not a string");
+			return Convert.ToString(value.Value);
+		}
+		public static double AsNumber(this KirinValue value)
+		{
+			if (value.Type != KirinVariableType.NUMBER) throw new Exception("Value is not a number");
+			return Convert.ToDouble(value.Value);
+		}
+		public static bool AsBoolean(this KirinValue value)
+		{
+			if (value.Type != KirinVariableType.BOOL) throw new Exception("Value is not a boolean");
+			return Convert.ToBoolean(value.Value);
+		}
+		public static Dictionary<int, string> AsStringDictionary(this KirinValue value)
+		{
+			if (value.Type != KirinVariableType.STRING_ARRAY) throw new Exception("Value is not a string array");
+			return (value.Value as Dictionary<int, object>).ToDictionary(e => e.Key, v => (string)v.Value);
+		}
+		public static Dictionary<int, double> AsNumberDictionary(this KirinValue value)
+		{
+			if (value.Type != KirinVariableType.NUMBER_ARRAY) throw new Exception("Value is not a number array");
+			return (value.Value as Dictionary<int, object>).ToDictionary(e => e.Key, v => (double)v.Value);
+		}
+		public static Dictionary<int, bool> AsBooleanDictionary(this KirinValue value)
+		{
+			if (value.Type != KirinVariableType.BOOL_ARRAY) throw new Exception("Value is not a boolean array");
+			return (value.Value as Dictionary<int, object>).ToDictionary(e => e.Key, v => (bool)v.Value);
+		}
+	}
 	public class KirinValue : KirinBaseNode
 	{
 		public KirinValue(string raw, FiMReport report)
@@ -34,7 +72,7 @@ namespace FiMSharp.Kirin
 					if (eType != KirinVariableType.UNKNOWN) raw = raw.Substring(eKeyword.Length);
 					object value;
 					if (KirinLiteral.TryParse(raw, out object lResult)) value = lResult;
-					else value = KirinValue.Evaluate(Report, raw, ForcedVarType);
+					else value = KirinValue.Evaluate(Report, raw, ForcedType);
 					if (eType != KirinVariableType.UNKNOWN)
 					{
 						if (FiMHelper.AsVariableType(value) != eType)
@@ -47,25 +85,25 @@ namespace FiMSharp.Kirin
 			set
 			{
 				if (Constant) throw new Exception("Cannot modify a const variable");
-				if (FiMHelper.AsVariableType(value) != this.VarType)
-					throw new Exception("Expected " + this.VarType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
+				if (FiMHelper.AsVariableType(value) != this.Type)
+					throw new Exception("Expected " + this.Type.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
 				this._Value = value;
 			}
 		}
 
-		private KirinVariableType? ForcedVarType = null;
-		public KirinVariableType VarType
+		private KirinVariableType? ForcedType = null;
+		public KirinVariableType Type
 		{
 			get
 			{
-				return this.ForcedVarType ?? FiMHelper.AsVariableType(this.Value);
+				return this.ForcedType ?? FiMHelper.AsVariableType(this.Value);
 			}
 		}
 
 		public void ForceType(KirinVariableType type)
 		{
-			if (this.ForcedVarType != null) return;
-			this.ForcedVarType = type;
+			if (this.ForcedType != null) return;
+			this.ForcedType = type;
 		}
 
 		/// <summary>
@@ -103,42 +141,18 @@ namespace FiMSharp.Kirin
 			// Array
 			if( expectedType != null && FiMHelper.IsTypeArray((KirinVariableType)expectedType) )
 			{
-				var list = FiMHelper.CreateArrayFromType((KirinArrayType)expectedType);
+				var dict = new Dictionary<int, object>();
 				var args = KirinFunctionCall.ParseCallArguments(evaluatable, report);
 
-				if (!FiMHelper.IsTypeOfArray(args[0].VarType, (KirinArrayType)expectedType))
+				if (!FiMHelper.IsTypeOfArray(args[0].Type, (KirinArrayType)expectedType))
 					throw new Exception("Invalid list value type");
-				if (!args.All(a => a.VarType == args[0].VarType))
+				if (!args.All(a => a.Type == args[0].Type))
 					throw new Exception("Unidentical list value type");
 
-				// TODO: Is there a better way to do this?
 				int i = 1;
-				if (expectedType == KirinVariableType.STRING_ARRAY)
-				{
-					args.ForEach(kv =>
-					{
-						(list as Dictionary<int, string>).Add(i, (string)kv.Value);
-						i++;
-					});
-				}
-				else if (expectedType == KirinVariableType.NUMBER_ARRAY)
-				{
-					args.ForEach(kv =>
-					{
-						(list as Dictionary<int, double>).Add(i, (double)kv.Value);
-						i++;
-					});
-				}
-				else if (expectedType == KirinVariableType.BOOL_ARRAY)
-				{
-					args.ForEach(kv =>
-					{
-						(list as Dictionary<int, bool>).Add(i, (bool)kv.Value);
-						i++;
-					});
-				}
+				args.ForEach(kv => dict.Add(i++, kv.Value));
 
-				return args;
+				return dict;
 			}
 
 			// String concatenation

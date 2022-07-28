@@ -2,7 +2,7 @@
 {
 	public class KirinBaseNode
 	{
-		public string Type
+		public string NodeType
 		{
 			get { return this.GetType().Name; }
 		}

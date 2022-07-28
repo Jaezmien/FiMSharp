@@ -46,7 +46,7 @@ namespace FiMSharp
 			if (type == typeof(bool)) return KirinVariableType.BOOL;
 
 			if (type == typeof(Dictionary<int,string>)) return KirinVariableType.STRING_ARRAY;
-			if (type == typeof(Dictionary<int, double>) || type == typeof(List<int>)) return KirinVariableType.NUMBER_ARRAY;
+			if (type == typeof(Dictionary<int, double>) || type == typeof(Dictionary<int, int>)) return KirinVariableType.NUMBER_ARRAY;
 			if (type == typeof(Dictionary<int, bool>)) return KirinVariableType.BOOL_ARRAY;
 
 			if (strict) throw new Exception("Cannot determine variable type");
@@ -81,24 +81,15 @@ namespace FiMSharp
 			return type == aType;
 		}
 
-		public static object CreateArrayFromType(KirinArrayType type)
-		{
-			if (type == KirinArrayType.STRING) return new Dictionary<int, string>();
-			if (type == KirinArrayType.BOOL) return new Dictionary<int, bool>();
-			if (type == KirinArrayType.NUMBER) return new Dictionary<int, double>();
-
-			throw new Exception("Unknown list type " + type);
-		}
-
 		public static object GetDefaultValue(KirinVariableType type)
 		{
 			if (type == KirinVariableType.STRING) return "";
 			if (type == KirinVariableType.CHAR) return '\0';
 			if (type == KirinVariableType.NUMBER) return 0.0d;
 			if (type == KirinVariableType.BOOL) return false;
-			if (type == KirinVariableType.STRING_ARRAY) return new Dictionary<int, string>();
-			if (type == KirinVariableType.NUMBER_ARRAY) return new Dictionary<int, double>();
-			if (type == KirinVariableType.BOOL_ARRAY) return new Dictionary<int, bool>();
+			if (type == KirinVariableType.STRING_ARRAY) return new Dictionary<int, object>();
+			if (type == KirinVariableType.NUMBER_ARRAY) return new Dictionary<int, object>();
+			if (type == KirinVariableType.BOOL_ARRAY) return new Dictionary<int, object>();
 
 			throw new Exception("Invalid type");
 		}

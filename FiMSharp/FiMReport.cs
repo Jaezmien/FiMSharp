@@ -18,7 +18,7 @@ namespace FiMSharp
 
 			foreach( var node in tree.Body )
 			{
-				if( node.Type == "KirinFunction" )
+				if( node.NodeType == "KirinFunction" )
 				{
 					var n = node as KirinFunction;
 					if( n.IsMain )
@@ -28,7 +28,7 @@ namespace FiMSharp
 					}
 					this.Paragraphs.Add(new FiMParagraph(this, n));
 				}
-				if( node.Type == "KirinVariableDeclaration" )
+				if( node.NodeType == "KirinVariableDeclaration" )
 				{
 					((KirinVariableDeclaration)node).Execute(this);
 				}

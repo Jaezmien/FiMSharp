@@ -35,13 +35,13 @@ namespace FiMSharp
 				currentIndex = endIndex + 1;
 			}
 
-			if (nodes.FindIndex(n => n.Type == "KirinProgramStart") != 0) throw new Exception("Start of report must be the first line");
-			if (nodes.FindIndex(n => n.Type == "KirinProgramEnd") == -1) throw new Exception("Cannot find end of report");
-			if (nodes.FindIndex(n => n.Type == "KirinProgramEnd") < nodes.Count - 1)
+			if (nodes.FindIndex(n => n.NodeType == "KirinProgramStart") != 0) throw new Exception("Start of report must be the first line");
+			if (nodes.FindIndex(n => n.NodeType == "KirinProgramEnd") == -1) throw new Exception("Cannot find end of report");
+			if (nodes.FindIndex(n => n.NodeType == "KirinProgramEnd") < nodes.Count - 1)
 			{
-				for( int i = nodes.FindIndex(n => n.Type == "KirinProgramEnd") + 1; i < nodes.Count; i++ )
+				for( int i = nodes.FindIndex(n => n.NodeType == "KirinProgramEnd") + 1; i < nodes.Count; i++ )
 				{
-					if (nodes[i].Type != "KirinPostScript")
+					if (nodes[i].NodeType != "KirinPostScript")
 						throw new Exception("Expected EOR at line " + FiMHelper.GetIndexPair(content, (nodes[i] as KirinNode).Start).Line);
 				}
 			}
@@ -49,7 +49,7 @@ namespace FiMSharp
 			for( int i = 0; i < nodes.Count; i++ )
 			{
 				var node = nodes[i];
-				switch (node.Type)
+				switch (node.NodeType)
 				{
 					case "KirinProgramStart":
 						{
@@ -86,14 +86,14 @@ namespace FiMSharp
 							var fn = new KirinFunction(n);
 
 							var s = new KirinStatement(-1, -1);
-							while (nodes[i].Type != "KirinFunctionEnd")
+							while (nodes[i].NodeType != "KirinFunctionEnd")
 							{
 								var sn = nodes[i++];
 								s.PushNode(sn);
 							}
 
 							var en = nodes[i] as KirinFunctionEnd;
-							if (en.Type == "KirinFunctionEnd" && en.Name != n.Name)
+							if (en.NodeType == "KirinFunctionEnd" && en.Name != n.Name)
 								throw new Exception($"Method '{n.Name}' does not end with the same name");
 
 
