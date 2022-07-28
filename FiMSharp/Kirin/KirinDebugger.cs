@@ -2,11 +2,7 @@
 {
 	public class KirinDebugger : KirinExecutableNode
 	{
-		public KirinDebugger(int start, int length) : base(start, length)
-		{
-			this.Start = start;
-			this.Length = length;
-		}
+		public KirinDebugger(int start, int length) : base(start, length) { }
 
 		public static bool TryParse(string content, int start, int length, out KirinDebugger result)
 		{

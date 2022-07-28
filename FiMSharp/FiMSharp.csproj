@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>FiMSharp.SRC</RootNamespace>
+    <RootNamespace>FiMSharp</RootNamespace>
     <Version>0.4.0</Version>
     <Authors>Jaezmien Naejara</Authors>
     <Description>FiMSharp is a FiM++ interpreter library written in C#</Description>

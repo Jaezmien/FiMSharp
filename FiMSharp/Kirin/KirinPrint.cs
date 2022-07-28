@@ -16,16 +16,13 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinPrint result)
 		{
 			result = null;
-			var matches = Print.Matches(content);
-			if (matches.Count != 1) return false;
-
-			Group group = matches[0].Groups[1];
+			var match = Print.Match(content);
+			if (!match.Success) return false;
 
 			result = new KirinPrint(start, length)
 			{
-				RawParameters = group.Value
+				RawParameters = match.Groups[1].Value
 			};
-
 			return true;
 		}
 

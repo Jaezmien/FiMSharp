@@ -13,7 +13,7 @@ namespace FiMSharp.Kirin
 		public KirinVariableType ExpectedType;
 		public bool Constant;
 
-		private readonly static Regex Print = new Regex(@"^Did you know that (.+)");
+		private readonly static Regex VarDeclaration = new Regex(@"^Did you know that (.+)");
 		private readonly static string ConstantKW = " always";
 		private static class InitKeyword
 		{
@@ -37,12 +37,12 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinVariableDeclaration result)
 		{
 			result = null;
-			var matches = Print.Matches(content);
-			if (matches.Count != 1) return false;
+			var match = VarDeclaration.Match(content);
+			if (!match.Success) return false;
 
 			result = new KirinVariableDeclaration(start, length);
 
-			Group group = matches[0].Groups[1];
+			Group group = match.Groups[1];
 			string varName = group.Value;
 			string iKeyword = InitKeyword.GetKeyword(varName, out int iIndex);
 			varName = varName.Substring(0, iIndex - 1);
@@ -54,7 +54,11 @@ namespace FiMSharp.Kirin
 			if( result.Constant ) subContent = subContent.Substring(ConstantKW.Length);
 
 			var varType = FiMHelper.DeclarationType.Determine(subContent, out string tKeyword);
-			var varValueRaw = subContent.Substring(tKeyword.Length + 1);
+			string varValueRaw = null;
+			if(tKeyword.Length + 1 <= subContent.Length)
+			{
+				varValueRaw = subContent.Substring(tKeyword.Length + 1);
+			}
 			result.ExpectedType = varType;
 			result.RawValue = varValueRaw;
 
@@ -67,7 +71,7 @@ namespace FiMSharp.Kirin
 				throw new Exception("Variable " + this.Name + " already exists");
 
 			var value = new KirinValue(this.RawValue, report);
-			if( FiMHelper.IsTypeArray(this.ExpectedType) )
+			if( FiMHelper.IsTypeArray(this.ExpectedType) || this.RawValue == null )
 			{
 				value.ForceType(this.ExpectedType);
 			}

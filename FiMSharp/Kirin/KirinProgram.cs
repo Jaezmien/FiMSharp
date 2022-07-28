@@ -18,10 +18,10 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinProgramStart result)
 		{
 			result = null;
-			var matches = ReportStart.Matches(content);
-			if (matches.Count != 1) return false;
+			var match = ReportStart.Match(content);
+			if (!match.Success) return false;
 
-			var groups = matches[0].Groups;
+			var groups = match.Groups;
 			result = new KirinProgramStart(start, length)
 			{
 				ProgramRecipient = groups[1].Value,
@@ -43,10 +43,10 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinProgramEnd result)
 		{
 			result = null;
-			var matches = ReportEnd.Matches(content);
-			if (matches.Count != 1) return false;
+			var match = ReportEnd.Match(content);
+			if (!match.Success) return false;
 
-			var groups = matches[0].Groups;
+			var groups = match.Groups;
 			result = new KirinProgramEnd(start, length)
 			{
 				AuthorRole = groups[1].Value,

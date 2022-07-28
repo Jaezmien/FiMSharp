@@ -196,10 +196,10 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinFunctionStart result)
 		{
 			result = null;
-			var matches = FunctionStart.Matches(content);
-			if (matches.Count != 1) return false;
+			var match = FunctionStart.Match(content);
+			if (!match.Success) return false;
 
-			string functionName = matches[0].Groups[1].Value;
+			string functionName = match.Groups[1].Value;
 			result = new KirinFunctionStart(start, length)
 			{
 				IsMain = content.StartsWith("Today"),
@@ -255,12 +255,12 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinFunctionEnd result)
 		{
 			result = null;
-			var matches = FunctionEnd.Matches(content);
-			if (matches.Count != 1) return false;
+			var match = FunctionEnd.Match(content);
+			if (!match.Success) return false;
 
 			result = new KirinFunctionEnd(start, length)
 			{
-				Name = matches[0].Groups[1].Value
+				Name = match.Groups[1].Value
 			};
 			return true;
 		}

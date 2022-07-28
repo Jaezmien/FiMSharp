@@ -264,6 +264,9 @@ namespace FiMSharp
 				if (KirinPrint.TryParse(subContent, start, length, out KirinPrint pResult)) return pResult;
 			}
 			{
+				if (KirinInput.TryParse(subContent, start, length, out KirinInput kResult)) return kResult;
+			}
+			{
 				if (KirinFunctionCall.TryParse(subContent, report, start, length, out KirinFunctionCall fcResult)) return fcResult;
 			}
 			{
@@ -274,6 +277,9 @@ namespace FiMSharp
 			}
 			{
 				if (KirinVariableModify.TryParse(subContent, start, length, out KirinVariableModify vmResult)) return vmResult;
+			}
+			{
+				if (KirinUnary.TryParse(subContent, start, length, out KirinUnary uResult)) return uResult;
 			}
 			{
 				if (KirinReturn.TryParse(subContent, start, length, out KirinReturn rResult)) return rResult;

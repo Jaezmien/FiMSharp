@@ -67,18 +67,33 @@ namespace FiMSharp.Kirin
 			{
 				if( this._Value == null )
 				{
-					var eType = FiMHelper.DeclarationType.Determine(" " + this.Raw, out string eKeyword, false);
-					string raw = this.Raw;
-					if (eType != KirinVariableType.UNKNOWN) raw = raw.Substring(eKeyword.Length);
-					object value;
-					if (KirinLiteral.TryParse(raw, out object lResult)) value = lResult;
-					else value = KirinValue.Evaluate(Report, raw, ForcedType);
-					if (eType != KirinVariableType.UNKNOWN)
+					if(this.Raw == null)
 					{
-						if (FiMHelper.AsVariableType(value) != eType)
-							throw new Exception("Expected " + eType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
+						if (FiMHelper.IsTypeArray(this.Type))
+						{
+							this._Value = FiMHelper.GetDefaultValue(this.Type);
+						}
+						else
+						{
+							if(this.ForcedType == null) throw new Exception("Value is null");
+							this._Value = FiMHelper.GetDefaultValue((KirinVariableType)this.ForcedType);
+						}
 					}
-					this._Value = value;
+					else
+					{
+						var eType = FiMHelper.DeclarationType.Determine(" " + this.Raw, out string eKeyword, false);
+						string raw = this.Raw;
+						if (eType != KirinVariableType.UNKNOWN) raw = raw.Substring(eKeyword.Length);
+						object value;
+						if (KirinLiteral.TryParse(raw, out object lResult)) value = lResult;
+						else value = KirinValue.Evaluate(Report, raw, ForcedType);
+						if (eType != KirinVariableType.UNKNOWN)
+						{
+							if (FiMHelper.AsVariableType(value) != eType)
+								throw new Exception("Expected " + eType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
+						}
+						this._Value = value;
+					}
 				}
 				return this._Value;
 			}
@@ -155,6 +170,41 @@ namespace FiMSharp.Kirin
 				return dict;
 			}
 
+			// Array index (explicit)
+			if( Regex.IsMatch(evaluatable, @"^(.+) of (.+)$") )
+			{
+				var match = Regex.Match(evaluatable, @"^(.+) of (.+)$");
+
+				string strIndex = match.Groups[1].Value;
+				var varIndex = new KirinValue(strIndex, report);
+				if (varIndex.Type != KirinVariableType.NUMBER) throw new Exception("Invalid index value");
+				int index = Convert.ToInt32(varIndex.Value);
+
+				string strVar = match.Groups[2].Value;
+				if (!report.Variables.Exists(strVar)) throw new Exception("Variable " + strVar + " does not exist");
+				var variable = report.Variables.Get(strVar);
+				if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
+					throw new Exception("Cannot index a non-array variable");
+
+				if( variable.Type == KirinVariableType.STRING )
+					return Convert.ToString(variable.Value)[index];
+
+				var dict = variable.Value as Dictionary<int, object>;
+				if (variable.Type == KirinVariableType.STRING_ARRAY)
+					return Convert.ToString(dict[index]);
+				if (variable.Type == KirinVariableType.BOOL_ARRAY)
+					return Convert.ToBoolean(dict[index]);
+				if (variable.Type == KirinVariableType.NUMBER_ARRAY)
+					return Convert.ToDouble(dict[index]);
+			}
+			// Array index (implicit)
+			if( Regex.IsMatch(evaluatable, @"^(.+) (\d+)$") )
+			{
+				var match = Regex.Match(evaluatable, @"^(.+) (\d+)$");
+				string strVar = match.Groups[1].Value;
+				if( report.Variables.Exists(strVar) ) return Evaluate(report, $"{match.Groups[2].Value} of {strVar}");
+			}
+
 			// String concatenation
 			// return null;
 			throw new NotImplementedException();
@@ -177,7 +227,7 @@ namespace FiMSharp.Kirin
 			public static readonly string[] True = { "correct", "right", "true", "yes" };
 			public static readonly string[] False = { "false", "incorrect", "no", "wrong" };
 		}
-		private static char CharAsLiteral(char input)
+		public static char CharAsLiteral(char input)
 		{
 			switch (input)
 			{

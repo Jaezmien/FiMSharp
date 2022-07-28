@@ -29,10 +29,10 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, FiMReport report, int start, int length, out KirinFunctionCall result)
 		{
 			result = null;
-			var matches = FunctionCall.Matches(content);
-			if (matches.Count != 1) return false;
+			var match = FunctionCall.Match(content);
+			if (!match.Success) return false;
 
-			string value = matches[0].Groups[1].Value;
+			string value = match.Groups[1].Value;
 			result = new KirinFunctionCall(start, length)
 			{
 				FunctionName = value
