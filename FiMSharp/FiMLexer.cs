@@ -11,32 +11,32 @@ namespace FiMSharp
 		public readonly static char[] Punctuations = new char[] { '.', '!', '?', ':', ',' };
 		public readonly static char[] StringLiterals = new char[] { '"', '“', '”' };
 
-		private readonly static Regex PSComment = new Regex(@"^P\.(?:P\.)*S\.\s(?:.+)$");
-		private readonly static Regex ReportStart = new Regex(@"Dear (?:.+)?: (?:.+)?");
-		private readonly static Regex ReportEnding = new Regex(@"Your (?:.+)?, (?:.+)?");
-		private readonly static Regex SwitchCase = new Regex(@"On the (?:.+)? hoof\.\.\.");
-		private readonly static Regex SwitchDefault = new Regex(@"If all else fails\.\.\.");
-		private readonly static Regex Foreach = new Regex(@"For every (?:.+)? (?:in (?:.+)|from (?:.+) to (?:.+))?\.\.\.");
+		private readonly static Regex _PSComment = new Regex(@"(^P\.(?:P\.)*S\.\s(?:.+)$)");
+		private readonly static Regex _ReportStart = new Regex(@"(^Dear .+: .+?[.!,:])( .+)?");
+		private readonly static Regex _ReportEnding = new Regex(@"(^Your .+?, .+?[.!?:,])( .+)?");
+		private readonly static Regex _SwitchCase = new Regex(@"^On the .+? hoof");
+		private readonly static Regex _SwitchDefault = new Regex(@"^If all else fails");
+		private readonly static Regex _Foreach = new Regex(@"^For every .+? (?:in .+|from .+ to .+)");
+		private readonly static Regex _WhileLoop = new Regex(@"^(?:As long as|While) .+");
+		private readonly static Regex[] ElipsesMatches = new[] { _Foreach, _SwitchCase, _SwitchDefault, _WhileLoop };
 
 		public static KirinProgram ParseReport(FiMReport report, string content)
 		{
 			var program = new KirinProgram(-1, -1);
 
-			int currentIndex = 0;
+			var lines = FindAllLines(content);
 			var nodes = new List<KirinBaseNode>();
-			while (currentIndex < content.Length)
+
+			foreach(var line in lines)
 			{
-				int endIndex = FindNextPunctuation(content, currentIndex);
-				if (endIndex == -1) break;
-
-				var node = ParseLine(report, content, currentIndex, (endIndex + 1) - currentIndex);
+				var node = ParseLine(report, content, line.Start, line.End - line.Start);
 				nodes.Add(node);
-
-				currentIndex = endIndex + 1;
 			}
 
-			if (nodes.FindIndex(n => n.NodeType == "KirinProgramStart") != 0) throw new Exception("Start of report must be the first line");
-			if (nodes.FindIndex(n => n.NodeType == "KirinProgramEnd") == -1) throw new Exception("Cannot find end of report");
+			if (nodes.FindIndex(n => n.NodeType == "KirinProgramStart") != 0)
+				throw new Exception("Start of report must be the first line");
+			if (nodes.FindIndex(n => n.NodeType == "KirinProgramEnd") == -1)
+				throw new Exception("Cannot find end of report");
 			if (nodes.FindIndex(n => n.NodeType == "KirinProgramEnd") < nodes.Count - 1)
 			{
 				for( int i = nodes.FindIndex(n => n.NodeType == "KirinProgramEnd") + 1; i < nodes.Count; i++ )
@@ -125,122 +125,114 @@ namespace FiMSharp
 			return program;
 		}
 
-		private static int FindNextPunctuation(string content, int currentIndex)
+		private struct ReportLine
 		{
-			int firstValidIndex = -1;
+			public int Start;
+			public int End;
+		}
+		private static ReportLine[] FindAllLines(string content)
+		{
+			List<ReportLine> lines = new List<ReportLine>();
+			var length = content.Length;
 
-			for( int i = currentIndex; i < content.Length; i++ )
+			var matches = new[] { _PSComment, _ReportStart, _ReportEnding };
+
+			int startIndex = 0;
+			for(int i = startIndex; i < content.Length; i++)
 			{
 				char c = content[i];
-				if( !string.IsNullOrWhiteSpace(c.ToString()) && firstValidIndex == -1)
+				if( c == '(' )
 				{
-					firstValidIndex = i;
-				}
-
-				if( c == '\\' )
-				{
-					i++;
+					while (content[++i] != ')');
 					continue;
 				}
-
-				if( c == '\'' )
+				if( c == '"')
 				{
-					// Find possible start of word
-					int wordStartingIndex = i;
-					while (!string.IsNullOrWhiteSpace(content[wordStartingIndex - 1].ToString())) wordStartingIndex--;
-
-					// Is this on the start (and part of) a keyword?
-					if (FiMConstants.Keywords.Any(kw => content.Substring(wordStartingIndex, kw.Length) == kw)) continue;
-
-					// Find end
-					int endingIndex = i + 1;
-					while (content[endingIndex] != '\'') endingIndex++;
-					
-					if( endingIndex - wordStartingIndex <= 3 )
+					while (content[++i] != '"');
+					continue;
+				}
+				if( c == '\'')
+				{
+					if (content[i + 1] == '\\' && content[i + 3] == '\'')
 					{
-						i = endingIndex;
+						i += 3;
+						continue;
+					}
+					else if (content[i + 2] == '\'')
+					{
+						i += 2;
 						continue;
 					}
 				}
-				if( StringLiterals.Any(l => l == c) )
+
+				if( Punctuations.Any(p => p == c) )
 				{
-					int endingIndex = i + 1;
-					while (!StringLiterals.Any(l => l == content[endingIndex])) endingIndex++;
-					i = endingIndex;
-					continue;
-				}
+					int endIndex = i + 1;
 
-				if( c == '(' )
-				{
-					int endingIndex = i + 1;
-					while (content[endingIndex] != ')') endingIndex++;
-					i = endingIndex;
-					continue;
-				}
-
-				if (Punctuations.Any(p => p == c))
-				{
-					int wordStartingIndex = i;
-					while (!string.IsNullOrWhiteSpace(content[wordStartingIndex - 1].ToString())) wordStartingIndex--;
-
-					int EOLIndex = i + 1;
-					while (EOLIndex < content.Length && content[EOLIndex] != '\n') EOLIndex++;
-
-					string subContent = content.Substring(wordStartingIndex, EOLIndex - wordStartingIndex);
-					string subContent2 = content.Substring(firstValidIndex, EOLIndex - firstValidIndex);
-
-					if ( PSComment.IsMatch(subContent) )
+					// Checks in case of special lines, see above RegExes.
+					int eolIndex = i;
+					while (eolIndex + 1 < content.Length && content[eolIndex + 1] != '\n') eolIndex++;
+					eolIndex++;
+					string line = content.Substring(startIndex, eolIndex - startIndex);
+					int startOffset = FindLineTrueStart(line);
+					line = line.Substring(startOffset);
+					startIndex += startOffset;
+					if (matches.Any(m => m.IsMatch(line)))
 					{
-						i = EOLIndex - 1;
+						var match = matches.First(m => m.IsMatch(line)).Match(line);
+						if (match.Groups.Count == 3 && match.Groups[2].Success)
+						{
+							endIndex = startIndex + match.Groups[2].Index;
+						}
+						else {
+							endIndex = eolIndex;
+						}
+					}
+					else if( Regex.IsMatch(line, @"(^.+?\.\.\.)" ) )
+					{
+						var match = Regex.Match(line, @"(?:^(.+?)\.\.\.)");
+						if( match.Success )
+						{
+							if(ElipsesMatches.Any(m => m.IsMatch(match.Groups[1].Value)))
+							{
+								endIndex = startIndex + match.Length;
+							}
+						}
 					}
 
-					if (Foreach.IsMatch(subContent2))
+					lines.Add(new ReportLine()
 					{
-						i = EOLIndex - 1;
-					}
-					if (SwitchCase.IsMatch(subContent2))
-					{
-						i = EOLIndex - 1;
-					}
-					if (SwitchDefault.IsMatch(subContent2))
-					{
-						i = EOLIndex - 1;
-					}
-					if ( ReportStart.IsMatch(subContent2) )
-					{
-						i = EOLIndex - 1;
-					}
-					if ( ReportEnding.IsMatch(subContent2) )
-					{
-						i = EOLIndex - 1;
-					}
+						Start = startIndex,
+						End = endIndex
+					});
 
-					return i;
+					startIndex = endIndex;
+					i = endIndex;
 				}
 			}
-			return -1;
+			
+			if(startIndex < content.Length)
+				lines.Add(new ReportLine() { Start = lines.Last().End + 1, End = content.Length });
+
+			for(int i = lines.Count - 1; i >= 0; i--)
+			{
+				var line = lines[i];
+				string l = content.Substring(line.Start, line.End - line.Start);
+				if (FindLineTrueStart(l) >= l.Length) lines.RemoveAt(i);
+			}
+
+			return lines.ToArray();
 		}
 
 		private static KirinNode ParseLine(FiMReport report, string content, int start, int length)
 		{
-
 			string subContent = content.Substring(start, length);
-			int trueStart = FindLineTrueStart(subContent); // Move to first actual valid character
-			start += trueStart;
-			length -= trueStart;
-			subContent = subContent.Substring(trueStart);
-			while(string.IsNullOrWhiteSpace(subContent[0].ToString()))
-			{
-				subContent = subContent.Substring(1);
-				start += 1;
-				length -= 1;
-			}
-			while (string.IsNullOrWhiteSpace(subContent.Last().ToString()))
-			{
+
+			// Remove punctuation
+			if (ElipsesMatches.Any(m => m.IsMatch(subContent)))
+				subContent = subContent.Substring(0, subContent.Length - 3);
+			else
 				subContent = subContent.Substring(0, subContent.Length - 1);
-				length -= 1;
-			}
-			subContent = subContent.Substring(0, subContent.Length - 1); // Remove punctuation
 
 			{
 				if (KirinProgramStart.TryParse(subContent, start, length, out KirinProgramStart psResult)) return psResult;
@@ -306,7 +298,7 @@ namespace FiMSharp
 		private static int FindLineTrueStart(string subContent)
 		{
 			int i = 0;
-			while(true)
+			while(i < subContent.Length)
 			{
 				char c = subContent[i];
 				if (c == '(')
