@@ -50,14 +50,13 @@ namespace FiMSharp.Kirin
 				report.ConsoleOutput.WriteLine(this.PromptString);
 
 			string input = report.ConsoleInput.ReadLine();
-			object value;
-			
-			if(variable.Type == KirinVariableType.STRING)
+
+			if (variable.Type == KirinVariableType.STRING)
 				input = $"\"{input}\"";
-			else if(variable.Type == KirinVariableType.CHAR)
+			else if (variable.Type == KirinVariableType.CHAR)
 				input = $"'{input}'";
 
-			if (!KirinLiteral.TryParse(input, out value))
+			if (!KirinLiteral.TryParse(input, out object value))
 				throw new Exception("Invalid input " + input);
 			if (FiMHelper.AsVariableType(value) != variable.Type)
 				throw new Exception("Input type doesnt match variable type");
