@@ -88,7 +88,6 @@ Today I learned how to start interpreting brainfuck.
 
     If whether the code works is correct then,
         I remembered how to interpret brainfuck.
-        I said "All done!".
     Otherwise,
         I said "Oh no! There's a mismatched bracket somewhere in the code!".
     That's what I would do.

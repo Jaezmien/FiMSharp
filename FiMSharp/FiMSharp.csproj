@@ -1,31 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>FiMSharp.SRC</RootNamespace>
+    <Version>0.4.0</Version>
     <Authors>Jaezmien Naejara</Authors>
-    <Version>0.3.3</Version>
-    <RepositoryUrl>https://github.com/Jaezmien/FiMSharp</RepositoryUrl>
+    <Description>FiMSharp is a FiM++ interpreter library written in C#</Description>
+    <Company />
     <PackageTags>fimpp, fim++</PackageTags>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <Description>FiMSharp is a FiM++ interpreter library written in C#.</Description>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <ErrorReport>none</ErrorReport>
-    <DebugType>none</DebugType>
-    <DebugSymbols>false</DebugSymbols>
+    <RepositoryUrl>https://github.com/Jaezmien/FiMSharp</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Jaezmien/FiMSharp</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="LICENSE.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Globals\" />
+    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
   </ItemGroup>
 
 </Project>
