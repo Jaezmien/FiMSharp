@@ -66,7 +66,7 @@ namespace FiMSharp.Kirin
 				}
 			}
 
-			var result = Statement.Execute(report, args);
+			var result = Statement.Execute(report);
 			report.Variables.PopVariableRange(localVariables);
 			report.Variables.PopStack();
 

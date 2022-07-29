@@ -182,7 +182,7 @@ namespace FiMSharp.Test
 			// truth machine.fim
 #else
 			RunDebugReport();
-			// RunReport("conditional.fim");
+			// RunReport("for loops.fim");
 #endif
 		}
 	}

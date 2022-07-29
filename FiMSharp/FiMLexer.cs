@@ -145,6 +145,7 @@ namespace FiMSharp
 					case "KirinFunctionEnd":
 					case "KirinElseIfStatement":
 					case "KirinIfStatementEnd":
+					case "KirinLoopEnd":
 						{
 							var line = FiMHelper.GetIndexPair(content, node.Start).Line;
 							throw new Exception($"Illegal report body node at line {line}  - {node.NodeType}");
@@ -211,6 +212,31 @@ namespace FiMSharp
 								throw new Exception("If Statement has empty conditions");
 
 							statement.PushNode(ifStatement);
+						}
+						break;
+
+					case "KirinForInLoop":
+						{
+							var forLoopStatement = node as KirinForInLoop;
+
+							var subStatement = KirinLoop.GetStatementNodes(nodes, i, "for-in", out i, out var endNode);
+							forLoopStatement.Length = (endNode.Start + endNode.Length) - forLoopStatement.Start;
+							var loopStatement = ParseStatement(subStatement.ToArray(), content);
+
+							forLoopStatement.Statement = loopStatement;
+							statement.PushNode(forLoopStatement);
+						}
+						break;
+					case "KirinForToLoop":
+						{
+							var forLoopStatement = node as KirinForToLoop;
+
+							var subStatement = KirinLoop.GetStatementNodes(nodes, i, "for-to", out i, out var endNode);
+							forLoopStatement.Length = (endNode.Start + endNode.Length) - forLoopStatement.Start;
+							var loopStatement = ParseStatement(subStatement.ToArray(), content);
+
+							forLoopStatement.Statement = loopStatement;
+							statement.PushNode(forLoopStatement);
 						}
 						break;
 
@@ -353,6 +379,10 @@ namespace FiMSharp
 			if (KirinIfStatementStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinElseIfStatement.TryParse(subContent, start, length, out node)) return node;
 			if (KirinIfStatementEnd.TryParse(subContent, start, length, out node)) return node;
+
+			if (KirinForInLoop.TryParse(subContent, start, length, out node)) return node;
+			if (KirinForToLoop.TryParse(subContent, start, length, out node)) return node;
+			if (KirinLoopEnd.TryParse(subContent, start, length, out node)) return node;
 
 			if (KirinPostScript.TryParse(subContent, start, length, out node)) return node;
 

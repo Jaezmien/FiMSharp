@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.Text;
 
 namespace FiMSharp.Kirin
 {
@@ -89,7 +90,11 @@ namespace FiMSharp.Kirin
 
 						object value;
 						if (KirinLiteral.TryParse(raw, out object lResult)) value = lResult;
-						else value = KirinValue.Evaluate(Report, raw, ForcedType);
+						else
+						{
+							value = KirinValue.Evaluate(Report, raw, out var returnedType, ForcedType);
+							this.ForceType(returnedType);
+						}
 
 						if (eType != KirinVariableType.UNKNOWN && FiMHelper.AsVariableType(value) != eType)
 							throw new Exception("Expected " + eType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
@@ -110,10 +115,7 @@ namespace FiMSharp.Kirin
 		private KirinVariableType? ForcedType = null;
 		public KirinVariableType Type
 		{
-			get
-			{
-				return this.ForcedType ?? FiMHelper.AsVariableType(this.Value);
-			}
+			get { return this.ForcedType ?? FiMHelper.AsVariableType(this.Value); }
 		}
 
 		public void ForceType(KirinVariableType type)
@@ -129,10 +131,28 @@ namespace FiMSharp.Kirin
 			FiMReport report,
 			string evaluatable,
 			KirinVariableType? expectedType = null
+		)
+		{
+			return Evaluate(report, evaluatable, out _, expectedType);
+		}
+
+		/// <summary>
+		/// Evaluates raw FiM++ string into a value
+		/// </summary>
+		public static object Evaluate(
+			FiMReport report,
+			string evaluatable,
+			out KirinVariableType returnedType,
+			KirinVariableType? expectedType = null
 		) {
+			returnedType = KirinVariableType.UNKNOWN;
 			// Calling an existing variable
 			if( report.Variables.Exists(evaluatable) )
-				return report.Variables.Get(evaluatable).Value;
+			{
+				var variable = report.Variables.Get(evaluatable);
+				returnedType = variable.Type;
+				return variable.Value;
+			}
 
 			// Calling an existing method
 			if( report.Paragraphs.FindIndex(v => evaluatable.StartsWith(v.Name)) > -1 )
@@ -151,7 +171,10 @@ namespace FiMSharp.Kirin
 
 				if (report.Paragraphs.FindIndex(v => v.Name == pName) == -1)
 					throw new Exception("Paragraph " + pName + " not found");
-				return report.Paragraphs.Find(v => v.Name == pName).Execute(args);
+
+				var paragraph = report.Paragraphs.Find(v => v.Name == pName);
+				returnedType = paragraph.ReturnType;
+				return paragraph.Execute(args);
 			}
 
 			// Array
@@ -168,6 +191,7 @@ namespace FiMSharp.Kirin
 				int i = 1;
 				args.ForEach(kv => dict.Add(i++, kv.Value));
 
+				returnedType = (KirinVariableType)expectedType;
 				return dict;
 			}
 
@@ -188,40 +212,56 @@ namespace FiMSharp.Kirin
 					throw new Exception("Cannot index a non-array variable");
 
 				if( variable.Type == KirinVariableType.STRING )
+				{
+					returnedType = KirinVariableType.CHAR;
 					return Convert.ToString(variable.Value)[index];
+				}
 
 				var dict = variable.Value as Dictionary<int, object>;
 				if (variable.Type == KirinVariableType.STRING_ARRAY)
+				{
+					returnedType = KirinVariableType.STRING;
 					return Convert.ToString(dict[index]);
+				}
 				if (variable.Type == KirinVariableType.BOOL_ARRAY)
+				{
+					returnedType = KirinVariableType.BOOL;
 					return Convert.ToBoolean(dict[index]);
+				}
 				if (variable.Type == KirinVariableType.NUMBER_ARRAY)
+				{
+					returnedType = KirinVariableType.NUMBER;
 					return Convert.ToDouble(dict[index]);
+				}
 			}
 			// Array index (implicit)
 			if( Regex.IsMatch(evaluatable, @"^(.+) (\d+)$") )
 			{
 				var match = Regex.Match(evaluatable, @"^(.+) (\d+)$");
 				string strVar = match.Groups[1].Value;
-				if( report.Variables.Exists(strVar) ) return Evaluate(report, $"{match.Groups[2].Value} of {strVar}");
+				if( report.Variables.Exists(strVar) )
+					return Evaluate(report, $"{match.Groups[2].Value} of {strVar}", out returnedType, expectedType);
 			}
 
 			// Arithmetic
 			if( KirinArithmetic.IsArithmetic(evaluatable, out var arithmeticResult))
 			{
 				var arithmetic = new KirinArithmetic(arithmeticResult);
+				returnedType = KirinVariableType.NUMBER;
 				return arithmetic.GetValue(report);
 			}
 			// Conditional
 			if( KirinConditional.IsConditional(evaluatable, out var conditionalResult))
 			{
 				var conditional = new KirinConditional(conditionalResult);
+				returnedType = KirinVariableType.BOOL;
 				return conditional.GetValue(report);
 			}
 
 			// String concatenation
 			if( evaluatable.Contains("\""))
 			{
+				returnedType = KirinVariableType.STRING;
 				throw new NotImplementedException();
 			}
 
@@ -260,7 +300,32 @@ namespace FiMSharp.Kirin
 		{
 			if (StringCheck.IsMatch(content))
 			{
-				result = content.Substring(1, content.Length - 2);
+				string str = content.Substring(1, content.Length - 2);
+				var sb = new StringBuilder();
+				for (int i = 0; i < str.Length; i++)
+				{
+					char c = str[i];
+					if( c != '\\' || i + 1 >= str.Length - 1 )
+					{
+						sb.Append(c);
+						continue;
+					}
+
+					char nc = str[++i];
+					char lc = CharAsLiteral(nc);
+					if( lc == nc )
+					{
+						sb.Append(c);
+						sb.Append(nc);
+						continue;
+					}
+					else
+					{
+						sb.Append(lc);
+					}
+				}
+
+				result = sb.ToString();
 				return true;
 			}
 			if (content.StartsWith("'") && content.EndsWith("'") && ((content.Length == 3) || (content.Length == 4 && content[1] == '\\')))

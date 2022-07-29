@@ -41,7 +41,7 @@ namespace FiMSharp.Kirin
 					throw new Exception("Expected " + this.ExpectedType.AsNamedString() +
 						", got " + value.Type.AsNamedString());
 			}
-			return value;
+			return value.Value;
 		}
 	}
 }

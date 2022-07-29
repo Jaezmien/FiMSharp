@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define HIDE_ERROR
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -30,7 +32,7 @@ namespace FiMSharp.Kirin
 			return node;
 		}
 
-		public virtual object Execute(FiMReport report, params object[] args)
+		public virtual object Execute(FiMReport report)
 		{
 			int localVariables = 0;
 			object result = null;
@@ -54,7 +56,7 @@ namespace FiMSharp.Kirin
 				if (n.NodeType == "KirinVariableDeclaration") localVariables++;
 
 				object r;
-#if RELEASE
+#if HIDE_ERROR
 				r = n.Execute(report);
 #else
 				try
@@ -66,8 +68,13 @@ namespace FiMSharp.Kirin
 					throw new Exception(err.Message + " at line " + FiMHelper.GetIndexPair(report.Report, n.Start).Line);
 				}
 #endif
+				if (r != null)
+				{
+					report.Variables.PopVariableRange(localVariables);
+					return r;
+				}
 
-				if ( n.NodeType == "KirinReturn" )
+					if ( n.NodeType == "KirinReturn" )
 				{
 					result = ((KirinValue)r).Value;
 					break;

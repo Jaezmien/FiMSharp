@@ -18,6 +18,10 @@ namespace FiMSharp
 		public readonly string Name;
 		private readonly FiMReport report;
 		private readonly KirinBaseFunction func;
+		public KirinVariableType ReturnType
+		{
+			get { return this.func.Returns.VarType; }
+		}
 		public object Execute(params object[] args)
 		{
 			var result = this.func.Execute(this.report, args);
@@ -25,7 +29,7 @@ namespace FiMSharp
 		}
 		public object Execute(KirinValue[] args)
 		{
-			return this.Execute(args.Select(p => p.Value).ToArray());
+			return this.Execute(args?.Select(p => p.Value).ToArray());
 		}
 	}
 }
