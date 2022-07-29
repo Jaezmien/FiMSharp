@@ -72,25 +72,9 @@ namespace FiMSharp
 				throw new Exception("Paragraph " + node.Name + " already exists");
 			this.Paragraphs.Add(new FiMParagraph(this, node));
 		}
-		// TODO: Is there a better way to do this?
-		// Would be better if the user just has to write (arg1, arg2) => { code... }
-		public void ExposeMethod(string name, Type[] args,  KirinInternalStaleFunction.BaseFunctionDelegate func)
+		public void AddMethod(string name, Delegate func)
 		{
-			var fnode = new KirinInternalStaleFunction(name, func, args.Select(t => FiMHelper.AsVariableType(t)).ToList());
-			this.AddMethod(fnode);
-		}
-		public void ExposeMethod(string name, Type[] args, KirinInternalReturningFunction.ReturnFunctionDelegate func)
-		{
-			var fnode = new KirinInternalReturningFunction(name, func, args.Select(t => FiMHelper.AsVariableType(t)).ToList());
-			this.AddMethod(fnode);
-		}
-		public void ExposeMethod(string name, KirinInternalStaleFunction.BaseFunctionDelegate func)
-		{
-			ExposeMethod(name, new Type[] { }, func);
-		}
-		public void ExposeMethod(string name, KirinInternalReturningFunction.ReturnFunctionDelegate func)
-		{
-			ExposeMethod(name, new Type[] { }, func);
+			this.AddMethod(new KirinInternalFunction(name, func));
 		}
 
 		public string GetLine(int start, int length)

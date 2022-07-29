@@ -8,10 +8,8 @@ namespace FiMSharp.Kirin
 	public class KirinBaseFunction : KirinBaseNode
 	{
 		public string Name;
-		public List<KirinFunctionArgument> Arguments;
-		public KirinFunctionReturn Returns;
-
-		public KirinStatement Statement;
+		
+		public KirinVariableType? Returns;
 
 		public virtual object Execute(FiMReport report, params object[] args) { return null; }
 	}
@@ -30,9 +28,11 @@ namespace FiMSharp.Kirin
 			this.Length = (endNode.Start + endNode.Length) - startNode.Start;
 		}
 
+		public List<KirinFunctionArgument> Arguments;
 		public bool IsMain;
 		public int Start;
 		public int Length;
+		public KirinStatement Statement;
 
 		public override object Execute(FiMReport report, params object[] args)
 		{
@@ -43,11 +43,14 @@ namespace FiMSharp.Kirin
 			{
 				for (int i = 0; i < this.Arguments.Count(); i++)
 				{
+					if (report.Variables.Exists(this.Arguments[i].Name))
+						throw new Exception("Variable name " + this.Arguments[i].Name + " already exists");
+
 					if (i < args.Length)
 					{
-						if (FiMHelper.AsVariableType(args[i]) != this.Arguments[i].VarType)
+						if (FiMHelper.AsVariableType(args[i]) != this.Arguments[i].Type)
 						{
-							throw new Exception("Expected " + this.Arguments[i].VarType.AsNamedString()
+							throw new Exception("Expected " + this.Arguments[i].Type.AsNamedString()
 								+ ", got " + FiMHelper.AsVariableType(args[i]).AsNamedString());
 						}
 
@@ -58,7 +61,7 @@ namespace FiMSharp.Kirin
 						report.Variables.PushVariable(
 							new FiMVariable(
 								this.Arguments[i].Name,
-								new KirinValue(FiMHelper.GetDefaultValue(this.Arguments[i].VarType))
+								new KirinValue(FiMHelper.GetDefaultValue(this.Arguments[i].Type))
 							)
 						);
 					}
@@ -72,13 +75,11 @@ namespace FiMSharp.Kirin
 
 			if (result != null && this.Returns == null)
 				throw new Exception("Non-value returning function returned value");
-			if (result != null && this.Returns != null && this.Returns.VarType != KirinVariableType.UNKNOWN)
+			if (result != null && this.Returns != null && this.Returns != KirinVariableType.UNKNOWN)
 			{
-				if (FiMHelper.AsVariableType(result) != this.Returns.VarType)
-				{
-					throw new Exception("Expected " + this.Returns.VarType.AsNamedString()
+				if (FiMHelper.AsVariableType(result) != this.Returns)
+					throw new Exception("Expected " + ((KirinVariableType)this.Returns).AsNamedString()
 						+ ", got " + FiMHelper.AsVariableType(result).AsNamedString());
-				}
 
 				return result;
 			}
@@ -87,90 +88,73 @@ namespace FiMSharp.Kirin
 		}
 	}
 	
-	public class KirinBaseInternalFunction : KirinBaseFunction
+	public class KirinInternalFunction : KirinBaseFunction
 	{
-		public KirinBaseInternalFunction()
-		{
-			this.Arguments = new List<KirinFunctionArgument>();
-		}
-		protected void ValidateArgs(params object[] args)
-		{
-			if( this.Arguments.Count > 0 )
-			{
-				for(int i = 0; i < this.Arguments.Count; i++)
-				{
-					if (i >= args.Length) break;
-					if (FiMHelper.AsVariableType(args[i]) != this.Arguments[i].VarType)
-						throw new Exception("Expected " + this.Arguments[i].VarType.AsNamedString() + ", got " + FiMHelper.AsVariableType(args[i]).AsNamedString());
-				}
-			}
-		}
-		protected object[] SanitizeArgs(params object[] args)
-		{
-			var p = new object[this.Arguments.Count];
-			for( int i = 0; i < this.Arguments.Count; i++)
-			{
-				if( i < args.Length )
-					p[i] = args[i];
-				else
-					p[i] = FiMHelper.GetDefaultValue(this.Arguments[i].VarType);
-			}
-			return p;
-		}
-	}
-	public class KirinInternalStaleFunction : KirinBaseInternalFunction
-	{
-		public KirinInternalStaleFunction(string name, BaseFunctionDelegate func, List<KirinVariableType> args) : base()
+		public KirinInternalFunction(string name, Delegate func)
 		{
 			this.Name = name;
-			this.Function = func;
+			this.Arguments = null;
+			this.Returns = null;
 
-			this.Arguments = args.Select(a => new KirinFunctionArgument() { VarType = a }).ToList();
+			var funcArgs = func.Method.GetParameters();
+			if (funcArgs.Length > 0)
+			{
+				this.Arguments = new List<KirinVariableType>();
+				foreach(var arg in funcArgs)
+					this.Arguments.Add(FiMHelper.AsVariableType(arg.ParameterType, true));
+			}
+
+			if( func.Method.ReturnType.Name != "Void" )
+				this.Returns = FiMHelper.AsVariableType(func.Method.ReturnType, true);
+
+			this.Function = func;
 		}
 
-		public delegate void BaseFunctionDelegate(params object[] p);
-		public BaseFunctionDelegate Function;
+		public List<KirinVariableType> Arguments;
+		public Delegate Function;
 
 		public override object Execute(FiMReport report, params object[] args)
 		{
-			this.ValidateArgs(args);
-			var a = this.SanitizeArgs(args);
-			this.Function.Invoke(a);
+			object[] sanitizedArgs = null;
+			if( this.Arguments?.Count > 0 )
+			{
+				sanitizedArgs = new object[this.Arguments.Count];
+				for(int i = 0; i < this.Arguments.Count; i++)
+				{
+					if (i < args.Length)
+					{
+						if (FiMHelper.AsVariableType(args[i]) != this.Arguments[i])
+							throw new Exception("Expected " + this.Arguments[i].AsNamedString() + ", got " + FiMHelper.AsVariableType(args[i]).AsNamedString());
+						sanitizedArgs[i] = args[i];
+					}
+					else
+					{
+						sanitizedArgs[i] = FiMHelper.GetDefaultValue(this.Arguments[i]);
+					}
+				}
+			}
+
+			var result = this.Function.DynamicInvoke(sanitizedArgs);
+
+			if (result != null && this.Returns == null)
+				throw new Exception("Non-value returning function returned value");
+			if (result != null && this.Returns != null && this.Returns != KirinVariableType.UNKNOWN)
+			{
+				if (FiMHelper.AsVariableType(result) != this.Returns)
+					throw new Exception("Expected " + ((KirinVariableType)this.Returns).AsNamedString()
+						+ ", got " + FiMHelper.AsVariableType(result).AsNamedString());
+
+				return result;
+			}
+
 			return null;
 		}
 	}
-	public class KirinInternalReturningFunction : KirinBaseInternalFunction
+
+	public struct KirinFunctionArgument
 	{
-		public KirinInternalReturningFunction(string name, ReturnFunctionDelegate func, List<KirinVariableType> args) : base()
-		{
-			this.Name = name;
-			this.Function = func;
-
-			this.Arguments = args.Select(a => new KirinFunctionArgument() { VarType = a }).ToList();
-		}
-
-		public delegate object ReturnFunctionDelegate(params object[] p);
-		public ReturnFunctionDelegate Function;
-
-		public override object Execute(FiMReport report, params object[] args)
-		{
-			this.ValidateArgs(args);
-			var p = this.SanitizeArgs(args);
-			var value = this.Function.Invoke(args);
-			if (FiMHelper.AsVariableType(value) != this.Returns.VarType)
-				throw new Exception("Expected " + this.Returns.VarType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value).AsNamedString());
-			return value;
-		}
-	}
-
-	public class KirinFunctionArgument
-	{
-		public KirinVariableType VarType;
+		public KirinVariableType Type;
 		public string Name;
-	}
-	public class KirinFunctionReturn
-	{
-		public KirinVariableType VarType = KirinVariableType.UNKNOWN;
 	}
 
 	public class KirinFunctionStart : KirinNode
@@ -180,19 +164,12 @@ namespace FiMSharp.Kirin
 		public bool IsMain;
 		public string Name;
 		public List<KirinFunctionArgument> args;
-		public KirinFunctionReturn Return;
+		public KirinVariableType Return;
 
 		private readonly static Regex FunctionStart = new Regex(@"^(?:Today )?I learned (.+)?");
 		private readonly static string[] FunctionReturn = { " to get ", " with " };
 		private readonly static string FunctionParam = " using ";
 
-		public struct KirinFunctionStartParseResult
-		{
-			public bool IsMain;
-			public string Name;
-			public List<KirinFunctionArgument> Arguments;
-			public KirinFunctionReturn Return;
-		}
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
@@ -212,7 +189,7 @@ namespace FiMSharp.Kirin
 				string subContent = functionName.Substring(keywordIndex + keyword.Length - 1);
 				var returnType = FiMHelper.DeclarationType.Determine(subContent, out string sKeyword);
 
-				node.Return = new KirinFunctionReturn() { VarType = returnType };
+				node.Return = returnType;
 
 				string returnString = keyword.Substring(0, keyword.Length - 1) + sKeyword;
 				functionName = functionName.Substring(0, keywordIndex) + functionName.Substring(keywordIndex + returnString.Length);
@@ -229,7 +206,7 @@ namespace FiMSharp.Kirin
 					node.args.Add(
 						new KirinFunctionArgument()
 						{
-							VarType = returnType,
+							Type = returnType,
 							Name = paramName
 						}
 					);

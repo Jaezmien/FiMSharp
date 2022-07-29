@@ -20,7 +20,7 @@ namespace FiMSharp
 		private readonly KirinBaseFunction func;
 		public KirinVariableType ReturnType
 		{
-			get { return this.func.Returns.VarType; }
+			get { return this.func.Returns ?? KirinVariableType.UNKNOWN; }
 		}
 		public object Execute(params object[] args)
 		{

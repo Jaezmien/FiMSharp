@@ -173,6 +173,8 @@ namespace FiMSharp.Kirin
 					throw new Exception("Paragraph " + pName + " not found");
 
 				var paragraph = report.Paragraphs.Find(v => v.Name == pName);
+				if (paragraph.ReturnType == KirinVariableType.UNKNOWN)
+					throw new Exception("Paragraph returns nothing");
 				returnedType = paragraph.ReturnType;
 				return paragraph.Execute(args);
 			}
