@@ -83,27 +83,15 @@ namespace FiMSharp
 					case "KirinFunctionStart":
 						{
 							i++;
-							var n = node as KirinFunctionStart;
+							var startNode = node as KirinFunctionStart;
 
-							List<KirinNode> fNodes = new List<KirinNode>();
-							while (nodes[i].NodeType != "KirinFunctionEnd") fNodes.Add(nodes[i++]);
-							var s = ParseStatement(fNodes.ToArray(), content);
+							List<KirinNode> funcNodes = new List<KirinNode>();
+							while (nodes[i].NodeType != "KirinFunctionEnd") funcNodes.Add(nodes[i++]);
+							var statement = ParseStatement(funcNodes.ToArray(), content);
 
-							var en = nodes[i] as KirinFunctionEnd;
-							if (en.NodeType == "KirinFunctionEnd" && en.Name != n.Name)
-								throw new Exception($"Method '{n.Name}' does not end with the same name");
+							var endNode = nodes[i] as KirinFunctionEnd;
 
-							var firstNode = s.Body.First() as KirinNode;
-							var lastNode = s.Body.Last() as KirinNode;
-							s.Start = firstNode.Start; 
-							s.Length = (lastNode.Start + lastNode.Length) - firstNode.Start;
-
-							var fn = new KirinFunction(n.Start, (en.Start + en.Length) - n.Start, n)
-							{
-								Statement = s
-							};
-
-							program.PushNode(fn);
+							program.PushNode( ParseFunction(startNode, endNode, statement) );
 						}
 						break;
 
@@ -129,7 +117,27 @@ namespace FiMSharp
 			return program;
 		}
 
-		private static KirinStatement ParseStatement(KirinNode[] nodes, string content)
+		protected static KirinFunction ParseFunction(
+			KirinFunctionStart startNode,
+			KirinFunctionEnd endNode,
+			KirinStatement statement
+		)
+		{
+			if (endNode.NodeType == "KirinFunctionEnd" && endNode.Name != startNode.Name)
+				throw new Exception($"Method '{startNode.Name}' does not end with the same name");
+
+			var firstNode = statement.Body.First() as KirinNode;
+			var lastNode = statement.Body.Last() as KirinNode;
+			statement.Start = firstNode.Start;
+			statement.Length = (lastNode.Start + lastNode.Length) - firstNode.Start;
+
+			return new KirinFunction(startNode, endNode)
+			{
+				Statement = statement
+			};
+		}
+
+		protected static KirinStatement ParseStatement(KirinNode[] nodes, string content)
 		{
 			var statement = new KirinStatement(-1, -1);
 
@@ -237,6 +245,19 @@ namespace FiMSharp
 
 							forLoopStatement.Statement = loopStatement;
 							statement.PushNode(forLoopStatement);
+						}
+						break;
+
+					case "KirinWhileLoop":
+						{
+							var whileLoop = node as KirinWhileLoop;
+
+							var subStatement = KirinLoop.GetStatementNodes(nodes, i, "while", out i, out var endNode);
+							whileLoop.Length = (endNode.Start + endNode.Length) - whileLoop.Start;
+							var loopStatement = ParseStatement(subStatement.ToArray(), content);
+
+							whileLoop.Statement = loopStatement;
+							statement.PushNode(whileLoop);
 						}
 						break;
 
@@ -382,6 +403,7 @@ namespace FiMSharp
 
 			if (KirinForInLoop.TryParse(subContent, start, length, out node)) return node;
 			if (KirinForToLoop.TryParse(subContent, start, length, out node)) return node;
+			if (KirinWhileLoop.TryParse(subContent, start, length, out node)) return node;
 			if (KirinLoopEnd.TryParse(subContent, start, length, out node)) return node;
 
 			if (KirinPostScript.TryParse(subContent, start, length, out node)) return node;

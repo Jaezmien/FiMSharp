@@ -14,7 +14,6 @@ namespace FiMSharp.Kirin
 		private struct KirinConditionStatement
 		{
 			public KirinConditional.ConditionalCheckResult Condition;
-			public string RawCondition;
 			public KirinStatement Statement;
 		}
 		private List<KirinConditionStatement> Conditions;
@@ -46,7 +45,6 @@ namespace FiMSharp.Kirin
 			Conditions.Add(new KirinConditionStatement()
 			{
 				Condition = result,
-				RawCondition = condition,
 				Statement = statement
 			});
 		}

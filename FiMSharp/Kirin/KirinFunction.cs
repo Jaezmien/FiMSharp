@@ -24,10 +24,10 @@ namespace FiMSharp.Kirin
 			this.Arguments = details.args;
 			this.Returns = details.Return;
 		}
-		public KirinFunction(int start, int length, KirinFunctionStart details) : this(details)
+		public KirinFunction(KirinFunctionStart startNode, KirinFunctionEnd endNode) : this(startNode)
 		{
-			this.Start = start;
-			this.Length = length;
+			this.Start = startNode.Start;
+			this.Length = (endNode.Start + endNode.Length) - startNode.Start;
 		}
 
 		public bool IsMain;

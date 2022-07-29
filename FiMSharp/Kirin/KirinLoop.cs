@@ -26,8 +26,8 @@ namespace FiMSharp.Kirin
 
 				if (subnode.NodeType == "KirinForInLoop" ||
 					subnode.NodeType == "KirinForToLoop" ||
-					subnode.NodeType == "KirinWhileLoopStart" ||
-					subnode.NodeType == "KirinSwitchStart") depth++;
+					subnode.NodeType == "KirinWhileLoop" ||
+					subnode.NodeType == "KirinSwitch") depth++;
 
 				if (depth != 0)
 				{
@@ -215,6 +215,48 @@ namespace FiMSharp.Kirin
 			return null;
 		}
 	}
+
+	class KirinWhileLoop : KirinExecutableNode
+	{
+		public KirinWhileLoop(int start, int length) : base(start, length) { }
+
+		public KirinConditional.ConditionalCheckResult Condition;
+		public KirinStatement Statement;
+
+		private readonly static Regex WhileLoop = new Regex(@"^(?:As long as|While) (.+)");
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
+		{
+			result = null;
+			var match = WhileLoop.Match(content);
+			if (!match.Success) return false;
+
+			string condition = match.Groups[1].Value;
+
+			if (!KirinConditional.IsConditional(condition, out var cResult))
+				throw new Exception("Expression is not a conditional");
+
+			var node = new KirinWhileLoop(start, length) { Condition = cResult };
+
+			result = node;
+			return true;
+		}
+
+		public override object Execute(FiMReport report)
+		{
+			if (this.Statement == null)
+				throw new Exception("While loop has no statement");
+
+			var conditional = new KirinConditional(Condition);
+			while (conditional.GetValue(report) == true)
+			{
+				var value = Statement.Execute(report);
+				if (value != null) break;
+			}
+
+			return null;
+		}
+	}
+
 	class KirinLoopEnd : KirinNode
 	{
 		public KirinLoopEnd(int start, int length) : base(start, length) { }
