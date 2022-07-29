@@ -5,8 +5,10 @@ using System.Text.RegularExpressions;
 
 namespace FiMSharp.Kirin
 {
-	public class KirinBaseFunction : KirinBaseNode
+	public class KirinBaseFunction : KirinNode
 	{
+		public KirinBaseFunction(int start, int length) : base(start, length) { }
+
 		public string Name;
 		
 		public KirinVariableType? Returns;
@@ -15,17 +17,13 @@ namespace FiMSharp.Kirin
 	}
 	public class KirinFunction : KirinBaseFunction
 	{
-		public KirinFunction(KirinFunctionStart details)
+		public KirinFunction(KirinFunctionStart startNode, KirinFunctionEnd endNode)
+			: base(startNode.Start, (endNode.Start + endNode.Length) - startNode.Start)
 		{
-			this.Name = details.Name;
-			this.IsMain = details.IsMain;
-			this.Arguments = details.args;
-			this.Returns = details.Return;
-		}
-		public KirinFunction(KirinFunctionStart startNode, KirinFunctionEnd endNode) : this(startNode)
-		{
-			this.Start = startNode.Start;
-			this.Length = (endNode.Start + endNode.Length) - startNode.Start;
+			this.Name = startNode.Name;
+			this.IsMain = startNode.IsMain;
+			this.Arguments = startNode.args;
+			this.Returns = startNode.Return;
 		}
 
 		public List<KirinFunctionArgument> Arguments;
@@ -90,7 +88,7 @@ namespace FiMSharp.Kirin
 	
 	public class KirinInternalFunction : KirinBaseFunction
 	{
-		public KirinInternalFunction(string name, Delegate func)
+		public KirinInternalFunction(string name, Delegate func) : base(-1, -1)
 		{
 			this.Name = name;
 			this.Arguments = null;
@@ -134,7 +132,15 @@ namespace FiMSharp.Kirin
 				}
 			}
 
-			var result = this.Function.DynamicInvoke(sanitizedArgs);
+			object result;
+			try
+			{
+				result = this.Function.DynamicInvoke(sanitizedArgs);
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("An error has occured while running a custom method\n\n" + ex.ToString());
+			}
 
 			if (result != null && this.Returns == null)
 				throw new Exception("Non-value returning function returned value");

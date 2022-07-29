@@ -49,9 +49,9 @@ namespace FiMSharp.Kirin
 			}
 
 			if (this.Increment)
-				variable.Value = (double)variable.Value + 1.0d;
+				variable.Value = Convert.ToDouble(variable.Value) + 1.0d;
 			else
-				variable.Value = (double)variable.Value - 1.0d;
+				variable.Value = Convert.ToDouble(variable.Value) - 1.0d;
 
 			return null;
 		}

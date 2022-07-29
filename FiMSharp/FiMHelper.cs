@@ -15,6 +15,12 @@ namespace FiMSharp
 		{
 			list.RemoveRange(list.Count - count, count);
 		}
+		public static T[] Add<T>(this T[] array, T value)
+		{
+			var list = array.ToList();
+			list.Add(value);
+			return list.ToArray();
+		}
 	}
 	class FiMHelper
 	{
@@ -54,7 +60,20 @@ namespace FiMSharp
 		}
 		public static KirinVariableType AsVariableType(object value, bool strict = false)
 		{
-			return AsVariableType(value.GetType(), strict);
+			var type =  AsVariableType(value.GetType(), strict);
+			if( type == KirinVariableType.UNKNOWN )
+			{
+				if( value.GetType() == typeof(Dictionary<int, object>) )
+				{
+					var array = value as Dictionary<int, object>;
+					var firstValue = array.Values.First();
+
+					if( firstValue.GetType() == typeof(string) ) return KirinVariableType.STRING_ARRAY;
+					if (firstValue.GetType() == typeof(double) ) return KirinVariableType.NUMBER_ARRAY;
+					if (firstValue.GetType() == typeof(bool) ) return KirinVariableType.BOOL_ARRAY;
+				}
+			}
+			return type;
 		}
 
 		public static bool IsTypeArray(KirinVariableType type)
@@ -163,25 +182,27 @@ namespace FiMSharp
 				char c = content[i];
 				if (c == '(')
 				{
-					while (content[++i] != ')') ;
+					while (content[++i] != ')')
+						if (i == content.Length - 1) break;
 					continue;
 				}
 				if (c == '"')
 				{
 					int startIndex = i;
-					while (content[++i] != '"');
+					while (content[++i] != '"')
+						if (i == content.Length - 1) break;
 					int endIndex = i;
 					if (index >= startIndex && index <= endIndex) return true;
 					continue;
 				}
 				if (c == '\'')
 				{
-					if (content[i + 1] == '\\' && content[i + 3] == '\'')
+					if (i + 3 < content.Length && content[i + 1] == '\\' && content[i + 3] == '\'')
 					{
 						i += 3;
 						continue;
 					}
-					else if (content[i + 2] == '\'')
+					else if (i + 2 < content.Length && content[i + 2] == '\'')
 					{
 						i += 2;
 						continue;

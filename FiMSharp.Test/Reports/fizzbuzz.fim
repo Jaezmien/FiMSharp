@@ -7,7 +7,7 @@ Today I learned how to play fizzbuzz!
 
     As long as Applebloom had no more than 100,
 
-        Did you know that Babs Seed is the word nothing? (Store the result!)
+        Did you know that Babs Seed is the word ""? (Store the result!)
 
         If Applebloom modulo 3 is equal to 0 then, (...Is Applebloom divisible by 3?)
             Babs Seed became Babs Seed"Fizz".
@@ -17,7 +17,7 @@ Today I learned how to play fizzbuzz!
         That's what I would do.
 
         (Now we check if result is still empty, which means it's not divisible by 3 or 5!)
-        If Babs Seed is equal to nothing then,
+        If Babs Seed is equal to the word nothing then,
             Babs Seed became Applebloom. (String conversion!)
         That's what I would do.
 

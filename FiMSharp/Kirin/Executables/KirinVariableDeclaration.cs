@@ -72,14 +72,8 @@ namespace FiMSharp.Kirin
 				throw new Exception("Variable " + this.Name + " already exists");
 
 			KirinValue value;
-			if( FiMHelper.IsTypeArray(this.ExpectedType) || this.RawValue == null )
-			{
-				value = new KirinValue(this.RawValue, report, this.ExpectedType);
-			}
-			else
-			{
-				value = new KirinValue(this.RawValue, report);
-			}
+			// if( FiMHelper.IsTypeArray(this.ExpectedType) || this.RawValue == null )
+			value = new KirinValue(this.RawValue, report, this.ExpectedType);
 
 			if (value.Value == null)
 			{

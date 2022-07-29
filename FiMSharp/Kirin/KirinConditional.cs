@@ -31,14 +31,14 @@ namespace FiMSharp.Kirin
 
 		private class Conditionals
 		{
+			private readonly static string[] And = { "and" };
+			private readonly static string[] Or = { "or" };
 			private readonly static string[] LessThanEqual = { "had no more than", "has no more than", "is no greater than", "is no more than", "is not greater than", "is not more than", "isn't greater than", "isn't more than", "was no greater than", "was no more than", "was not greater than", "was not more than", "wasn't greater than", "wasn't more than", "were no greater than", "were no more than", "were not greater than", "were not more than", "weren't greater than", "weren't more than" };
-			private readonly static string[] GreaterThan = { "had more than", "has more than", "is greater than", "was greater than", "were greater than", "were more than", "was more than" };
 			private readonly static string[] GreaterThanEqual = { "had no less than", "has no less than", "is no less than", "is not less than", "isn't less than", "was no less than", "was not less than", "wasn't less than", "were no less than", "were not less than", "weren't less than" };
+			private readonly static string[] GreaterThan = { "had more than", "has more than", "is greater than", "was greater than", "were greater than", "were more than", "was more than" };
 			private readonly static string[] LessThan = { "had less than", "has less than", "is less than", "was less than", "were less than" };
 			private readonly static string[] Not = { "wasn't equal to", "isn't equal to", "weren't equal to", "hadn't", "had not", "hasn't", "has not", "isn't", "is not", "wasn't", "was not", "weren't", "were not" };
 			private readonly static string[] Equal = { "is equal to", "was equal to", "were equal to", "had", "has", "is", "was", "were" };
-			private readonly static string[] And = { "and" };
-			private readonly static string[] Or = { "or" };
 
 			public struct ConditionalResult
 			{
@@ -49,6 +49,7 @@ namespace FiMSharp.Kirin
 			private static bool HasConditional(string content, string[] conditionals, string sign, out ConditionalResult result)
 			{
 				result = new ConditionalResult();
+
 				foreach(var _keyword in conditionals)
 				{
 					string keyword = $" {_keyword} ";
@@ -66,7 +67,9 @@ namespace FiMSharp.Kirin
 							return true;
 						}
 
-						index = content.IndexOf(keyword, index);
+						var newIndex = content.IndexOf(keyword, index);
+						if (newIndex == index) break;
+						index = newIndex;
 					}
 				}
 				return false;
@@ -76,8 +79,8 @@ namespace FiMSharp.Kirin
 				if (HasConditional(content, And, "&&", out result)) return true;
 				if (HasConditional(content, Or, "||", out result)) return true;
 				if (HasConditional(content, LessThanEqual, "<=", out result)) return true;
-				if (HasConditional(content, GreaterThan, ">", out result)) return true;
 				if (HasConditional(content, GreaterThanEqual, ">=", out result)) return true;
+				if (HasConditional(content, GreaterThan, ">", out result)) return true;
 				if (HasConditional(content, LessThan, "<", out result)) return true;
 				if (HasConditional(content, Not, "!=", out result)) return true;
 				if (HasConditional(content, Equal, "==", out result)) return true;

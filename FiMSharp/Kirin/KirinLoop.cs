@@ -90,48 +90,8 @@ namespace FiMSharp.Kirin
 
 			return statementNodes.ToArray();
 		}
+	}
 
-			/*public static KirinNode[] GetStatementNodes(KirinNode[] nodes, int nodeIndex, string type, out int newIndex, out KirinNode endNode)
-			{
-				newIndex = nodeIndex;
-				endNode = new KirinNode(-1, -1);
-
-				List<KirinNode> subStatement = new List<KirinNode>();
-				int depth = 0;
-				for (int si = nodeIndex + 1; si < nodes.Length; si++)
-				{
-					var subnode = nodes[si];
-
-					if (subnode.NodeType == "KirinForInLoop" ||
-						subnode.NodeType == "KirinForToLoop" ||
-						subnode.NodeType == "KirinWhileLoop" ||
-						subnode.NodeType == "KirinSwitchStart") depth++;
-
-					if (depth != 0)
-					{
-						if (subnode.NodeType == "KirinLoopEnd") depth--;
-					}
-					else
-					{
-						if (subnode.NodeType != "KirinLoopEnd")
-						{
-							subStatement.Add(subnode);
-						}
-						else
-						{
-							newIndex = si;
-							endNode = subnode;
-							break;
-						}
-					}
-
-					if (si == nodes.Length - 1)
-						throw new Exception($"Failed to find end of {type} statement");
-				}
-
-				return subStatement.ToArray();
-			}*/
-		}
 	class KirinForInLoop : KirinLoop
 	{
 		public KirinForInLoop(int start, int length) : base(start, length) { }
@@ -211,8 +171,11 @@ namespace FiMSharp.Kirin
 			string content)
 		{
 			var statement = startNode;
-			statement.Length = (endNode.Start + endNode.Length) - startNode.Start;
-			statement.Statement = FiMLexer.ParseStatement(nodes, content);
+			if( endNode != null )
+			{
+				statement.Length = (endNode.Start + endNode.Length) - startNode.Start;
+				statement.Statement = FiMLexer.ParseStatement(nodes, content);
+			}
 
 			return statement;
 		}
@@ -271,8 +234,7 @@ namespace FiMSharp.Kirin
 
 			var valFrom = Convert.ToDouble(varFrom.Value);
 			var valTo = Convert.ToDouble(varTo.Value);
-			if (valFrom == valTo) return null;
-
+			
 			double interval;
 			if( this.RawInterval != string.Empty )
 			{
@@ -312,8 +274,11 @@ namespace FiMSharp.Kirin
 			string content)
 		{
 			var statement = startNode;
-			statement.Length = (endNode.Start + endNode.Length) - startNode.Start;
-			statement.Statement = FiMLexer.ParseStatement(nodes, content);
+			if( endNode != null )
+			{
+				statement.Length = (endNode.Start + endNode.Length) - startNode.Start;
+				statement.Statement = FiMLexer.ParseStatement(nodes, content);
+			}
 
 			return statement;
 		}
@@ -366,8 +331,10 @@ namespace FiMSharp.Kirin
 			string content)
 		{
 			var statement = startNode;
-			statement.Length = (endNode.Start + endNode.Length) - startNode.Start;
-			statement.Statement = FiMLexer.ParseStatement(nodes, content);
+			if( endNode != null ) {
+				statement.Length = (endNode.Start + endNode.Length) - startNode.Start;
+				statement.Statement = FiMLexer.ParseStatement(nodes, content);
+			}
 
 			return statement;
 		}

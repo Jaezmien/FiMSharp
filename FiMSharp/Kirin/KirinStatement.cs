@@ -10,18 +10,18 @@ namespace FiMSharp.Kirin
 	{
 		public KirinStatement(int start, int length): base( start, length )
 		{
-			_Body = new List<KirinBaseNode>();
+			_Body = new List<KirinNode>();
 		}
 
-		protected List<KirinBaseNode> _Body;
-		public IReadOnlyCollection<KirinBaseNode> Body
+		protected List<KirinNode> _Body;
+		public List<KirinNode> Body
 		{
 			get
 			{
-				return _Body.AsReadOnly();
+				return _Body;
 			}
 		}
-		public void PushNode(KirinBaseNode node)
+		public void PushNode(KirinNode node)
 		{
 			_Body.Add(node);
 		}

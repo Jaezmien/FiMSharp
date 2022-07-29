@@ -373,7 +373,7 @@ namespace FiMSharp
 			string subContent = content.Substring(start, length);
 
 			// Remove punctuation
-			if (ElipsesMatches.Any(m => m.IsMatch(subContent)))
+			if (ElipsesMatches.Any(m => m.IsMatch(subContent)) && subContent.Substring(subContent.Length - 3) == "...")
 				subContent = subContent.Substring(0, subContent.Length - 3);
 			else
 				subContent = subContent.Substring(0, subContent.Length - 1);

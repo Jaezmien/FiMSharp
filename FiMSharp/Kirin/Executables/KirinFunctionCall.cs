@@ -20,8 +20,13 @@ namespace FiMSharp.Kirin
 		{
 			var a = new List<KirinValue>();
 
-			foreach (string param in content.Split(new string[] { " and " }, StringSplitOptions.RemoveEmptyEntries))
-				a.Add(new KirinValue(param, report));
+			if( content != string.Empty )
+			{
+				foreach (string param in content.Split(new string[] { " and " }, StringSplitOptions.RemoveEmptyEntries))
+				{
+					a.Add(new KirinValue(param, report));
+				}
+			}
 
 			return a;
 		}
@@ -40,15 +45,12 @@ namespace FiMSharp.Kirin
 			if ( value.Contains(FunctionParam) )
 			{
 				int keywordIndex = value.IndexOf(FunctionParam);
-				var args = KirinFunctionCall.ParseCallArguments(value.Substring(keywordIndex + FunctionParam.Length), report);
 				node.FunctionName = value.Substring(0, keywordIndex);
 				node.RawParameters = value.Substring(keywordIndex + FunctionParam.Length);
-				node.Parameters = args;
 			}
 			else
 			{
 				node.RawParameters = string.Empty;
-				node.Parameters = new List<KirinValue>();
 			}
 
 			result = node;
@@ -56,7 +58,6 @@ namespace FiMSharp.Kirin
 		}
 
 		public string FunctionName;
-		public List<KirinValue> Parameters;
 		public string RawParameters;
 
 		public override object Execute(FiMReport report)
@@ -64,7 +65,8 @@ namespace FiMSharp.Kirin
 			if (report.Paragraphs.FindIndex(v => v.Name == FunctionName) == -1)
 				throw new Exception("Cannot find paragraph " + FunctionName);
 			var p = report.Paragraphs.Find(v => v.Name == FunctionName);
-			p.Execute(Parameters.ToArray());
+			var parameters = KirinFunctionCall.ParseCallArguments(this.RawParameters, report);
+			p.Execute(parameters.ToArray());
 			return null;
 		}
 	}
