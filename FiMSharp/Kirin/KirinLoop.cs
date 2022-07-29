@@ -13,47 +13,125 @@ namespace FiMSharp.Kirin
 		public KirinVariableType ExpectedType;
 		public KirinStatement Statement;
 
-		public static KirinNode[] GetStatementNodes(KirinNode[] nodes, int nodeIndex, string type, out int newIndex, out KirinNode endNode)
-		{
-			newIndex = nodeIndex;
-			endNode = new KirinNode(-1, -1);
+		public static KirinNode[] GetStatementNodes(
+			KirinNode startingNode,
+			KirinNode[] nodes,
+			int startIndex,
+			string content,
+			out int endIndex
+		) {
+			endIndex = startIndex;
+			string endNodeType = startingNode.NodeType == "KirinIfStatementStart" ? "KirinIfStatementEnd" : "KirinLoopEnd";
 
-			List<KirinNode> subStatement = new List<KirinNode>();
-			int depth = 0;
-			for (int si = nodeIndex + 1; si < nodes.Length; si++)
+			List<KirinNode> statementNodes = new List<KirinNode>();
+			for (int si = startIndex + 1; si < nodes.Length; si++)
 			{
 				var subnode = nodes[si];
 
-				if (subnode.NodeType == "KirinForInLoop" ||
+				if (subnode.NodeType == "KirinIfStatementStart" ||
+					subnode.NodeType == "KirinForInLoop" ||
 					subnode.NodeType == "KirinForToLoop" ||
 					subnode.NodeType == "KirinWhileLoop" ||
-					subnode.NodeType == "KirinSwitch") depth++;
+					subnode.NodeType == "KirinSwitchStart")
+				{
+					var subnodes = GetStatementNodes( subnode, nodes, si, content, out si );
+					var eNode = new KirinExecutableNode(-1, -1);
 
-				if (depth != 0)
-				{
-					if (subnode.NodeType == "KirinLoopEnd") depth--;
-				}
-				else
-				{
-					if (subnode.NodeType != "KirinLoopEnd")
+					if( subnode.NodeType == "KirinIfStatementStart" )
 					{
-						subStatement.Add(subnode);
+						var sn = subnode as KirinIfStatementStart;
+						var en = nodes[si] as KirinIfStatementEnd;
+						
+						eNode = KirinIfStatement.ParseNodes(sn, subnodes, en, content);
+					}
+					else if (subnode.NodeType == "KirinForInLoop")
+					{
+						var sn = subnode as KirinForInLoop;
+						var en = nodes[si] as KirinLoopEnd;
+
+						eNode = KirinForInLoop.ParseNodes(sn, subnodes, en, content);
+					}
+					else if (subnode.NodeType == "KirinForToLoop")
+					{
+						var sn = subnode as KirinForToLoop;
+						var en = nodes[si] as KirinLoopEnd;
+
+						eNode = KirinForToLoop.ParseNodes(sn, subnodes, en, content);
+					}
+					else if (subnode.NodeType == "KirinWhileLoop")
+					{
+						var sn = subnode as KirinWhileLoop;
+						var en = nodes[si] as KirinLoopEnd;
+
+						eNode = KirinWhileLoop.ParseNodes(sn, subnodes, en, content);
+					}
+					else if (subnode.NodeType == "KirinSwitchStart")
+					{
+						var sn = subnode as KirinSwitchStart;
+						var en = nodes[si] as KirinLoopEnd;
+
+						eNode = KirinSwitch.ParseNodes(sn, subnodes, en, content);
+					}
+
+					statementNodes.Add(eNode);
+					continue;
+				}
+
+				if( subnode.NodeType == endNodeType )
+				{
+					endIndex = si;
+					break;
+				}
+
+				if (si == nodes.Length - 1) throw new Exception($"Failed to find end of statement");
+
+				statementNodes.Add(subnode);
+			}
+
+			return statementNodes.ToArray();
+		}
+
+			/*public static KirinNode[] GetStatementNodes(KirinNode[] nodes, int nodeIndex, string type, out int newIndex, out KirinNode endNode)
+			{
+				newIndex = nodeIndex;
+				endNode = new KirinNode(-1, -1);
+
+				List<KirinNode> subStatement = new List<KirinNode>();
+				int depth = 0;
+				for (int si = nodeIndex + 1; si < nodes.Length; si++)
+				{
+					var subnode = nodes[si];
+
+					if (subnode.NodeType == "KirinForInLoop" ||
+						subnode.NodeType == "KirinForToLoop" ||
+						subnode.NodeType == "KirinWhileLoop" ||
+						subnode.NodeType == "KirinSwitchStart") depth++;
+
+					if (depth != 0)
+					{
+						if (subnode.NodeType == "KirinLoopEnd") depth--;
 					}
 					else
 					{
-						newIndex = si;
-						endNode = subnode;
-						break;
+						if (subnode.NodeType != "KirinLoopEnd")
+						{
+							subStatement.Add(subnode);
+						}
+						else
+						{
+							newIndex = si;
+							endNode = subnode;
+							break;
+						}
 					}
+
+					if (si == nodes.Length - 1)
+						throw new Exception($"Failed to find end of {type} statement");
 				}
 
-				if (si == nodes.Length - 1)
-					throw new Exception($"Failed to find end of {type} statement");
-			}
-
-			return subStatement.ToArray();
+				return subStatement.ToArray();
+			}*/
 		}
-	}
 	class KirinForInLoop : KirinLoop
 	{
 		public KirinForInLoop(int start, int length) : base(start, length) { }
@@ -125,6 +203,19 @@ namespace FiMSharp.Kirin
 			}
 
 			return null;
+		}
+
+		public static KirinForInLoop ParseNodes(
+			KirinForInLoop startNode,
+			KirinNode[] nodes,
+			KirinLoopEnd endNode,
+			string content)
+		{
+			var statement = startNode;
+			statement.Length = (endNode.Start + endNode.Length) - startNode.Start;
+			statement.Statement = FiMLexer.ParseStatement(nodes, content);
+
+			return statement;
 		}
 	}
 	class KirinForToLoop : KirinLoop
@@ -214,6 +305,19 @@ namespace FiMSharp.Kirin
 
 			return null;
 		}
+
+		public static KirinForToLoop ParseNodes(
+			KirinForToLoop startNode,
+			KirinNode[] nodes,
+			KirinLoopEnd endNode,
+			string content)
+		{
+			var statement = startNode;
+			statement.Length = (endNode.Start + endNode.Length) - startNode.Start;
+			statement.Statement = FiMLexer.ParseStatement(nodes, content);
+
+			return statement;
+		}
 	}
 
 	class KirinWhileLoop : KirinExecutableNode
@@ -254,6 +358,19 @@ namespace FiMSharp.Kirin
 			}
 
 			return null;
+		}
+
+		public static KirinWhileLoop ParseNodes(
+			KirinWhileLoop startNode,
+			KirinNode[] nodes,
+			KirinLoopEnd endNode,
+			string content)
+		{
+			var statement = startNode;
+			statement.Length = (endNode.Start + endNode.Length) - startNode.Start;
+			statement.Statement = FiMLexer.ParseStatement(nodes, content);
+
+			return statement;
 		}
 	}
 

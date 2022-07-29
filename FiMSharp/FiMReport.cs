@@ -36,7 +36,8 @@ namespace FiMSharp
 
 			this.KirinTree = tree;
 		}
-		public static FiMReport FromFile(string directory) => new FiMReport(File.ReadAllText(directory));
+		public static FiMReport FromFile(string directory)
+			=> new FiMReport(File.ReadAllText(Path.GetFullPath(directory)));
 
 		public FiMReportInfo Info;
 		public FiMReportAuthor Author;

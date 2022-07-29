@@ -277,6 +277,38 @@ namespace FiMSharp.Kirin
 			if (name.Contains("'s ")) return false;
 			return true;
 		}
+
+		public static bool IsEqual(object _x, object _y)
+		{
+			dynamic x;
+			dynamic y;
+
+			var lvt = FiMHelper.AsVariableType(_x);
+			var rvt = FiMHelper.AsVariableType(_y);
+
+			if (lvt != rvt) return false;
+
+			switch (lvt)
+			{
+				case KirinVariableType.BOOL: x = Convert.ToBoolean(_x); break;
+				case KirinVariableType.NUMBER: x = Convert.ToDouble(_x); break;
+				case KirinVariableType.STRING: x = Convert.ToString(_x); break;
+				case KirinVariableType.CHAR: x = Convert.ToChar(_x); break;
+				default: x = null; break;
+			}
+
+			switch (rvt)
+			{
+				case KirinVariableType.BOOL: y = Convert.ToBoolean(_y); break;
+				case KirinVariableType.NUMBER: y = Convert.ToDouble(_y); break;
+				case KirinVariableType.STRING: y = Convert.ToString(_y); break;
+				case KirinVariableType.CHAR: y = Convert.ToChar(_y); break;
+				default: y = null; break;
+			}
+
+			return x == y;
+		}
+		public static bool IsEqual(KirinValue x, KirinValue y) => KirinValue.IsEqual(x.Value, y.Value);
 	}
 
 	public class KirinLiteral

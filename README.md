@@ -58,3 +58,5 @@ See the [reports folder](./FiMSharp.Test/Reports/) for sample reports you can ru
 -   FiMSharp is just a personal hobby project, seeing as FiM++ has never been updated for quite some time now.
 
 -   The syntax used here follows a modified `Sparkle 1.0` syntax, unlike what [fimpp](https://github.com/KarolS/fimpp) uses. Please refer to the sample reports to see the differences.
+
+-   ⚠🐛 There is still a bug regarding combining statements into one line. Thus, it's still recommended to have statements be on their own line.

@@ -117,7 +117,7 @@ namespace FiMSharp
 			return program;
 		}
 
-		protected static KirinFunction ParseFunction(
+		internal static KirinFunction ParseFunction(
 			KirinFunctionStart startNode,
 			KirinFunctionEnd endNode,
 			KirinStatement statement
@@ -136,8 +136,7 @@ namespace FiMSharp
 				Statement = statement
 			};
 		}
-
-		protected static KirinStatement ParseStatement(KirinNode[] nodes, string content)
+		internal static KirinStatement ParseStatement(KirinNode[] nodes, string content)
 		{
 			var statement = new KirinStatement(-1, -1);
 
@@ -153,6 +152,8 @@ namespace FiMSharp
 					case "KirinFunctionEnd":
 					case "KirinElseIfStatement":
 					case "KirinIfStatementEnd":
+					case "KirinSwitchCase":
+					case "KirinSwitchCaseDefault":
 					case "KirinLoopEnd":
 						{
 							var line = FiMHelper.GetIndexPair(content, node.Start).Line;
@@ -161,103 +162,90 @@ namespace FiMSharp
 
 					case "KirinIfStatementStart":
 						{
-							var ifStatement = new KirinIfStatement(-1, -1);
+							var startingNode = node as KirinIfStatementStart;
+							var statementNodes = KirinLoop.GetStatementNodes(
+								startingNode,
+								nodes,
+								i,
+								content,
+								out i
+							);
+							var endingNode = nodes[i] as KirinIfStatementEnd;
 
-							string currentCondition = (node as KirinIfStatementStart).RawCondition;
-							KirinNode conditionNode = node;
-							List<KirinNode> subStatement = new List<KirinNode>();
-							int depth = 0;
-							for(int si = i + 1; si < nodes.Length; si++)
-							{
-								var subnode = nodes[si];
-
-								if (subnode.NodeType == "KirinIfStatementStart") depth++;
-								if (depth != 0)
-								{
-									if (subnode.NodeType == "KirinIfStatementEnd") depth--;
-								}
-								else
-								{
-									if( subnode.NodeType != "KirinElseIfStatement" &&
-										subnode.NodeType != "KirinIfStatementEnd" )
-									{
-										subStatement.Add(subnode);
-									}
-									else
-									{
-										var conditionStatement = ParseStatement(subStatement.ToArray(), content);
-										try
-										{
-											ifStatement.AddCondition(currentCondition, conditionStatement);
-										}
-										catch( Exception ex )
-										{
-											throw new Exception(ex.Message + " at line " +
-												FiMHelper.GetIndexPair(content, conditionNode.Start).Line);
-										}
-
-										if (subnode.NodeType == "KirinIfStatementEnd")
-										{
-											i = si;
-											break;
-										}
-
-										var elseIfNode = subnode as KirinElseIfStatement;
-										currentCondition = elseIfNode.RawCondition;
-										conditionNode = subnode;
-
-										subStatement.Clear();
-									}
-								}
-
-								if (si == nodes.Length - 1)
-									throw new Exception("Failed to find end of if statement");
-							}
-
-							ifStatement.SetComplete(node.Start, nodes[i].Start + nodes[i].Length);
-
-							if( ifStatement.Count == 0 )
-								throw new Exception("If Statement has empty conditions");
-
-							statement.PushNode(ifStatement);
+							statement.PushNode(
+								KirinIfStatement.ParseNodes(startingNode, statementNodes, endingNode, content)
+							);
 						}
 						break;
 
 					case "KirinForInLoop":
 						{
-							var forLoopStatement = node as KirinForInLoop;
+							var startingNode = node as KirinForInLoop;
+							var statementNodes = KirinLoop.GetStatementNodes(
+								startingNode,
+								nodes,
+								i,
+								content,
+								out i
+							);
+							var endingNode = nodes[i] as KirinLoopEnd;
 
-							var subStatement = KirinLoop.GetStatementNodes(nodes, i, "for-in", out i, out var endNode);
-							forLoopStatement.Length = (endNode.Start + endNode.Length) - forLoopStatement.Start;
-							var loopStatement = ParseStatement(subStatement.ToArray(), content);
-
-							forLoopStatement.Statement = loopStatement;
-							statement.PushNode(forLoopStatement);
+							statement.PushNode(
+								KirinForInLoop.ParseNodes(startingNode, statementNodes, endingNode, content)
+							);
 						}
 						break;
 					case "KirinForToLoop":
 						{
-							var forLoopStatement = node as KirinForToLoop;
+							var startingNode = node as KirinForToLoop;
+							var statementNodes = KirinLoop.GetStatementNodes(
+								startingNode,
+								nodes,
+								i,
+								content,
+								out i
+							);
+							var endingNode = nodes[i] as KirinLoopEnd;
 
-							var subStatement = KirinLoop.GetStatementNodes(nodes, i, "for-to", out i, out var endNode);
-							forLoopStatement.Length = (endNode.Start + endNode.Length) - forLoopStatement.Start;
-							var loopStatement = ParseStatement(subStatement.ToArray(), content);
-
-							forLoopStatement.Statement = loopStatement;
-							statement.PushNode(forLoopStatement);
+							statement.PushNode(
+								KirinForToLoop.ParseNodes(startingNode, statementNodes, endingNode, content)
+							);
 						}
 						break;
 
 					case "KirinWhileLoop":
 						{
-							var whileLoop = node as KirinWhileLoop;
+							var startingNode = node as KirinWhileLoop;
+							var statementNodes = KirinLoop.GetStatementNodes(
+								startingNode,
+								nodes,
+								i,
+								content,
+								out i
+							);
+							var endingNode = nodes[i] as KirinLoopEnd;
 
-							var subStatement = KirinLoop.GetStatementNodes(nodes, i, "while", out i, out var endNode);
-							whileLoop.Length = (endNode.Start + endNode.Length) - whileLoop.Start;
-							var loopStatement = ParseStatement(subStatement.ToArray(), content);
+							statement.PushNode(
+								KirinWhileLoop.ParseNodes(startingNode, statementNodes, endingNode, content)
+							);
+						}
+						break;
 
-							whileLoop.Statement = loopStatement;
-							statement.PushNode(whileLoop);
+					case "KirinSwitchStart":
+						{
+							var startingNode = node as KirinSwitchStart;
+							var statementNodes = KirinLoop.GetStatementNodes(
+								startingNode,
+								nodes,
+								i,
+								content,
+								out i
+							);
+							var endingNode = nodes[i] as KirinLoopEnd;
+
+							statement.PushNode(
+								KirinSwitch.ParseNodes(startingNode, statementNodes, endingNode, content)
+							);
 						}
 						break;
 
@@ -390,23 +378,25 @@ namespace FiMSharp
 			else
 				subContent = subContent.Substring(0, subContent.Length - 1);
 
+			if (KirinPostScript.TryParse(subContent, start, length, out KirinNode node)) return node;
 
-			if (KirinProgramStart.TryParse(subContent, start, length, out KirinNode node)) return node;
+			if (KirinProgramStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinProgramEnd.TryParse(subContent, start, length, out node)) return node;
 
 			if (KirinFunctionStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinFunctionEnd.TryParse(subContent, start, length, out node)) return node; ;
 
-			if (KirinIfStatementStart.TryParse(subContent, start, length, out node)) return node;
-			if (KirinElseIfStatement.TryParse(subContent, start, length, out node)) return node;
-			if (KirinIfStatementEnd.TryParse(subContent, start, length, out node)) return node;
-
 			if (KirinForInLoop.TryParse(subContent, start, length, out node)) return node;
 			if (KirinForToLoop.TryParse(subContent, start, length, out node)) return node;
 			if (KirinWhileLoop.TryParse(subContent, start, length, out node)) return node;
+			if (KirinSwitchStart.TryParse(subContent, start, length, out node)) return node;
+			if (KirinSwitchCase.TryParse(subContent, start, length, out node)) return node;
+			if (KirinSwitchCaseDefault.TryParse(subContent, start, length, out node)) return node;
 			if (KirinLoopEnd.TryParse(subContent, start, length, out node)) return node;
 
-			if (KirinPostScript.TryParse(subContent, start, length, out node)) return node;
+			if (KirinIfStatementStart.TryParse(subContent, start, length, out node)) return node;
+			if (KirinElseIfStatement.TryParse(subContent, start, length, out node)) return node;
+			if (KirinIfStatementEnd.TryParse(subContent, start, length, out node)) return node;
 
 			if (KirinPrint.TryParse(subContent, start, length, out node)) return node;
 			if (KirinInput.TryParse(subContent, start, length, out node)) return node;

@@ -7,7 +7,7 @@ namespace FiMSharp.Test
 {
 	class Program
 	{
-#if RELEASE
+#if  !RELEASE
 		static string GetPathFromDir(string path)
 		{
 			string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -83,6 +83,7 @@ namespace FiMSharp.Test
 			{
 				FiMReport report = FiMReport.FromFile(GetPathFromDir($"Reports/{ file }"));
 				report.ConsoleOutput = w;
+				report.ConsoleInput = r;
 				report.MainParagraph?.Execute();
 			}
 			catch(Exception err)
@@ -142,17 +143,18 @@ namespace FiMSharp.Test
 			Test("bubblesort.fim", new string[] { "1", "2", "3", "4", "5", "7", "7" });
 			Test("cider.fim");
 			Test("conditional.fim", new string[] {
-				"Twilight == Spike[T]",
-				"Twilight == Spike[T] && Pinkie == Rainbow[T]",
-				"Twilight == Pinkie[F] || Twilight == Spike[T]",
-				"(Spike == Pinkie[F] || Spike != Rainbow[T]) && Spike == Twilight[T]",
-				"(Spike == Rainbow[F] || Spike == Fluttershy[T]) && Spike != Rarity[T]",
-				"(Spike == Rarity[F] || Twilight == Fluttershy[T]) && (Spike == Applejack[T] || Twilight == Rarity[F])"
+				"true == true",
+				"true == true && false == true",
+				"true == false || true == true",
+				"(true == false || false != true) && true == true",
+				"(false == false || false == true) && true != true",
+				"(false == false || true == true) && (true == true || true == false)"
 			});
 			Test("deadfish.fim", new string[] { "Hello world" });
 			Test("digital root.fim", new string[] { "9" });
 			Test("disan.fim", new string[] {
-				"Insert a number", "0 is divisible by 2!",
+				"Insert a number",
+				"0 is divisible by 2!",
 				"2 is divisible by 2!",
 				"4 is divisible by 2!"
 			},  new string[] { "5" });
@@ -181,7 +183,7 @@ namespace FiMSharp.Test
 			});
 			// truth machine.fim
 #else
-			RunDebugReport();
+			RunReport("switch.fim");
 			// RunReport("for loops.fim");
 #endif
 		}

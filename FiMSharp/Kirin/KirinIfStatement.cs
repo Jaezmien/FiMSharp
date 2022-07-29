@@ -60,6 +60,67 @@ namespace FiMSharp.Kirin
 			}
 			return null;
 		}
+
+		public static KirinIfStatement ParseNodes(
+			KirinIfStatementStart startNode,
+			KirinNode[] nodes,
+			KirinIfStatementEnd endNode,
+			string content)
+		{
+			var statement = new KirinIfStatement(-1, -1);
+
+			string currentCondition = startNode.RawCondition;
+			KirinNode conditionNode = startNode;
+			List<KirinNode> subStatement = new List<KirinNode>();
+			foreach(var subnode in nodes)
+			{
+				if (subnode.NodeType != "KirinElseIfStatement")
+				{
+					subStatement.Add(subnode);
+				}
+				else
+				{
+					var conditionStatement = FiMLexer.ParseStatement(subStatement.ToArray(), content);
+					try
+					{
+						statement.AddCondition(currentCondition, conditionStatement);
+					}
+					catch (Exception ex)
+					{
+						throw new Exception(ex.Message + " at line " +
+							FiMHelper.GetIndexPair(content, conditionNode.Start).Line);
+					}
+
+
+					var elseIfNode = subnode as KirinElseIfStatement;
+					currentCondition = elseIfNode.RawCondition;
+					conditionNode = subnode;
+
+					subStatement.Clear();
+				}
+			}
+
+			if( subStatement.Count > 0 )
+			{
+				var conditionStatement = FiMLexer.ParseStatement(subStatement.ToArray(), content);
+				try
+				{
+					statement.AddCondition(currentCondition, conditionStatement);
+				}
+				catch (Exception ex)
+				{
+					throw new Exception(ex.Message + " at line " +
+						FiMHelper.GetIndexPair(content, conditionNode.Start).Line);
+				}
+			}
+
+			statement.SetComplete(startNode.Start, endNode.Start + endNode.Length);
+
+			if (statement.Count == 0)
+				throw new Exception("If Statement has empty conditions");
+
+			return statement;
+		}
 	}
 
 	class KirinIfStatementStart : KirinNode
