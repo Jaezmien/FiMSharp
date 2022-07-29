@@ -173,19 +173,22 @@ namespace FiMSharp.Test
 				FiMReport report = FiMReport.FromFile(GetPathFromDir($"Reports/{ file }"));
 				report.ConsoleOutput = w;
 				report.ConsoleInput = r;
+				Console.Write($"Running report '{file}'... ");
 				report.MainParagraph?.Execute();
 			}
 			catch (Exception err)
 			{
+				Console.WriteLine("failed");
 				throw new Exception("Report has thrown an error:\n\n" + err.ToString());
 			}
 
 			if (errors.Count > 0)
 			{
+				Console.WriteLine("failed");
 				throw new Exception($"Report '{file}' output contains errors:\n\n{string.Join("\n", errors)}");
 			}
 
-			Console.WriteLine($"Report '{file}' passes");
+			Console.WriteLine("passes");
 		}
 		/// <summary>
 		/// Test if a report runs without throwing an error
@@ -196,14 +199,16 @@ namespace FiMSharp.Test
 			{
 				FiMReport report = FiMReport.FromFile(GetPathFromDir($"Reports/{ file }"));
 				report.ConsoleOutput = new EmptyWriter();
+				Console.Write($"Running report '{file}'... ");
 				report.MainParagraph?.Execute();
 			}
 			catch (Exception err)
 			{
+				Console.WriteLine("failed");
 				throw new Exception($"Report '{file}' has thrown an error:\n\n{err.ToString()}");
 			}
 
-			Console.WriteLine($"Report '{file}' passes");
+			Console.WriteLine("passes");
 		}
 	}
 }

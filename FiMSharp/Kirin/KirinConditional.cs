@@ -40,53 +40,49 @@ namespace FiMSharp.Kirin
 			private readonly static string[] And = { "and" };
 			private readonly static string[] Or = { "or" };
 
-			public static int GetConditional(string content, out string keyword, out string condition)
+			public struct ConditionalResult
 			{
-				keyword = null;
-				condition = null;
+				public string Keyword;
+				public string Sign;
+				public int Index;
+			}
+			private static bool HasConditional(string content, string[] conditionals, string sign, out ConditionalResult result)
+			{
+				result = new ConditionalResult();
+				foreach(var _keyword in conditionals)
+				{
+					string keyword = $" {_keyword} ";
 
-				if (And.Any(c => content.Contains($" {c} ")))
-				{
-					keyword = And.First(c => content.Contains($" {c} "));
-					condition = "&&";
-				}
-				else if (Or.Any(c => content.Contains($" {c} ")))
-				{
-					keyword = Or.First(c => content.Contains($" {c} "));
-					condition = "||";
-				}
-				else if (LessThanEqual.Any(c => content.Contains($" {c} ")))
-				{
-					keyword = LessThanEqual.First(c => content.Contains($" {c} "));
-					condition = "<=";
-				}
-				else if (GreaterThan.Any(c => content.Contains($" {c} ")))
-				{
-					keyword = GreaterThan.First(c => content.Contains($" {c} "));
-					condition = ">";
-				}
-				else if (GreaterThanEqual.Any(c => content.Contains($" {c} ")))
-				{
-					keyword = GreaterThanEqual.First(c => content.Contains($" {c} "));
-					condition = ">=";
-				}
-				else if (LessThan.Any(c => content.Contains($" {c} ")))
-				{
-					keyword = LessThan.First(c => content.Contains($" {c} "));
-					condition = "<";
-				}
-				else if (Not.Any(c => content.Contains($" {c} ")))
-				{
-					keyword = Not.First(c => content.Contains($" {c} "));
-					condition = "!=";
-				}
-				else if (Equal.Any(c => content.Contains($" {c} ")))
-				{
-					keyword = Equal.First(c => content.Contains($" {c} "));
-					condition = "==";
-				}
+					if (content.IndexOf(keyword) == -1) continue;
 
-				return keyword == null ? -1 : content.IndexOf(keyword);
+					var index = content.IndexOf(keyword);
+					while( index != -1 )
+					{
+						if (!FiMHelper.IsIndexInsideString(content, index))
+						{
+							result.Keyword = keyword;
+							result.Sign = sign;
+							result.Index = index;
+							return true;
+						}
+
+						index = content.IndexOf(keyword, index);
+					}
+				}
+				return false;
+			}
+			public static bool GetConditional(string content, out ConditionalResult result)
+			{
+				if (HasConditional(content, And, "&&", out result)) return true;
+				if (HasConditional(content, Or, "||", out result)) return true;
+				if (HasConditional(content, LessThanEqual, "<=", out result)) return true;
+				if (HasConditional(content, GreaterThan, ">", out result)) return true;
+				if (HasConditional(content, GreaterThanEqual, ">=", out result)) return true;
+				if (HasConditional(content, LessThan, "<", out result)) return true;
+				if (HasConditional(content, Not, "!=", out result)) return true;
+				if (HasConditional(content, Equal, "==", out result)) return true;
+
+				return false;
 			}
 		}
 
@@ -100,12 +96,11 @@ namespace FiMSharp.Kirin
 		{
 			result = new ConditionalCheckResult();
 
-			int cIndex = Conditionals.GetConditional(content, out string cKeyword, out string cCondition);
-			if (cIndex == -1) return false;
+			if (!Conditionals.GetConditional(content, out var conditional)) return false;
 
-			result.Expression = cCondition;
-			result.Left = content.Substring(0, cIndex - 1);
-			result.Right = content.Substring(cIndex + cKeyword.Length + 1);
+			result.Expression = conditional.Sign;
+			result.Left = content.Substring(0, conditional.Index);
+			result.Right = content.Substring(conditional.Index + conditional.Keyword.Length);
 
 			return true;
 		}

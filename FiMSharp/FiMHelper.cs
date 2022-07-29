@@ -155,5 +155,41 @@ namespace FiMSharp
 				return KirinVariableType.UNKNOWN;
 			}
 		}
+
+		public static bool IsIndexInsideString(string content, int index)
+		{
+			for (int i = 0; i < content.Length; i++)
+			{
+				char c = content[i];
+				if (c == '(')
+				{
+					while (content[++i] != ')') ;
+					continue;
+				}
+				if (c == '"')
+				{
+					int startIndex = i;
+					while (content[++i] != '"');
+					int endIndex = i;
+					if (index >= startIndex && index <= endIndex) return true;
+					continue;
+				}
+				if (c == '\'')
+				{
+					if (content[i + 1] == '\\' && content[i + 3] == '\'')
+					{
+						i += 3;
+						continue;
+					}
+					else if (content[i + 2] == '\'')
+					{
+						i += 2;
+						continue;
+					}
+				}
+			}
+
+			return false;
+		}
 	}
 }
