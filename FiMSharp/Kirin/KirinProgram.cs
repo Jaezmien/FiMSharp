@@ -15,7 +15,7 @@ namespace FiMSharp.Kirin
 		public string ProgramRecipient;
 
 		private readonly static Regex ReportStart = new Regex(@"^Dear (.+)?: (.+)?");
-		public static bool TryParse(string content, int start, int length, out KirinProgramStart result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			var match = ReportStart.Match(content);
@@ -40,7 +40,7 @@ namespace FiMSharp.Kirin
 		public string AuthorRole;
 
 		private readonly static Regex ReportEnd = new Regex(@"^Your (.+)?, (.+)?");
-		public static bool TryParse(string content, int start, int length, out KirinProgramEnd result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			var match = ReportEnd.Match(content);

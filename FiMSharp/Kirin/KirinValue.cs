@@ -54,6 +54,7 @@ namespace FiMSharp.Kirin
 		{
 			this.Raw = Convert.ToString(value);
 			this._Value = value;
+
 			if (this._Value.GetType() == typeof(int)) this._Value = Convert.ToDouble(value);
 		}
 
@@ -81,17 +82,17 @@ namespace FiMSharp.Kirin
 					}
 					else
 					{
-						var eType = FiMHelper.DeclarationType.Determine(" " + this.Raw, out string eKeyword, false);
 						string raw = this.Raw;
+
+						var eType = FiMHelper.DeclarationType.Determine(" " + raw, out string eKeyword, false);
 						if (eType != KirinVariableType.UNKNOWN) raw = raw.Substring(eKeyword.Length);
+
 						object value;
 						if (KirinLiteral.TryParse(raw, out object lResult)) value = lResult;
 						else value = KirinValue.Evaluate(Report, raw, ForcedType);
-						if (eType != KirinVariableType.UNKNOWN)
-						{
-							if (FiMHelper.AsVariableType(value) != eType)
-								throw new Exception("Expected " + eType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
-						}
+
+						if (eType != KirinVariableType.UNKNOWN && FiMHelper.AsVariableType(value) != eType)
+							throw new Exception("Expected " + eType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
 						this._Value = value;
 					}
 				}
@@ -205,9 +206,26 @@ namespace FiMSharp.Kirin
 				if( report.Variables.Exists(strVar) ) return Evaluate(report, $"{match.Groups[2].Value} of {strVar}");
 			}
 
+			// Arithmetic
+			if( KirinArithmetic.IsArithmetic(evaluatable, out var arithmeticResult))
+			{
+				var arithmetic = new KirinArithmetic(arithmeticResult);
+				return arithmetic.GetValue(report);
+			}
+			// Conditional
+			if( KirinConditional.IsConditional(evaluatable, out var conditionalResult))
+			{
+				var conditional = new KirinConditional(conditionalResult);
+				return conditional.GetValue(report);
+			}
+
 			// String concatenation
-			// return null;
-			throw new NotImplementedException();
+			if( evaluatable.Contains("\""))
+			{
+				throw new NotImplementedException();
+			}
+
+			throw new Exception("Cannot evaluate " + evaluatable);
 		}
 		public static bool ValidateName(string name)
 		{

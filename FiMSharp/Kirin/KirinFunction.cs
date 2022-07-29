@@ -193,14 +193,14 @@ namespace FiMSharp.Kirin
 			public List<KirinFunctionArgument> Arguments;
 			public KirinFunctionReturn Return;
 		}
-		public static bool TryParse(string content, int start, int length, out KirinFunctionStart result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			var match = FunctionStart.Match(content);
 			if (!match.Success) return false;
 
 			string functionName = match.Groups[1].Value;
-			result = new KirinFunctionStart(start, length)
+			var node = new KirinFunctionStart(start, length)
 			{
 				IsMain = content.StartsWith("Today"),
 			};
@@ -212,7 +212,7 @@ namespace FiMSharp.Kirin
 				string subContent = functionName.Substring(keywordIndex + keyword.Length - 1);
 				var returnType = FiMHelper.DeclarationType.Determine(subContent, out string sKeyword);
 
-				result.Return = new KirinFunctionReturn() { VarType = returnType };
+				node.Return = new KirinFunctionReturn() { VarType = returnType };
 
 				string returnString = keyword.Substring(0, keyword.Length - 1) + sKeyword;
 				functionName = functionName.Substring(0, keywordIndex) + functionName.Substring(keywordIndex + returnString.Length);
@@ -221,12 +221,12 @@ namespace FiMSharp.Kirin
 			{
 				int keywordIndex = functionName.IndexOf(FunctionParam);
 				string subcontent = functionName.Substring(keywordIndex + FunctionParam.Length);
-				result.args = new List<KirinFunctionArgument>();
+				node.args = new List<KirinFunctionArgument>();
 				foreach(string param in subcontent.Split(new string[] { " and " }, StringSplitOptions.RemoveEmptyEntries))
 				{
 					var returnType = FiMHelper.DeclarationType.Determine(" " + param, out string sKeyword);
 					string paramName = param.Substring(sKeyword.Length);
-					result.args.Add(
+					node.args.Add(
 						new KirinFunctionArgument()
 						{
 							VarType = returnType,
@@ -239,8 +239,9 @@ namespace FiMSharp.Kirin
 					functionName.Substring(keywordIndex + FunctionParam.Length + subcontent.Length);
 			}
 
-			result.Name = functionName;
+			node.Name = functionName;
 
+			result = node;
 			return true;
 		}
 	}
@@ -252,7 +253,7 @@ namespace FiMSharp.Kirin
 		public string Name;
 
 		private readonly static Regex FunctionEnd = new Regex(@"^That's all about (.+)?");
-		public static bool TryParse(string content, int start, int length, out KirinFunctionEnd result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			var match = FunctionEnd.Match(content);

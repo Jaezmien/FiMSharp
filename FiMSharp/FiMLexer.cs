@@ -25,7 +25,7 @@ namespace FiMSharp
 			var program = new KirinProgram(-1, -1);
 
 			var lines = FindAllLines(content);
-			var nodes = new List<KirinBaseNode>();
+			var nodes = new List<KirinNode>();
 
 			foreach(var line in lines)
 			{
@@ -42,7 +42,8 @@ namespace FiMSharp
 				for( int i = nodes.FindIndex(n => n.NodeType == "KirinProgramEnd") + 1; i < nodes.Count; i++ )
 				{
 					if (nodes[i].NodeType != "KirinPostScript")
-						throw new Exception("Expected EOR at line " + FiMHelper.GetIndexPair(content, (nodes[i] as KirinNode).Start).Line);
+						throw new Exception("Expected EOR at line " +
+							FiMHelper.GetIndexPair(content, (nodes[i] as KirinNode).Start).Line);
 				}
 			}
 
@@ -84,8 +85,9 @@ namespace FiMSharp
 							i++;
 							var n = node as KirinFunctionStart;
 
-							var s = new KirinStatement(-1, -1);
-							while (nodes[i].NodeType != "KirinFunctionEnd") s.PushNode(nodes[i++]);
+							List<KirinNode> fNodes = new List<KirinNode>();
+							while (nodes[i].NodeType != "KirinFunctionEnd") fNodes.Add(nodes[i++]);
+							var s = ParseStatement(fNodes.ToArray(), content);
 
 							var en = nodes[i] as KirinFunctionEnd;
 							if (en.NodeType == "KirinFunctionEnd" && en.Name != n.Name)
@@ -111,16 +113,125 @@ namespace FiMSharp
 						}
 						break;
 
-					case "KirinPostScript": { } break;
+					case "KirinPostScript":
+						{
+							// Ignore
+						}
+						break;
 					default:
 						{
-							program.PushNode(node);
+							var line = FiMHelper.GetIndexPair(content, node.Start).Line;
+							throw new Exception($"Illegal report body node at line {line}  - {node.NodeType}");
+						}
+				}
+			}
+
+			return program;
+		}
+
+		private static KirinStatement ParseStatement(KirinNode[] nodes, string content)
+		{
+			var statement = new KirinStatement(-1, -1);
+
+			for(int i = 0; i < nodes.Length; i++)
+			{
+				var node = nodes[i];
+
+				switch (node.NodeType)
+				{
+					case "KirinProgramStart":
+					case "KirinProgramEnd":
+					case "KirinFunctionStart":
+					case "KirinFunctionEnd":
+					case "KirinElseIfStatement":
+					case "KirinIfStatementEnd":
+						{
+							var line = FiMHelper.GetIndexPair(content, node.Start).Line;
+							throw new Exception($"Illegal report body node at line {line}  - {node.NodeType}");
+						}
+
+					case "KirinIfStatementStart":
+						{
+							var ifStatement = new KirinIfStatement(-1, -1);
+
+							string currentCondition = (node as KirinIfStatementStart).RawCondition;
+							KirinNode conditionNode = node;
+							List<KirinNode> subStatement = new List<KirinNode>();
+							int depth = 0;
+							for(int si = i + 1; si < nodes.Length; si++)
+							{
+								var subnode = nodes[si];
+
+								if (subnode.NodeType == "KirinIfStatementStart") depth++;
+								if (depth != 0)
+								{
+									if (subnode.NodeType == "KirinIfStatementEnd") depth--;
+								}
+								else
+								{
+									if( subnode.NodeType != "KirinElseIfStatement" &&
+										subnode.NodeType != "KirinIfStatementEnd" )
+									{
+										subStatement.Add(subnode);
+									}
+									else
+									{
+										var conditionStatement = ParseStatement(subStatement.ToArray(), content);
+										try
+										{
+											ifStatement.AddCondition(currentCondition, conditionStatement);
+										}
+										catch( Exception ex )
+										{
+											throw new Exception(ex.Message + " at line " +
+												FiMHelper.GetIndexPair(content, conditionNode.Start).Line);
+										}
+
+										if (subnode.NodeType == "KirinIfStatementEnd")
+										{
+											i = si;
+											break;
+										}
+
+										var elseIfNode = subnode as KirinElseIfStatement;
+										currentCondition = elseIfNode.RawCondition;
+										conditionNode = subnode;
+
+										subStatement.Clear();
+									}
+								}
+
+								if (si == nodes.Length - 1)
+									throw new Exception("Failed to find end of if statement");
+							}
+
+							ifStatement.SetComplete(node.Start, nodes[i].Start + nodes[i].Length);
+
+							if( ifStatement.Count == 0 )
+								throw new Exception("If Statement has empty conditions");
+
+							statement.PushNode(ifStatement);
+						}
+						break;
+
+					case "KirinPostScript":
+						{
+							// Ignore
+						}
+						break;
+					default:
+						{
+							statement.PushNode(node);
 						}
 						break;
 				}
 			}
 
-			return program;
+			var firstNode = statement.Body.First() as KirinNode;
+			var lastNode = statement.Body.Last() as KirinNode;
+			statement.Start = firstNode.Start;
+			statement.Length = (lastNode.Start + lastNode.Length) - firstNode.Start;
+			return statement;
 		}
 
 		private struct ReportLine
@@ -188,7 +299,7 @@ namespace FiMSharp
 					}
 					else if( Regex.IsMatch(line, @"(^.+?\.\.\.)" ) )
 					{
-						var match = Regex.Match(line, @"(?:^(.+?)\.\.\.)");
+						var match = Regex.Match(line, @"(?:^(.+)?\.\.\.)");
 						if( match.Success )
 						{
 							if(ElipsesMatches.Any(m => m.IsMatch(match.Groups[1].Value)))
@@ -232,55 +343,31 @@ namespace FiMSharp
 			else
 				subContent = subContent.Substring(0, subContent.Length - 1);
 
-			{
-				if (KirinProgramStart.TryParse(subContent, start, length, out KirinProgramStart psResult)) return psResult;
-			}
-			{
-				if (KirinProgramEnd.TryParse(subContent, start, length, out KirinProgramEnd peResult)) return peResult;
-			}
 
-			{
-				if (KirinFunctionStart.TryParse(subContent, start, length, out KirinFunctionStart fsResult)) return fsResult;
-			}
-			{
-				if (KirinFunctionEnd.TryParse(subContent, start, length, out KirinFunctionEnd feResult)) return feResult;
-			}
+			if (KirinProgramStart.TryParse(subContent, start, length, out KirinNode node)) return node;
+			if (KirinProgramEnd.TryParse(subContent, start, length, out node)) return node;
 
-			{
-				if (KirinPostScript.TryParse(subContent, start, length, out KirinPostScript psResult)) return psResult;
-			}
+			if (KirinFunctionStart.TryParse(subContent, start, length, out node)) return node;
+			if (KirinFunctionEnd.TryParse(subContent, start, length, out node)) return node; ;
 
-			{
-				if (KirinPrint.TryParse(subContent, start, length, out KirinPrint pResult)) return pResult;
-			}
-			{
-				if (KirinInput.TryParse(subContent, start, length, out KirinInput kResult)) return kResult;
-			}
-			{
-				if (KirinFunctionCall.TryParse(subContent, report, start, length, out KirinFunctionCall fcResult)) return fcResult;
-			}
-			{
-				if (KirinVariableDeclaration.TryParse(subContent, start, length, out KirinVariableDeclaration vdResult)) return vdResult;
-			}
-			{
-				if (KirinListModify.TryParse(subContent, start, length, out KirinListModify lmResult)) return lmResult;
-			}
-			{
-				if (KirinVariableModify.TryParse(subContent, start, length, out KirinVariableModify vmResult)) return vmResult;
-			}
-			{
-				if (KirinUnary.TryParse(subContent, start, length, out KirinUnary uResult)) return uResult;
-			}
-			{
-				if (KirinReturn.TryParse(subContent, start, length, out KirinReturn rResult)) return rResult;
-			}
+			if (KirinIfStatementStart.TryParse(subContent, start, length, out node)) return node;
+			if (KirinElseIfStatement.TryParse(subContent, start, length, out node)) return node;
+			if (KirinIfStatementEnd.TryParse(subContent, start, length, out node)) return node;
 
-			{
-				if (KirinDebugger.TryParse(subContent, start, length, out KirinDebugger dResult)) return dResult;
-			}
+			if (KirinPostScript.TryParse(subContent, start, length, out node)) return node;
+
+			if (KirinPrint.TryParse(subContent, start, length, out node)) return node;
+			if (KirinInput.TryParse(subContent, start, length, out node)) return node;
+			if (KirinFunctionCall.TryParse(subContent, report, start, length, out node)) return node;
+			if (KirinVariableDeclaration.TryParse(subContent, start, length, out node)) return node;
+			if (KirinListModify.TryParse(subContent, start, length, out node)) return node;
+			if (KirinVariableModify.TryParse(subContent, start, length, out node)) return node;
+			if (KirinUnary.TryParse(subContent, start, length, out node)) return node;
+			if (KirinReturn.TryParse(subContent, start, length, out node)) return node;
+			if (KirinDebugger.TryParse(subContent, start, length, out node)) return node;
 
 #if DEBUG
-			if( System.Diagnostics.Debugger.IsAttached )
+			if ( System.Diagnostics.Debugger.IsAttached )
 			{
 				System.Diagnostics.Debugger.Break();
 			}

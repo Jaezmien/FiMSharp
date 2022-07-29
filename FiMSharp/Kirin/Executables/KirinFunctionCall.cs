@@ -26,14 +26,14 @@ namespace FiMSharp.Kirin
 			return a;
 		}
 
-		public static bool TryParse(string content, FiMReport report, int start, int length, out KirinFunctionCall result)
+		public static bool TryParse(string content, FiMReport report, int start, int length, out KirinNode result)
 		{
 			result = null;
 			var match = FunctionCall.Match(content);
 			if (!match.Success) return false;
 
 			string value = match.Groups[1].Value;
-			result = new KirinFunctionCall(start, length)
+			var node = new KirinFunctionCall(start, length)
 			{
 				FunctionName = value
 			};
@@ -41,16 +41,17 @@ namespace FiMSharp.Kirin
 			{
 				int keywordIndex = value.IndexOf(FunctionParam);
 				var args = KirinFunctionCall.ParseCallArguments(value.Substring(keywordIndex + FunctionParam.Length), report);
-				result.FunctionName = value.Substring(0, keywordIndex);
-				result.RawParameters = value.Substring(keywordIndex + FunctionParam.Length);
-				result.Parameters = args;
+				node.FunctionName = value.Substring(0, keywordIndex);
+				node.RawParameters = value.Substring(keywordIndex + FunctionParam.Length);
+				node.Parameters = args;
 			}
 			else
 			{
-				result.RawParameters = string.Empty;
-				result.Parameters = new List<KirinValue>();
+				node.RawParameters = string.Empty;
+				node.Parameters = new List<KirinValue>();
 			}
 
+			result = node;
 			return true;
 		}
 

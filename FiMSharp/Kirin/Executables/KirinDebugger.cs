@@ -4,7 +4,7 @@
 	{
 		public KirinDebugger(int start, int length) : base(start, length) { }
 
-		public static bool TryParse(string content, int start, int length, out KirinDebugger result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			if (content != "I took a break") return false;

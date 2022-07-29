@@ -12,17 +12,18 @@ namespace FiMSharp.Kirin
 		private readonly static string[] ReplaceKW = {
 			" becomes ", " become ", " became ", " is now ", " now likes ", " now like ", " are now "
 		};
-		public static bool TryParse(string content, int start, int length, out KirinVariableModify result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			if (!ReplaceKW.Any(kw => content.Contains(kw))) return false;
 
-			result = new KirinVariableModify(start, length);
+			var node = new KirinVariableModify(start, length);
 			string mKeyword = ReplaceKW.First(kw => content.Contains(kw));
 			int mIndex = content.IndexOf(mKeyword);
 
-			result.LeftOp = content.Substring(0, mIndex);
-			result.RightOp = content.Substring(mIndex + mKeyword.Length);
+			node.LeftOp = content.Substring(0, mIndex);
+			node.RightOp = content.Substring(mIndex + mKeyword.Length);
+			result = node;
 			return true;
 		}
 

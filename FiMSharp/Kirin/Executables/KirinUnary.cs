@@ -14,7 +14,7 @@ namespace FiMSharp.Kirin
 		private readonly static Regex PreDecrement = new Regex(@"^There was one less (.+)");
 		private readonly static Regex PostDecrement = new Regex(@"^(.+) got one less");
 
-		public static bool TryParse(string content, int start, int length, out KirinUnary result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 

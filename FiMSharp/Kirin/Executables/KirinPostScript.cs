@@ -8,7 +8,7 @@ namespace FiMSharp.Kirin
 
 		private readonly static string PSComment = @"^P\.(?:P\.)*S\.\s(?:.+)$";
 
-		public static bool TryParse(string content, int start, int length, out KirinPostScript result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			if (!Regex.IsMatch(content, PSComment)) return false;

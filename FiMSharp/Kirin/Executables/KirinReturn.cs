@@ -10,13 +10,13 @@ namespace FiMSharp.Kirin
 		public KirinVariableType ExpectedType;
 
 		private readonly static string ReturnStart = "Then you get ";
-		public static bool TryParse(string content, int start, int length, out KirinReturn result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			if (!content.StartsWith(ReturnStart)) return false;
 
 			string subContent = content.Substring(ReturnStart.Length);
-			result = new KirinReturn(start, length)
+			var node = new KirinReturn(start, length)
 			{
 				RawParameters = subContent
 			};
@@ -25,10 +25,11 @@ namespace FiMSharp.Kirin
 			if( expectedType != KirinVariableType.UNKNOWN )
 			{
 				subContent = subContent.Substring(eKeyword.Length);
-				result.RawParameters = subContent;
-				result.ExpectedType = expectedType;
+				node.RawParameters = subContent;
+				node.ExpectedType = expectedType;
 			}
 
+			result = node;
 			return true;
 		}
 		public override object Execute(FiMReport report)

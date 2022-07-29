@@ -54,7 +54,7 @@ namespace FiMSharp.Kirin
 				if (n.NodeType == "KirinVariableDeclaration") localVariables++;
 
 				object r;
-#if DEBUG
+#if RELEASE
 				r = n.Execute(report);
 #else
 				try

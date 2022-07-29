@@ -12,7 +12,7 @@ namespace FiMSharp.Kirin
 
 		private readonly static Regex ListModif = new Regex(@"^(.+) (\d+) (?:is|was|ha[sd]|like[sd]?) (.+)");
 		private readonly static Regex ListModifVar = new Regex(@"^(.+) of (.+) (?:is|was|ha[sd]|like[sd]?) (.+)");
-		public static bool TryParse(string content, int start, int length, out KirinListModify result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 

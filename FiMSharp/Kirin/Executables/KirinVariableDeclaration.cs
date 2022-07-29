@@ -34,24 +34,24 @@ namespace FiMSharp.Kirin
 			}
 		}
 
-		public static bool TryParse(string content, int start, int length, out KirinVariableDeclaration result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			var match = VarDeclaration.Match(content);
 			if (!match.Success) return false;
 
-			result = new KirinVariableDeclaration(start, length);
+			var node = new KirinVariableDeclaration(start, length);
 
 			Group group = match.Groups[1];
 			string varName = group.Value;
 			string iKeyword = InitKeyword.GetKeyword(varName, out int iIndex);
 			varName = varName.Substring(0, iIndex - 1);
-			result.Name = varName;
+			node.Name = varName;
 
 			string subContent = group.Value.Substring(iIndex + iKeyword.Length);
 
-			result.Constant = subContent.StartsWith(ConstantKW);
-			if( result.Constant ) subContent = subContent.Substring(ConstantKW.Length);
+			node.Constant = subContent.StartsWith(ConstantKW);
+			if( node.Constant ) subContent = subContent.Substring(ConstantKW.Length);
 
 			var varType = FiMHelper.DeclarationType.Determine(subContent, out string tKeyword);
 			string varValueRaw = null;
@@ -59,9 +59,10 @@ namespace FiMSharp.Kirin
 			{
 				varValueRaw = subContent.Substring(tKeyword.Length + 1);
 			}
-			result.ExpectedType = varType;
-			result.RawValue = varValueRaw;
-
+			node.ExpectedType = varType;
+			node.RawValue = varValueRaw;
+			
+			result = node;
 			return true;
 		}
 

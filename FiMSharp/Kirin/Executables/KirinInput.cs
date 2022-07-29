@@ -10,7 +10,7 @@ namespace FiMSharp.Kirin
 
 		private readonly static Regex Read = new Regex(@"^I (?:heard|read|asked) (.+)");
 		private readonly static Regex Prompt = new Regex(@"^I (?:heard|read|asked) (.+) ""(.+)""$");
-		public static bool TryParse(string content, int start, int length, out KirinInput result)
+		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 			if (Prompt.IsMatch(content))
