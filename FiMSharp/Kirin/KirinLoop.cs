@@ -164,7 +164,6 @@ namespace FiMSharp.Kirin
 				throw new Exception("Variable " + this.VariableName + " already exists");
 
 			var varArray = new KirinValue(this.RawValue, report);
-
 			if (!FiMHelper.IsTypeArray(varArray.Type) && varArray.Type != KirinVariableType.STRING)
 				throw new Exception("Expected type array on for-in loops");
 

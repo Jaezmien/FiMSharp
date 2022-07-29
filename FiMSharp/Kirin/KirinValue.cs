@@ -50,6 +50,14 @@ namespace FiMSharp.Kirin
 		{
 			this.Raw = raw;
 			this.Report = report;
+			if( raw != null ) this.Load(); 
+		}
+		public KirinValue(string raw, FiMReport report, KirinVariableType forcedType)
+		{
+			this.Raw = raw;
+			this.Report = report;
+			this.ForcedType = forcedType;
+			this.Load();
 		}
 		public KirinValue(object value)
 		{
@@ -67,40 +75,6 @@ namespace FiMSharp.Kirin
 		{
 			get
 			{
-				if( this._Value == null )
-				{
-					if(this.Raw == null)
-					{
-						if (FiMHelper.IsTypeArray(this.Type))
-						{
-							this._Value = FiMHelper.GetDefaultValue(this.Type);
-						}
-						else
-						{
-							if(this.ForcedType == null) throw new Exception("Value is null");
-							this._Value = FiMHelper.GetDefaultValue((KirinVariableType)this.ForcedType);
-						}
-					}
-					else
-					{
-						string raw = this.Raw;
-
-						var eType = FiMHelper.DeclarationType.Determine(" " + raw, out string eKeyword, false);
-						if (eType != KirinVariableType.UNKNOWN) raw = raw.Substring(eKeyword.Length);
-
-						object value;
-						if (KirinLiteral.TryParse(raw, out object lResult)) value = lResult;
-						else
-						{
-							value = KirinValue.Evaluate(Report, raw, out var returnedType, ForcedType);
-							this.ForceType(returnedType);
-						}
-
-						if (eType != KirinVariableType.UNKNOWN && FiMHelper.AsVariableType(value) != eType)
-							throw new Exception("Expected " + eType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
-						this._Value = value;
-					}
-				}
 				return this._Value;
 			}
 			set
@@ -111,11 +85,48 @@ namespace FiMSharp.Kirin
 				this._Value = value;
 			}
 		}
+		public KirinValue Load()
+		{
+			if (this.Raw == null)
+			{
+				if (FiMHelper.IsTypeArray(this.Type))
+				{
+					this._Value = FiMHelper.GetDefaultValue(this.Type);
+				}
+				else
+				{
+					if (this.ForcedType == null) throw new Exception("Value is null");
+					this._Value = FiMHelper.GetDefaultValue((KirinVariableType)this.ForcedType);
+				}
+			}
+			else
+			{
+				string raw = this.Raw;
+
+				var eType = FiMHelper.DeclarationType.Determine(" " + raw, out string eKeyword, false);
+				if (eType != KirinVariableType.UNKNOWN) raw = raw.Substring(eKeyword.Length);
+
+				object value;
+				if (KirinLiteral.TryParse(raw, out object lResult)) value = lResult;
+				else
+				{
+					value = KirinValue.Evaluate(Report, raw, out var returnedType, ForcedType);
+					this.ForceType(returnedType);
+				}
+
+				if (eType != KirinVariableType.UNKNOWN && FiMHelper.AsVariableType(value) != eType)
+					throw new Exception("Expected " + eType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
+				this._Value = value;
+			}
+			return this;
+		}
 
 		private KirinVariableType? ForcedType = null;
 		public KirinVariableType Type
 		{
-			get { return this.ForcedType ?? FiMHelper.AsVariableType(this.Value); }
+			get {
+				return this.ForcedType ?? FiMHelper.AsVariableType(this.Value);
+			}
 		}
 
 		public void ForceType(KirinVariableType type)
@@ -216,7 +227,7 @@ namespace FiMSharp.Kirin
 				if( variable.Type == KirinVariableType.STRING )
 				{
 					returnedType = KirinVariableType.CHAR;
-					return Convert.ToString(variable.Value)[index];
+					return Convert.ToString(variable.Value)[index - 1];
 				}
 
 				var dict = variable.Value as Dictionary<int, object>;
