@@ -6,7 +6,14 @@
     <AssemblyName>fim</AssemblyName>
     <Authors>Jaezmien Naejara</Authors>
     <Company />
-    <Product />
+    <PackageTags>fimpp, fim++</PackageTags>
+    <RepositoryUrl>https://github.com/Jaezmien/FiMSharp</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Jaezmien/FiMSharp</PackageProjectUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>

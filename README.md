@@ -2,11 +2,24 @@
   
 # 🐎 FiMSharp
 
-<a href="#">
-  <img src="https://img.shields.io/badge/release-v0.4--dev-blue">  
-</a>
-
 > FiMSharp is a [FiM++](https://esolangs.org/wiki/FiM%2B%2B) interpreter library written in C#.
+
+<br>
+
+<div>
+	<a href="https://github.com/Jaezmien/FiMSharp">
+		<img
+			alt="GitHub release (latest by date)"
+			src="https://img.shields.io/github/v/release/Jaezmien/FiMSharp?label=Latest%20Release&style=for-the-badge"
+		>
+	</a>
+	<a href="https://www.nuget.org/packages/FiMSharp/">
+		<img
+			alt="Nuget"
+			src="https://img.shields.io/nuget/v/FiMSharp?style=for-the-badge"
+		>
+	</a>
+</div>
 
 </div>
 
