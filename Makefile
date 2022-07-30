@@ -17,3 +17,6 @@ darwin:
 
 nuget:
 	dotnet pack FiMSharp -o bin/ -c Release
+
+test:
+	dotnet run --project FiMSharp.Test -c Release
