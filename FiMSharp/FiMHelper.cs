@@ -106,9 +106,9 @@ namespace FiMSharp
 			if (type == KirinVariableType.CHAR) return '\0';
 			if (type == KirinVariableType.NUMBER) return 0.0d;
 			if (type == KirinVariableType.BOOL) return false;
-			if (type == KirinVariableType.STRING_ARRAY) return new Dictionary<int, object>();
-			if (type == KirinVariableType.NUMBER_ARRAY) return new Dictionary<int, object>();
-			if (type == KirinVariableType.BOOL_ARRAY) return new Dictionary<int, object>();
+			if (type == KirinVariableType.STRING_ARRAY) return new Dictionary<int, string>();
+			if (type == KirinVariableType.NUMBER_ARRAY) return new Dictionary<int, double>();
+			if (type == KirinVariableType.BOOL_ARRAY) return new Dictionary<int, bool>();
 
 			throw new Exception("Invalid type");
 		}

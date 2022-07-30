@@ -145,8 +145,8 @@ namespace FiMSharp.Kirin
 			}
 			else
 			{
-				var list = varArray.Value as Dictionary<int, object>;
-				var sortedKeys = list.Keys.ToArray().OrderBy(k => k).ToArray();
+				var list = varArray.Value as System.Collections.IDictionary;
+				var sortedKeys = list.Keys.Cast<int>().ToArray().OrderBy(k => k).ToArray();
 
 				report.Variables.PushVariable(new FiMVariable(this.VariableName, list[sortedKeys[0]]));
 				foreach ( int k in sortedKeys ) {

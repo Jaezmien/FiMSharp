@@ -58,10 +58,10 @@ namespace FiMSharp.Kirin
 			if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
 				throw new Exception("Variable " + this.LeftOp + " is not an array");
 
-			var index = new KirinValue(this.RawIndex, report);
-			if (index.Type != KirinVariableType.NUMBER)
-				throw new Exception("Invalid index " + index.Value);
-			var iValue = Convert.ToInt32(index.Value);
+			var kIndex = new KirinValue(this.RawIndex, report);
+			if (kIndex.Type != KirinVariableType.NUMBER)
+				throw new Exception("Invalid index " + kIndex.Value);
+			var iValue = Convert.ToInt32(kIndex.Value);
 
 			var value = new KirinValue(this.RightOp, report);
 			
@@ -79,7 +79,23 @@ namespace FiMSharp.Kirin
 				if (!FiMHelper.IsTypeOfArray(value.Type, (KirinArrayType)variable.Type))
 					throw new Exception("Invalid array modify value");
 
-				(variable.Value as Dictionary<int, object>)[Convert.ToInt32(index.Value)] = value.Value;
+				dynamic dict;
+				int index = Convert.ToInt32(kIndex.Value);
+				if ( variable.Type == KirinVariableType.STRING_ARRAY )
+				{
+					dict = variable.Value as Dictionary<int, string>;
+					dict[index] = Convert.ToString(value.Value);
+				}
+				else if( variable.Type == KirinVariableType.NUMBER_ARRAY )
+				{
+					dict = variable.Value as Dictionary<int, double>;
+					dict[index] = Convert.ToDouble(value.Value);
+				}
+				else if( variable.Type == KirinVariableType.BOOL_ARRAY )
+				{
+					dict = variable.Value as Dictionary<int, bool>;
+					dict[index] = Convert.ToBoolean(value.Value);
+				}
 			}
 
 			;
