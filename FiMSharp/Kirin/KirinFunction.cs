@@ -28,8 +28,6 @@ namespace FiMSharp.Kirin
 
 		public List<KirinFunctionArgument> Arguments;
 		public bool IsMain;
-		public int Start;
-		public int Length;
 		public KirinStatement Statement;
 
 		public override object Execute(FiMReport report, params object[] args)
