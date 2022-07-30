@@ -33,7 +33,7 @@ namespace FiMSharp.Kirin
 		public override object Execute(FiMReport report)
 		{
 			if (!report.Variables.Exists(this.LeftOp))
-				throw new Exception("Variable " + this.LeftOp + " does not exist");
+				throw new FiMException("Variable " + this.LeftOp + " does not exist");
 			var kValue = new KirinValue(this.RightOp, report);
 			report.Variables.Get(this.LeftOp).Value = kValue.Value;
 			return null;

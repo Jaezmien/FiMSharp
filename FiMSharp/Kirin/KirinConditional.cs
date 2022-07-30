@@ -156,7 +156,7 @@ namespace FiMSharp.Kirin
 				var rvt = FiMHelper.AsVariableType(rv);
 
 				if (FiMHelper.IsTypeArray(lvt) || FiMHelper.IsTypeArray(rvt))
-					throw new Exception("Cannot execute conditional with an array");
+					throw new FiMException("Cannot execute conditional with an array");
 
 				if (this.Condition == "==") return IsEqual(lv, rv);
 				if (this.Condition == "!=") return !IsEqual(lv, rv);
@@ -165,7 +165,7 @@ namespace FiMSharp.Kirin
 
 				if (lvt != KirinVariableType.NUMBER ||
 					rvt != KirinVariableType.NUMBER)
-					throw new Exception("Expected number value in conditional");
+					throw new FiMException("Expected number value in conditional");
 				
 
 				double lvd = Convert.ToDouble(lv);
@@ -176,7 +176,7 @@ namespace FiMSharp.Kirin
 					case "<=": return lvd <= rvd;
 					case ">":  return lvd >  rvd;
 					case "<":  return lvd <  rvd;
-					default: throw new Exception("Invalid expression " + this.Condition);
+					default: throw new FiMException("Invalid expression " + this.Condition);
 				}
 			}
 		}

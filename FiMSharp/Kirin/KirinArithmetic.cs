@@ -121,7 +121,7 @@ namespace FiMSharp.Kirin
                     case "*": return Left.Eval(report) * Right.Eval(report);
                     case "/": return Left.Eval(report) / Right.Eval(report);
                     case "%": return Left.Eval(report) % Right.Eval(report);
-                    default: throw new Exception("Invalid expression " + this.Expression);
+                    default: throw new FiMException("Invalid expression " + this.Expression);
                 }
             }
         }
@@ -131,7 +131,7 @@ namespace FiMSharp.Kirin
             public override double Eval(FiMReport report)
             {
                 var value = new KirinValue(this.RawValue, report);
-                if (value.Type != KirinVariableType.NUMBER) throw new Exception("Cannot do arithmetic on a non-number value");
+                if (value.Type != KirinVariableType.NUMBER) throw new FiMException("Cannot do arithmetic on a non-number value");
                 return Convert.ToDouble(value.Value);
             }
         }

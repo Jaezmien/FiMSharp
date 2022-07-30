@@ -83,7 +83,7 @@ namespace FiMSharp.Kirin
 					break;
 				}
 
-				if (si == nodes.Length - 1) throw new Exception($"Failed to find end of statement");
+				if (si == nodes.Length - 1) throw new FiMException($"Failed to find end of statement");
 
 				statementNodes.Add(subnode);
 			}
@@ -121,11 +121,11 @@ namespace FiMSharp.Kirin
 		public override object Execute(FiMReport report)
 		{
 			if (report.Variables.Exists(this.VariableName))
-				throw new Exception("Variable " + this.VariableName + " already exists");
+				throw new FiMException("Variable " + this.VariableName + " already exists");
 
 			var varArray = new KirinValue(this.RawValue, report);
 			if (!FiMHelper.IsTypeArray(varArray.Type) && varArray.Type != KirinVariableType.STRING)
-				throw new Exception("Expected type array on for-in loops");
+				throw new FiMException("Expected type array on for-in loops");
 
 			if(varArray.Type == KirinVariableType.STRING)
 			{
@@ -205,7 +205,7 @@ namespace FiMSharp.Kirin
 
 			var eType = FiMHelper.DeclarationType.Determine(" " + node.VariableName, out string eKeyword);
 			if (eType != KirinVariableType.NUMBER)
-				throw new Exception("Expected type number in a for-to loop");
+				throw new FiMException("Expected type number in a for-to loop");
 
 			if(ToBy.IsMatch(node.RawTo))
 			{
@@ -224,13 +224,13 @@ namespace FiMSharp.Kirin
 		public override object Execute(FiMReport report)
 		{
 			if (report.Variables.Exists(this.VariableName))
-				throw new Exception("Variable " + this.VariableName + " already exists");
+				throw new FiMException("Variable " + this.VariableName + " already exists");
 
 			var varFrom = new KirinValue(this.RawFrom, report);
 			var varTo = new KirinValue(this.RawTo, report);
 
 			if(varFrom.Type != KirinVariableType.NUMBER || varTo.Type != KirinVariableType.NUMBER)
-				throw new Exception("Expected type number on for-to loops");
+				throw new FiMException("Expected type number on for-to loops");
 
 			var valFrom = Convert.ToDouble(varFrom.Value);
 			var valTo = Convert.ToDouble(varTo.Value);
@@ -240,7 +240,7 @@ namespace FiMSharp.Kirin
 			{
 				var varInterval = new KirinValue(this.RawInterval, report);
 				if (varInterval.Type != KirinVariableType.NUMBER)
-					throw new Exception("Expected tpye number of for-to interval");
+					throw new FiMException("Expected tpye number of for-to interval");
 				interval = Convert.ToDouble(varInterval.Value);
 			}
 			else
@@ -301,7 +301,7 @@ namespace FiMSharp.Kirin
 			string condition = match.Groups[1].Value;
 
 			if (!KirinConditional.IsConditional(condition, out var cResult))
-				throw new Exception("Expression is not a conditional");
+				throw new FiMException("Expression is not a conditional");
 
 			var node = new KirinWhileLoop(start, length) { Condition = cResult };
 
@@ -312,7 +312,7 @@ namespace FiMSharp.Kirin
 		public override object Execute(FiMReport report)
 		{
 			if (this.Statement == null)
-				throw new Exception("While loop has no statement");
+				throw new FiMException("While loop has no statement");
 
 			var conditional = new KirinConditional(Condition);
 			while (conditional.GetValue(report) == true)

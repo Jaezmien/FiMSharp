@@ -38,7 +38,7 @@ namespace FiMSharp.Kirin
 			if( this.ExpectedType != KirinVariableType.UNKNOWN )
 			{
 				if (value.Type != this.ExpectedType)
-					throw new Exception("Expected " + this.ExpectedType.AsNamedString() +
+					throw new FiMException("Expected " + this.ExpectedType.AsNamedString() +
 						", got " + value.Type.AsNamedString());
 			}
 			return value.Value;

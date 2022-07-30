@@ -19,36 +19,36 @@ namespace FiMSharp.Kirin
 
 		public void AddCase(KirinStatement statement, string rawIndex)
 		{
-			if (this.Complete) throw new Exception("Expected end of switch statement");
-			if (this.Cases.ContainsKey(rawIndex)) throw new Exception("Case " + rawIndex +" already exists");
+			if (this.Complete) throw new FiMException("Expected end of switch statement");
+			if (this.Cases.ContainsKey(rawIndex)) throw new FiMException("Case " + rawIndex +" already exists");
 			this.Cases[rawIndex] = statement;
 		}
 		public void AddCase(KirinStatement statement)
 		{
-			if (this.Complete) throw new Exception("Expected end of switch statement");
+			if (this.Complete) throw new FiMException("Expected end of switch statement");
 			this.Complete = true;
 			this.DefaultCase = statement;
 		}
 
 		public override object Execute(FiMReport report)
 		{
-			if (!this.Complete) throw new Exception("Executing an incomplete switch statement");
+			if (!this.Complete) throw new FiMException("Executing an incomplete switch statement");
 
 			if (!report.Variables.Exists(this.RawVariable))
-				throw new Exception("Varible " + this.RawVariable + " does not exist");
+				throw new FiMException("Varible " + this.RawVariable + " does not exist");
 
 			var variable = report.Variables.Get(this.RawVariable);
 			if (FiMHelper.IsTypeArray(variable))
-				throw new Exception("Cannot use array on a switch");
+				throw new FiMException("Cannot use array on a switch");
 
 			Dictionary<object, string> CasesLookup = new Dictionary<object, string>();
 			foreach(var key in Cases.Keys)
 			{
 				if (!KirinSwitchCase.IsValidPlace(key, report, out object value))
-					throw new Exception("Invalid case " + key);
+					throw new FiMException("Invalid case " + key);
 
 				if(CasesLookup.Keys.Any(k => KirinValue.IsEqual(k, value)))
-					throw new Exception("Duplicate case value " + key);
+					throw new FiMException("Duplicate case value " + key);
 
 				CasesLookup.Add(value, key);
 			}
@@ -107,7 +107,7 @@ namespace FiMSharp.Kirin
 				else
 				{
 					if (currentCase == string.Empty && !isDefault)
-						throw new Exception("Switch case not found");
+						throw new FiMException("Switch case not found");
 
 					subStatement.Add(subnode);
 				}
@@ -164,14 +164,14 @@ namespace FiMSharp.Kirin
 			string placementSuffix = match.Groups[2].Value;
 			if( index % 100 >= 10 && index % 100 <= 19 )
 			{
-				if (placementSuffix != "th") throw new Exception("Invalid placement suffix");
+				if (placementSuffix != "th") throw new FiMException("Invalid placement suffix");
 			}
 			else
 			{
 				string[] suffix = new string[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
 				int lastNumber = Convert.ToInt32(index.ToString().Substring(index.ToString().Length - 1, 1));
 
-				if (suffix[lastNumber] != placementSuffix) throw new Exception("Invalid placement suffix");
+				if (suffix[lastNumber] != placementSuffix) throw new FiMException("Invalid placement suffix");
 			}
 
 			return true;
@@ -186,8 +186,8 @@ namespace FiMSharp.Kirin
 			if( report.Variables.Exists(place) )
 			{
 				var variable = report.Variables.Get(place);
-				if (!variable.Constant) throw new Exception("Cannot use a non-constant variable as a case");
-				if (FiMHelper.IsTypeArray(variable.Type)) throw new Exception("Can only use non-array variables as a case");
+				if (!variable.Constant) throw new FiMException("Cannot use a non-constant variable as a case");
+				if (FiMHelper.IsTypeArray(variable.Type)) throw new FiMException("Can only use non-array variables as a case");
 
 				index = variable.Value;
 				return true;

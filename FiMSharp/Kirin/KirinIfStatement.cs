@@ -31,7 +31,7 @@ namespace FiMSharp.Kirin
 		public void AddCondition(string condition, KirinStatement statement)
 		{
 			if (this.Complete)
-				throw new Exception("Expected end of if statement");
+				throw new FiMException("Expected end of if statement");
 
 			if( condition == string.Empty )
 			{
@@ -40,7 +40,7 @@ namespace FiMSharp.Kirin
 			}
 
 			if (!KirinConditional.IsConditional(condition, out var result))
-				throw new Exception("Expression is not a conditional");
+				throw new FiMException("Expression is not a conditional");
 
 			Conditions.Add(new KirinConditionStatement()
 			{
@@ -50,7 +50,7 @@ namespace FiMSharp.Kirin
 		}
 		public override object Execute(FiMReport report)
 		{
-			if (!this.Complete) throw new Exception("Executing an incomplete if statement");
+			if (!this.Complete) throw new FiMException("Executing an incomplete if statement");
 
 			foreach (var cS in Conditions)
 			{
@@ -85,7 +85,7 @@ namespace FiMSharp.Kirin
 					{
 						statement.AddCondition(currentCondition, conditionStatement);
 					}
-					catch (Exception ex)
+					catch (FiMException ex)
 					{
 						throw new Exception(ex.Message + " at line " +
 							FiMHelper.GetIndexPair(content, conditionNode.Start).Line);
@@ -107,7 +107,7 @@ namespace FiMSharp.Kirin
 				{
 					statement.AddCondition(currentCondition, conditionStatement);
 				}
-				catch (Exception ex)
+				catch (FiMException ex)
 				{
 					throw new Exception(ex.Message + " at line " +
 						FiMHelper.GetIndexPair(content, conditionNode.Start).Line);
@@ -117,7 +117,7 @@ namespace FiMSharp.Kirin
 			statement.SetComplete(startNode.Start, endNode.Start + endNode.Length);
 
 			if (statement.Count == 0)
-				throw new Exception("If Statement has empty conditions");
+				throw new FiMException("If Statement has empty conditions");
 
 			return statement;
 		}
@@ -169,11 +169,11 @@ namespace FiMSharp.Kirin
 			{
 				var matchStr = match.Groups[1].Value.Substring(1);
 				var startStr = matchStr[0].ToString();
-				if (startStr != startStr.ToLower()) throw new Exception("Invalid else if statement");
+				if (startStr != startStr.ToLower()) throw new FiMException("Invalid else if statement");
 				if (!KirinIfStatementStart.TryParse(
 					matchStr.Substring(0,1).ToUpper() + matchStr.Substring(1), start, length, out var ifResult)
 				)
-					throw new Exception("Invalid else if statement");
+					throw new FiMException("Invalid else if statement");
 
 				node.RawCondition = (ifResult as KirinIfStatementStart).RawCondition;
 			}

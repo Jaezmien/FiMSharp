@@ -66,16 +66,12 @@ namespace FiMSharp
 				throw new Exception("Variable " + Variables + " already exists");
 			this.Variables.PushGlobalVarible(new FiMVariable(name, value));
 		}
-
-		private void AddMethod(KirinBaseFunction node)
+		public void AddMethod(string name, Delegate func)
 		{
+			var node = new KirinInternalFunction(name, func);
 			if (this.Paragraphs.FindIndex(p => p.Name == node.Name) != -1)
 				throw new Exception("Paragraph " + node.Name + " already exists");
 			this.Paragraphs.Add(new FiMParagraph(this, node));
-		}
-		public void AddMethod(string name, Delegate func)
-		{
-			this.AddMethod(new KirinInternalFunction(name, func));
 		}
 
 		public string GetLine(int start, int length)

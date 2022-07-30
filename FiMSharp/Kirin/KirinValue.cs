@@ -41,7 +41,7 @@ namespace FiMSharp.Kirin
 			}
 			set
 			{
-				if (Constant) throw new Exception("Cannot modify a const variable");
+				if (Constant) throw new FiMException("Cannot modify a const variable");
 				if (FiMHelper.AsVariableType(value) == this.Type)
 				{
 					this._Value = value;
@@ -54,7 +54,7 @@ namespace FiMSharp.Kirin
 					}
 					else
 					{
-						throw new Exception("Expected " + this.Type.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
+						throw new FiMException("Expected " + this.Type.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
 					}
 				}
 			}
@@ -70,7 +70,7 @@ namespace FiMSharp.Kirin
 				}
 				else
 				{
-					if (this.ForcedType == null) throw new Exception("Value is null");
+					if (this.ForcedType == null) throw new FiMException("Value is null");
 					this._Value = FiMHelper.GetDefaultValue((KirinVariableType)this.ForcedType);
 				}
 			}
@@ -94,7 +94,7 @@ namespace FiMSharp.Kirin
 				}
 
 				if (eType != KirinVariableType.UNKNOWN && FiMHelper.AsVariableType(value) != eType)
-					throw new Exception("Expected " + eType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
+					throw new FiMException("Expected " + eType.AsNamedString() + ", got " + FiMHelper.AsVariableType(value));
 				this._Value = value;
 			}
 			return this;
@@ -170,11 +170,11 @@ namespace FiMSharp.Kirin
 				}
 
 				if (report.Paragraphs.FindIndex(v => v.Name == pName) == -1)
-					throw new Exception("Paragraph " + pName + " not found");
+					throw new FiMException("Paragraph " + pName + " not found");
 
 				var paragraph = report.Paragraphs.Find(v => v.Name == pName);
 				if (paragraph.ReturnType == KirinVariableType.UNKNOWN)
-					throw new Exception("Paragraph returns nothing");
+					throw new FiMException("Paragraph returns nothing");
 				returnedType = paragraph.ReturnType;
 				return paragraph.Execute(args);
 			}
@@ -186,9 +186,9 @@ namespace FiMSharp.Kirin
 				var args = KirinFunctionCall.ParseCallArguments(evaluatable, report);
 
 				if (!FiMHelper.IsTypeOfArray(args[0].Type, (KirinArrayType)expectedType))
-					throw new Exception("Invalid list value type");
+					throw new FiMException("Invalid list value type");
 				if (!args.All(a => a.Type == args[0].Type))
-					throw new Exception("Unidentical list value type");
+					throw new FiMException("Unidentical list value type");
 
 				int i = 1;
 				if( expectedType == KirinVariableType.STRING_ARRAY )
@@ -216,11 +216,11 @@ namespace FiMSharp.Kirin
 			{
 				var match = Regex.Match(evaluatable, @"^count of (.+)");
 				string varName = match.Groups[1].Value;
-				if (!report.Variables.Exists(varName)) throw new Exception("Variable " + varName + " does not exist");
+				if (!report.Variables.Exists(varName)) throw new FiMException("Variable " + varName + " does not exist");
 				var variable = report.Variables.Get(varName);
 
 				if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
-					throw new Exception("Cannot get count of a non-array variable");
+					throw new FiMException("Cannot get count of a non-array variable");
 
 				returnedType = KirinVariableType.NUMBER;
 				if (variable.Type == KirinVariableType.STRING)
@@ -243,14 +243,14 @@ namespace FiMSharp.Kirin
 				{
 					string strIndex = match.Groups[1].Value;
 					var varIndex = new KirinValue(strIndex, report);
-					if (varIndex.Type != KirinVariableType.NUMBER) throw new Exception("Invalid index value");
+					if (varIndex.Type != KirinVariableType.NUMBER) throw new FiMException("Invalid index value");
 					int index = Convert.ToInt32(varIndex.Value);
 
 					string strVar = match.Groups[3].Value;
-					if (!report.Variables.Exists(strVar)) throw new Exception("Variable " + strVar + " does not exist");
+					if (!report.Variables.Exists(strVar)) throw new FiMException("Variable " + strVar + " does not exist");
 					var variable = report.Variables.Get(strVar);
 					if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
-						throw new Exception("Cannot index a non-array variable");
+						throw new FiMException("Cannot index a non-array variable");
 
 					if (variable.Type == KirinVariableType.STRING)
 					{
@@ -352,7 +352,7 @@ namespace FiMSharp.Kirin
 				return finalValue.ToString();
 			}
 
-			throw new Exception("Cannot evaluate " + evaluatable);
+			throw new FiMException("Cannot evaluate " + evaluatable);
 		}
 		public static bool ValidateName(string name)
 		{
@@ -398,7 +398,7 @@ namespace FiMSharp.Kirin
 
 	public class KirinLiteral
 	{
-		private readonly static Regex StringCheck = new Regex("^\"[^\"]+\"$");
+		private readonly static Regex StringCheck = new Regex("^\"(.+)\"$");
 		private static class Boolean
 		{
 			public static readonly string[] True = { "correct", "right", "true", "yes" };
@@ -417,9 +417,12 @@ namespace FiMSharp.Kirin
 		}
 		public static bool TryParse(string content, out object result)
 		{
+			result = null;
+
 			if (StringCheck.IsMatch(content))
 			{
 				string str = content.Substring(1, content.Length - 2);
+				if (Regex.IsMatch(str, @"(?<!\\)""")) return false;
 				var sb = new StringBuilder();
 				for (int i = 0; i < str.Length; i++)
 				{
@@ -463,7 +466,6 @@ namespace FiMSharp.Kirin
 				return true;
 			}
 
-			result = null;
 			return false;
 		}
 	}

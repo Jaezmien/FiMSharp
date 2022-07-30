@@ -55,24 +55,12 @@ namespace FiMSharp
 			if (type == typeof(Dictionary<int, double>) || type == typeof(Dictionary<int, int>)) return KirinVariableType.NUMBER_ARRAY;
 			if (type == typeof(Dictionary<int, bool>)) return KirinVariableType.BOOL_ARRAY;
 
-			if (strict) throw new Exception("Cannot determine variable type");
+			if (strict) throw new FiMException("Cannot determine variable type");
 			return KirinVariableType.UNKNOWN;
 		}
 		public static KirinVariableType AsVariableType(object value, bool strict = false)
 		{
 			var type =  AsVariableType(value.GetType(), strict);
-			if( type == KirinVariableType.UNKNOWN )
-			{
-				if( value.GetType() == typeof(Dictionary<int, object>) )
-				{
-					var array = value as Dictionary<int, object>;
-					var firstValue = array.Values.First();
-
-					if( firstValue.GetType() == typeof(string) ) return KirinVariableType.STRING_ARRAY;
-					if (firstValue.GetType() == typeof(double) ) return KirinVariableType.NUMBER_ARRAY;
-					if (firstValue.GetType() == typeof(bool) ) return KirinVariableType.BOOL_ARRAY;
-				}
-			}
 			return type;
 		}
 
@@ -110,7 +98,7 @@ namespace FiMSharp
 			if (type == KirinVariableType.NUMBER_ARRAY) return new Dictionary<int, double>();
 			if (type == KirinVariableType.BOOL_ARRAY) return new Dictionary<int, bool>();
 
-			throw new Exception("Invalid type");
+			throw new FiMException("Invalid type");
 		}
 		public static object GetDefaultValue(Type type)
 		{
@@ -170,7 +158,7 @@ namespace FiMSharp
 					return KirinVariableType.STRING;
 				}
 
-				if( strict ) throw new Exception("Cannot determine initialization type");
+				if( strict ) throw new FiMException("Cannot determine initialization type");
 				return KirinVariableType.UNKNOWN;
 			}
 		}

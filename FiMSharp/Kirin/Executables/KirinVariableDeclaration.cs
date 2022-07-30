@@ -30,7 +30,7 @@ namespace FiMSharp.Kirin
 					return word;
 				}
 
-				throw new Exception("Cannot determine Initialization Keyword");
+				throw new FiMException("Cannot determine Initialization Keyword");
 			}
 		}
 
@@ -69,7 +69,7 @@ namespace FiMSharp.Kirin
 		public override object Execute(FiMReport report)
 		{
 			if (report.Variables.Exists(this.Name))
-				throw new Exception("Variable " + this.Name + " already exists");
+				throw new FiMException("Variable " + this.Name + " already exists");
 
 			KirinValue value;
 			// if( FiMHelper.IsTypeArray(this.ExpectedType) || this.RawValue == null )
@@ -82,7 +82,7 @@ namespace FiMSharp.Kirin
 			else
 			{
 				if (value.Type != this.ExpectedType)
-					throw new Exception("Expected " + this.ExpectedType.AsNamedString() +
+					throw new FiMException("Expected " + this.ExpectedType.AsNamedString() +
 						", got " + value.Type.AsNamedString());
 			}
 			value.Constant = Constant;

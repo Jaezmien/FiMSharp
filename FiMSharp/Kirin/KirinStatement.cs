@@ -1,4 +1,6 @@
-﻿#define HIDE_ERROR
+﻿#if DEBUG
+#define HIDE_ERROR
+#endif
 
 using System;
 using System.Collections.Generic;
@@ -44,11 +46,11 @@ namespace FiMSharp.Kirin
 					if(node.GetType().IsSubclassOf(typeof(KirinNode)) || node.GetType() == typeof(KirinNode))
 					{
 						var no = (KirinNode)node;
-						throw new Exception($"Paragraph contains a non-KirinExecutable node (Line: '{report.GetLine(no.Start, no.Length)}')");
+						throw new FiMException($"Paragraph contains a non-KirinExecutable node (Line: '{report.GetLine(no.Start, no.Length)}')");
 					}
 					else
 					{
-						throw new Exception($"Paragraph contains a non-KirinExecutable node ('{node.NodeType}')");
+						throw new FiMException($"Paragraph contains a non-KirinExecutable node ('{node.NodeType}')");
 					}
 				}
 				var n = (KirinExecutableNode)node;
@@ -63,7 +65,7 @@ namespace FiMSharp.Kirin
 				{
 					r = n.Execute(report);
 				}
-				catch(Exception err)
+				catch(FiMException err)
 				{
 					throw new Exception(err.Message + " at line " + FiMHelper.GetIndexPair(report.Report, n.Start).Line);
 				}

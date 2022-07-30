@@ -37,15 +37,15 @@ namespace FiMSharp.Kirin
 		public override object Execute(FiMReport report)
 		{
 			if (!report.Variables.Exists(this.RawVariable))
-				throw new Exception("Variable " + this.RawVariable + " does not exist");
+				throw new FiMException("Variable " + this.RawVariable + " does not exist");
 
 			var variable = report.Variables.Get(this.RawVariable);
 			if (variable.Type != KirinVariableType.NUMBER)
 			{
 				if (this.Increment)
-					throw new Exception("Cannot apply unary increment on a non-number variable");
+					throw new FiMException("Cannot apply unary increment on a non-number variable");
 				else
-					throw new Exception("Cannot apply unary decrement on a non-number variable");
+					throw new FiMException("Cannot apply unary decrement on a non-number variable");
 			}
 
 			if (this.Increment)

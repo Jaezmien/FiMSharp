@@ -2,7 +2,9 @@
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+#if DEBUG
 using System.Linq;
+#endif
 
 namespace FiMSharp.Test
 {
@@ -25,11 +27,13 @@ namespace FiMSharp.Test
 
 		static void Main(string[] args)
 		{
-			/*if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
-			else if (args.Any(a => a == "--test-all")) ReportTests.RunAll();
-			else RunDebugReport();*/
-
+#if RELEASE
 			ReportTests.RunAll();
+#else
+			if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
+			else if (args.Any(a => a == "--test-all")) ReportTests.RunAll();
+			else RunDebugReport();
+#endif
 		}
 	}
 	class ReportTests

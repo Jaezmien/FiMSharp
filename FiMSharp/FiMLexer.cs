@@ -42,8 +42,7 @@ namespace FiMSharp
 				for( int i = nodes.FindIndex(n => n.NodeType == "KirinProgramEnd") + 1; i < nodes.Count; i++ )
 				{
 					if (nodes[i].NodeType != "KirinPostScript")
-						throw new Exception("Expected EOR at line " +
-							FiMHelper.GetIndexPair(content, (nodes[i] as KirinNode).Start).Line);
+						throw new Exception($"Expected EOR at line {FiMHelper.GetIndexPair(content, (nodes[i] as KirinNode).Start).Line}");
 				}
 			}
 
@@ -109,7 +108,7 @@ namespace FiMSharp
 					default:
 						{
 							var line = FiMHelper.GetIndexPair(content, node.Start).Line;
-							throw new Exception($"Illegal report body node at line {line}  - {node.NodeType}");
+							throw new Exception($"Illegal report body node at line {line}");
 						}
 				}
 			}
@@ -157,7 +156,7 @@ namespace FiMSharp
 					case "KirinLoopEnd":
 						{
 							var line = FiMHelper.GetIndexPair(content, node.Start).Line;
-							throw new Exception($"Illegal report body node at line {line}  - {node.NodeType}");
+							throw new Exception($"Illegal statement node at line {line}");
 						}
 
 					case "KirinIfStatementStart":

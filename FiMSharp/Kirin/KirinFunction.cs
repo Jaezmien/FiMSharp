@@ -42,13 +42,13 @@ namespace FiMSharp.Kirin
 				for (int i = 0; i < this.Arguments.Count(); i++)
 				{
 					if (report.Variables.Exists(this.Arguments[i].Name))
-						throw new Exception("Variable name " + this.Arguments[i].Name + " already exists");
+						throw new FiMException("Variable name " + this.Arguments[i].Name + " already exists");
 
 					if (i < args.Length)
 					{
 						if (FiMHelper.AsVariableType(args[i]) != this.Arguments[i].Type)
 						{
-							throw new Exception("Expected " + this.Arguments[i].Type.AsNamedString()
+							throw new FiMException("Expected " + this.Arguments[i].Type.AsNamedString()
 								+ ", got " + FiMHelper.AsVariableType(args[i]).AsNamedString());
 						}
 
@@ -72,11 +72,11 @@ namespace FiMSharp.Kirin
 			report.Variables.PopStack();
 
 			if (result != null && this.Returns == null)
-				throw new Exception("Non-value returning function returned value");
+				throw new FiMException("Non-value returning function returned value");
 			if (result != null && this.Returns != null && this.Returns != KirinVariableType.UNKNOWN)
 			{
 				if (FiMHelper.AsVariableType(result) != this.Returns)
-					throw new Exception("Expected " + ((KirinVariableType)this.Returns).AsNamedString()
+					throw new FiMException("Expected " + ((KirinVariableType)this.Returns).AsNamedString()
 						+ ", got " + FiMHelper.AsVariableType(result).AsNamedString());
 
 				return result;
@@ -122,7 +122,7 @@ namespace FiMSharp.Kirin
 					if (i < args.Length)
 					{
 						if (FiMHelper.AsVariableType(args[i]) != this.Arguments[i])
-							throw new Exception("Expected " + this.Arguments[i].AsNamedString() + ", got " + FiMHelper.AsVariableType(args[i]).AsNamedString());
+							throw new FiMException("Expected " + this.Arguments[i].AsNamedString() + ", got " + FiMHelper.AsVariableType(args[i]).AsNamedString());
 						sanitizedArgs[i] = args[i];
 					}
 					else
@@ -143,11 +143,11 @@ namespace FiMSharp.Kirin
 			}
 
 			if (result != null && this.Returns == null)
-				throw new Exception("Non-value returning function returned value");
+				throw new FiMException("Non-value returning function returned value");
 			if (result != null && this.Returns != null && this.Returns != KirinVariableType.UNKNOWN)
 			{
 				if (FiMHelper.AsVariableType(result) != this.Returns)
-					throw new Exception("Expected " + ((KirinVariableType)this.Returns).AsNamedString()
+					throw new FiMException("Expected " + ((KirinVariableType)this.Returns).AsNamedString()
 						+ ", got " + FiMHelper.AsVariableType(result).AsNamedString());
 
 				return result;

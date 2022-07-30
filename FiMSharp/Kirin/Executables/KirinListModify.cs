@@ -52,15 +52,15 @@ namespace FiMSharp.Kirin
 		public override object Execute(FiMReport report)
 		{
 			if (!report.Variables.Exists(this.LeftOp))
-				throw new Exception("Variable " + this.LeftOp + " does not exist");
+				throw new FiMException("Variable " + this.LeftOp + " does not exist");
 
 			var variable = report.Variables.Get(this.LeftOp);
 			if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
-				throw new Exception("Variable " + this.LeftOp + " is not an array");
+				throw new FiMException("Variable " + this.LeftOp + " is not an array");
 
 			var kIndex = new KirinValue(this.RawIndex, report);
 			if (kIndex.Type != KirinVariableType.NUMBER)
-				throw new Exception("Invalid index " + kIndex.Value);
+				throw new FiMException("Invalid index " + kIndex.Value);
 			var iValue = Convert.ToInt32(kIndex.Value);
 
 			var value = new KirinValue(this.RightOp, report);
@@ -68,7 +68,7 @@ namespace FiMSharp.Kirin
 			if ( variable.Type == KirinVariableType.STRING )
 			{
 				if (value.Type != KirinVariableType.CHAR)
-					throw new Exception("Invalid array modify value");
+					throw new FiMException("Invalid array modify value");
 
 				var sb = new StringBuilder(variable.Value as string);
 				sb[iValue] = (char)variable.Value;
@@ -77,7 +77,7 @@ namespace FiMSharp.Kirin
 			else
 			{
 				if (!FiMHelper.IsTypeOfArray(value.Type, (KirinArrayType)variable.Type))
-					throw new Exception("Invalid array modify value");
+					throw new FiMException("Invalid array modify value");
 
 				dynamic dict;
 				int index = Convert.ToInt32(kIndex.Value);

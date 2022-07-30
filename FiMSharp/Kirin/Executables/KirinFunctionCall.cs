@@ -63,7 +63,7 @@ namespace FiMSharp.Kirin
 		public override object Execute(FiMReport report)
 		{
 			if (report.Paragraphs.FindIndex(v => v.Name == FunctionName) == -1)
-				throw new Exception("Cannot find paragraph " + FunctionName);
+				throw new FiMException("Cannot find paragraph " + FunctionName);
 			var p = report.Paragraphs.Find(v => v.Name == FunctionName);
 			var parameters = KirinFunctionCall.ParseCallArguments(this.RawParameters, report);
 			p.Execute(parameters.ToArray());
