@@ -1,156 +1,227 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
-using System.Diagnostics;
+#if DEBUG
+using System.Linq;
+#endif
 
-using FiMSharp;
-using FiMSharp.Javascript;
-
-using Mono.Options;
-
-namespace FiMSharpTest
+namespace FiMSharp.Test
 {
 	class Program
 	{
-		static void Main(params string[] args) { TestingMain(args); }
+		static void RunReport(string file)
+		{
+			string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+			string path = Path.GetFullPath(Path.Combine(currentDirectory, @"..\..\..\Reports", file));
+			FiMReport report = FiMReport.FromFile(path);
+			report.MainParagraph?.Execute();
+		}
+		static void RunDebugReport()
+		{
+			string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+			string path = Path.GetFullPath(Path.Combine(currentDirectory, @"..\..\..\", "debug.fim"));
+			FiMReport report = FiMReport.FromFile(path);
+			report.MainParagraph?.Execute();
+		}
 
-		public static void ExecuteReport(string[] lines, bool prettify)
+		static void Main(string[] args)
+		{
+#if RELEASE
+			ReportTests.RunAll();
+#else
+			if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
+			else if (args.Any(a => a == "--test-all")) ReportTests.RunAll();
+			else RunDebugReport();
+#endif
+		}
+	}
+	class ReportTests
+	{
+		public static void RunBasic()
+		{
+			Test("array.fim", new string[] { "Banana Cake", "Gala" });
+			Test("conditional.fim", new string[] {
+				"true == true",
+				"true == true && false == true",
+				"true == false || true == true",
+				"(true == false || false != true) && true == true",
+				"(false == false || false == true) && true != true",
+				"(false == false || true == true) && (true == true || true == false)"
+			});
+			Test("for loops.fim");
+			Test("hello.fim", new string[] { "Hello World!" });
+			Test("input.fim", new string[] { "Hello World!" }, new string[] { "Hello World!" });
+			Test("multiple parameters.fim", new string[] { "x", "1", "y", "0" });
+			Test("string index.fim", new string[] { "T", "w" });
+			Test("switch.fim", new string[] {
+				"That's impossible!",
+				"There must be a scientific explanation",
+				"There must be an explanation",
+				"Why does this happen?!",
+				"She's just being Pinkie Pie."
+			});
+		}
+		public static void RunAll()
+		{
+			Test("array.fim", new string[] { "Banana Cake", "Gala" });
+			// Test("brainfuck.fim", new string[] { "Hello World!" });
+			Test("bubblesort.fim", new string[] { "1", "2", "3", "4", "5", "7", "7" });
+			Test("cider.fim");
+			Test("conditional.fim", new string[] {
+				"true == true",
+				"true == true && false == true",
+				"true == false || true == true",
+				"(true == false || false != true) && true == true",
+				"(false == false || false == true) && true != true",
+				"(false == false || true == true) && (true == true || true == false)"
+			});
+			// Test("deadfish.fim", new string[] { "Hello world" });
+			// Test("digital root.fim", new string[] { "9" });
+			Test("disan.fim", new string[] {
+				"Insert a number",
+				"0 is divisible by 2!",
+				"2 is divisible by 2!",
+				"4 is divisible by 2!"
+			}, new string[] { "5" });
+			// e.fim
+			// Test("eratosthenes.fim", new string[] { "0", "2", "3", "5", "7", "11", "13", "17", "19" });
+			Test("factorial.fim", new string[] { "120" });
+			Test("fibonacci.fim", new string[] { "34" });
+			Test("fizzbuzz.fim");
+			Test("for loops.fim");
+			Test("hello.fim", new string[] { "Hello World!" });
+			Test("input.fim", new string[] { "Hello World!" }, new string[] { "Hello World!" });
+			Test("insertionsort.fim", new string[] { "1", "2", "3", "4", "5", "7", "7" });
+			Test("mississippis.fim");
+			Test("multiple parameters.fim", new string[] { "x", "1", "y", "0" });
+			Test("quicksort.fim", new string[] { "1", "2", "3", "4", "5", "7", "7" });
+			Test("recursion.fim", new string[] { "5", "4", "3", "2", "1" });
+			// Test("rot13.fim", new string[] { "Hello World!", "Uryyb Jbeyq!", "Hello World!" });
+			Test("string index.fim", new string[] { "T", "w" });
+			Test("sum.fim", new string[] { "5051" });
+			Test("switch.fim", new string[] {
+				"That's impossible!",
+				"There must be a scientific explanation",
+				"There must be an explanation",
+				"Why does this happen?!",
+				"She's just being Pinkie Pie."
+			});
+			// truth machine.fim
+		}
+
+		static string GetPathFromDir(string path)
+		{
+			string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+			return Path.GetFullPath(Path.Combine(currentDirectory, @"..\..\..\", path));
+		}
+
+		class EmptyWriter : TextWriter
+		{
+			public override void Write(string value) { }
+			public override void WriteLine(string value) { }
+
+			public override Encoding Encoding
+			{
+				get { return Encoding.Default; }
+			}
+		}
+		class TestWriter : TextWriter
+		{
+			public delegate void OnWrite(string msg);
+			public OnWrite onWriteEvent;
+			public override void Write(string value)
+			{
+				onWriteEvent?.Invoke(value);
+			}
+			public override void WriteLine(string value)
+			{
+				onWriteEvent?.Invoke(value);
+			}
+
+			public override Encoding Encoding
+			{
+				get { return Encoding.Default; }
+			}
+		}
+		class TestReader : TextReader
+		{
+			public delegate string OnInput();
+			public OnInput onInputEvent;
+			public override string ReadLine()
+			{
+				return onInputEvent.Invoke();
+			}
+		}
+		/// <summary>
+		/// Test if a report runs without throwing an error, also checks its outputs.
+		/// </summary>
+		public static void Test(string file, string[] expected, string[] input = null)
+		{
+			var w = new TestWriter();
+			int wI = 0;
+			List<string> errors = new List<string>();
+			w.onWriteEvent += (m) =>
+			{
+				if (wI >= expected.Length)
+				{
+					errors.Add($"Report outputted more messages than expected ({m})");
+					return;
+				}
+				if (m != expected[wI]) errors.Add($"Got '{m}', expected '{expected[wI]}'");
+				wI++;
+			};
+			var r = new TestReader();
+			int rI = 0;
+			r.onInputEvent += () =>
+			{
+				if (input == null) throw new Exception("Report asked for input while input is null");
+				string inp = input[rI];
+				rI++;
+				return inp;
+			};
+
+			try
+			{
+				FiMReport report = FiMReport.FromFile(GetPathFromDir($"Reports/{ file }"));
+				report.ConsoleOutput = w;
+				report.ConsoleInput = r;
+				Console.Write($"Running report '{file}'... ");
+				report.MainParagraph?.Execute();
+			}
+			catch (Exception err)
+			{
+				Console.WriteLine("failed");
+				throw new Exception("Report has thrown an error:\n\n" + err.ToString());
+			}
+
+			if (errors.Count > 0)
+			{
+				Console.WriteLine("failed");
+				throw new Exception($"Report '{file}' output contains errors:\n\n{string.Join("\n", errors)}");
+			}
+
+			Console.WriteLine("passes");
+		}
+		/// <summary>
+		/// Test if a report runs without throwing an error
+		/// </summary>
+		public static void Test(string file)
 		{
 			try
 			{
-				FiMReport report = new FiMReport(lines);
-				if (prettify)
-				{
-					Console.WriteLine("[ FiMSharp Test v0.3.3 ]");
-					Console.WriteLine($"Report Name: {report.ReportName}");
-					Console.WriteLine($"Student Name: {report.StudentName}");
-					Console.WriteLine("[@]=======================================[@]");
-				}
-				report.MainParagraph.Execute();
-				if (prettify)
-				{
-					Console.WriteLine("[@]=======================================[@]");
-				}
+				FiMReport report = FiMReport.FromFile(GetPathFromDir($"Reports/{ file }"));
+				report.ConsoleOutput = new EmptyWriter();
+				Console.Write($"Running report '{file}'... ");
+				report.MainParagraph?.Execute();
 			}
-			catch (FiMException exception)
+			catch (Exception err)
 			{
-				Console.WriteLine(exception.Message);
+				Console.WriteLine("failed");
+				throw new Exception($"Report '{file}' has thrown an error:\n\n{err.ToString()}");
 			}
-		}
-		public static string[] CompileReport(string[] lines)
-		{
-			FiMReport report = new FiMReport(lines);
-			return FiMJavascript.Parse(report);
-		}
 
-		public static bool FindReport(string report_name, out string[] lines)
-		{
-			if (File.Exists(report_name))
-			{
-				lines = File.ReadAllLines(report_name);
-				return true;
-			}
-			lines = new string[] { };
-			return false;
-		}
-		static object TestingMain(string[] args)
-		{
-			if (args.Length > 0)
-			{
-				string report_name = "";
-				string toJS = "";
-				bool prettify = false;
-				bool show_help = false;
-
-				OptionSet p = new OptionSet()
-					.Add("js=", "Converts the report into a Javascript file and outputs into {DIRECTORY}.", v => toJS = v)
-					.Add("tojs", "Converts the report into a Javascript file.", v => toJS = ".")
-					.Add("p|prettify", "Prettify console output.", v => prettify = true)
-					.Add("h|help", "Show this message and exit.", v => show_help = true);
-				List<string> extra = p.Parse(args);
-
-				if (show_help)
-				{
-					Console.WriteLine("Usage: FiMSharp.Test.exe [OPTIONS]+ reportDirectory");
-					Console.WriteLine("Interprets the specified FiM++ report.");
-					Console.WriteLine();
-					Console.WriteLine("Options:");
-					p.WriteOptionDescriptions(Console.Out);
-					return 0;
-				}
-
-				if (extra.Count > 0) report_name = extra[0];
-				if (string.IsNullOrEmpty(report_name) || !FindReport(report_name, out string[] report_lines))
-				{
-					Console.WriteLine("[Console] Invalid report " + report_name);
-					return 1;
-				}
-
-				try
-				{
-					report_name = Path.GetFullPath(report_name);
-				}
-				catch (UriFormatException)
-				{
-					Console.WriteLine("[Console] Invalid report path " + report_name);
-					return 1;
-				}
-				catch (Exception)
-				{
-					Console.WriteLine("[Console] Error while parsing report path " + report_name);
-					return 1;
-				}
-
-				string report_filename = Path.GetFileNameWithoutExtension(report_name);
-
-				Stopwatch s = new Stopwatch();
-				s.Start();
-
-				if (toJS.Length > 0)
-				{
-					string[] new_lines = CompileReport(report_lines);
-
-					string new_directory = "";
-					if (toJS.EndsWith(".js")) new_directory = toJS;
-					else
-					{
-						if (!Directory.Exists(toJS))
-						{
-							Console.WriteLine($"[Console] Invalid directory '{toJS}'");
-							return 1;
-						}
-						new_directory = (toJS.EndsWith("/") ? toJS.Substring(0, toJS.Length - 1) : toJS) + "/" + report_filename + ".js";
-					}
-
-					try
-					{
-						new_directory = Path.GetFullPath(new_directory);
-					}
-					catch (UriFormatException)
-					{
-						Console.WriteLine("[Console] Invalid js output path " + new_directory);
-						return 1;
-					}
-					catch (Exception)
-					{
-						Console.WriteLine("[Console] Error while parsing js output path " + new_directory);
-						return 1;
-					}
-
-					if (!File.Exists(new_directory)) File.Create(new_directory).Close();
-					File.WriteAllLines(new_directory, new_lines);
-					if (prettify) Console.WriteLine("[Debug] Code compilation took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
-				}
-				else
-				{
-					ExecuteReport(report_lines, prettify);
-					s.Stop();
-					if (prettify) Console.WriteLine("[Debug] Code execution took " + s.Elapsed.ToString(@"d\.hh\:mm\:ss\:fff"));
-				}
-
-				return 0;
-			}
-			return 0;
+			Console.WriteLine("passes");
 		}
 	}
 }

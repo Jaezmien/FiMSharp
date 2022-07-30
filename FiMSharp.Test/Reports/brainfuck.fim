@@ -1,0 +1,97 @@
+Dear Princess Celestia: Brainfuck!
+
+Did you know that Twilight is the word "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+."? (Hello World)
+Did you know that Princess Luna is many numbers? ("Dictionary", int > int )
+
+I learned whether the code works to get an argument.
+
+    Did you know that Spike is the number 0?
+    Did you know that Thorax is the number 1?
+
+    Did you know that Shining Armor is many numbers? (Stack)
+    Did you know that Trixie is the number 1? (Stack length)
+    
+    For every character Starlight in Twilight...
+
+        If Starlight is equal to '[' then,
+            Trixie of Shining Armor is Thorax. (Push current index to stack)
+            Trixie got one more.
+
+            Spike got one more.
+        Otherwise if Starlight is equal to ']' then,
+            Did you know that Pharynx is the number Trixie minus 1 of Shining Armor?
+
+            Thorax of Princess Luna is Pharynx. (Set both-way index in Dictionary)
+            Pharynx of Princess Luna is Thorax.
+
+            Trixie of Shining Armor is nothing. (Pop stack)
+            Trixie got one less.
+
+            Spike got one less.
+        That's what I would do.
+
+        Thorax got one more.
+
+    That's what I did.
+    
+    Then you get Spike is 0!
+
+That's all about whether the code works.
+
+I learned how to interpret brainfuck.
+
+    Did you know that Trixie is the word nothing? (Output string)
+    Did you know that Applejack is the number 1? (Input Pointer)
+    Did you know that Fluttershy is many numbers? (Memory Blocks)
+    Did you know that Pinkie Pie is the number 1? (Memory Pointer)
+
+    As long as Applejack had no more than length of Twilight,
+        Did you know that Rainbow Dash is the letter Applejack of Twilight?
+
+        If Rainbow Dash is equal to '>' then,
+            Pinkie Pie got one more.
+        Otherwise if Rainbow Dash is equal to '<' then,
+            Pinkie Pie got one less.
+        Otherwise if Rainbow Dash is equal to '+' then,
+            Pinkie Pie of Fluttershy got one more.
+        Otherwise if Rainbow Dash is equal to '-' then,
+            Pinkie Pie of Fluttershy got one less.
+        Otherwise if Rainbow Dash is equal to '.' then,
+            Did you know that Spike is the letter char of num Pinkie Pie of Fluttershy. (Spike will hold this temporarily, this is an interpreter limit.)
+            Trixie became Trixie""Spike.
+        Otherwise if Rainbow Dash is equal to ',' then,
+            Did you know that Spike is the letter nothing?
+            I asked Spike.
+            If Spike was not nothing then,
+                Pinkie Pie of Fluttershy is num of char Spike.
+            That's what I would do.
+        Otherwise if Rainbow Dash is equal to '[' then,
+            If Pinkie Pie of Fluttershy is equal to 0 then,
+                Applejack became Applejack of Princess Luna.
+            That's what I would do.
+        Otherwise if Rainbow Dash is equal to ']' then,
+            If Pinkie Pie of Fluttershy is not 0 then,
+                Applejack became Applejack of Princess Luna.
+            That's what I would do.
+        That's what I would do.
+
+        Applejack got one more.
+    That's what I did.
+
+    If Trixie is not nothing then,
+        I said Trixie!
+    That's what I would do.
+
+That's all about how to interpret brainfuck.
+
+Today I learned how to start interpreting brainfuck.
+
+    If whether the code works is correct then,
+        I remembered how to interpret brainfuck.
+    Otherwise,
+        I said "Oh no! There's a mismatched bracket somewhere in the code!".
+    That's what I would do.
+
+That's all about how to start interpreting brainfuck.
+
+Your faithful student, Jaezmien Naejara.

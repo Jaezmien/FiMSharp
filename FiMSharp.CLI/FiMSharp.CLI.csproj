@@ -1,16 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>FiMSharp</RootNamespace>
-    <Version>0.4.0</Version>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>fim</AssemblyName>
     <Authors>Jaezmien Naejara</Authors>
-    <Description>FiMSharp is a FiM++ interpreter library written in C#</Description>
     <Company />
     <PackageTags>fimpp, fim++</PackageTags>
     <RepositoryUrl>https://github.com/Jaezmien/FiMSharp</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Jaezmien/FiMSharp</PackageProjectUrl>
-	<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -19,7 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <ProjectReference Include="..\FiMSharp\FiMSharp.csproj" />
+    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
   </ItemGroup>
 
 </Project>

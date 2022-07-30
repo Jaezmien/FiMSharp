@@ -1,0 +1,47 @@
+Dear Princess Celestia: Conditionals!
+
+Today I learned how to do conditionals!
+
+    Did you know that Twilight is the argument correct?
+    Did you know that Spike is the argument correct?
+
+    Did you know that Applejack is the argument correct?
+    Did you know that Pinkie is the argument incorrect?
+    Did you know that Rainbow is the argument incorrect?
+    Did you know that Fluttershy is the argument correct?
+    Did you know that Rarity is the argument incorrect?
+
+    (No conditionals)
+    If Twilight is equal to Spike then,
+        I said "true == true".
+    That's what I would do.
+
+    (One conditionals, and)
+    If Twilight is equal to Spike and Pinkie is equal to Rainbow then,
+        I said "true == true && false == true".
+    That's what I would do.
+
+    (One conditionals, or)
+    If Twilight is equal to Pinkie or Twilight is equal to Spike then,
+        I said "true == false || true == true".
+    That's what I would do.
+
+    (Two conditionals, or and)
+    If Spike is equal to Pinkie or Spike isn't equal to Rainbow and Spike is equal to Twilight then,
+        I said "(true == false || false != true) && true == true".
+    That's what I would do.
+
+    (Two conditionals, and or)
+    If Spike is equal to Rainbow or Spike is equal to Fluttershy and Spike isn't equal to Rarity then,
+        I said "(false == false || false == true) && true != true".
+    That's what I would do.
+
+    (Three conditionals, or and or)
+    If Spike is equal to Rarity or Twilight is equal to Fluttershy and Spike is equal to Applejack or Twilight is equal to Rarity then,
+        I said "(false == false || true == true) && (true == true || true == false)".
+    That's what I would do.
+
+That's all about how to do conditionals.
+
+
+Your faithful student, Twilight Sparkle.

@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.30320.27
+VisualStudioVersion = 16.0.32002.261
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FiMSharp.Test", "FiMSharp.Test\FiMSharp.Test.csproj", "{42668AB3-6A94-437D-8D8D-D0045491C152}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FiMSharp", "FiMSharp\FiMSharp.csproj", "{CBA1F4A3-452D-473F-85A3-06F7B704C81D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FiMSharp", "FiMSharp\FiMSharp.csproj", "{F02AF5A0-9CD7-416B-B774-446E3B1606F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FiMSharp.Test", "FiMSharp.Test\FiMSharp.Test.csproj", "{C0136AAE-DD0A-4677-BF2B-0A021567A25F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiMSharp.Javascript", "FiMSharp.Javascript\FiMSharp.Javascript.csproj", "{E895EF2C-B841-414F-A6D2-D97B630EDCC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiMSharp.CLI", "FiMSharp.CLI\FiMSharp.CLI.csproj", "{743B5DB3-11E2-4494-B334-9B096075C64C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,23 +15,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{42668AB3-6A94-437D-8D8D-D0045491C152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{42668AB3-6A94-437D-8D8D-D0045491C152}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{42668AB3-6A94-437D-8D8D-D0045491C152}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{42668AB3-6A94-437D-8D8D-D0045491C152}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F02AF5A0-9CD7-416B-B774-446E3B1606F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F02AF5A0-9CD7-416B-B774-446E3B1606F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F02AF5A0-9CD7-416B-B774-446E3B1606F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F02AF5A0-9CD7-416B-B774-446E3B1606F5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E895EF2C-B841-414F-A6D2-D97B630EDCC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E895EF2C-B841-414F-A6D2-D97B630EDCC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E895EF2C-B841-414F-A6D2-D97B630EDCC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E895EF2C-B841-414F-A6D2-D97B630EDCC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBA1F4A3-452D-473F-85A3-06F7B704C81D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBA1F4A3-452D-473F-85A3-06F7B704C81D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBA1F4A3-452D-473F-85A3-06F7B704C81D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBA1F4A3-452D-473F-85A3-06F7B704C81D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0136AAE-DD0A-4677-BF2B-0A021567A25F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0136AAE-DD0A-4677-BF2B-0A021567A25F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0136AAE-DD0A-4677-BF2B-0A021567A25F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0136AAE-DD0A-4677-BF2B-0A021567A25F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{743B5DB3-11E2-4494-B334-9B096075C64C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{743B5DB3-11E2-4494-B334-9B096075C64C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{743B5DB3-11E2-4494-B334-9B096075C64C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{743B5DB3-11E2-4494-B334-9B096075C64C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {C626F8A5-7020-4D36-9FE7-91B584ABE9BE}
+		SolutionGuid = {E1B8BD8B-D93F-42CB-BC2B-85F1B69A06FD}
 	EndGlobalSection
 EndGlobal

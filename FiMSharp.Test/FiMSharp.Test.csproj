@@ -3,21 +3,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <StartupObject>FiMSharpTest.Program</StartupObject>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-    <DebugType>none</DebugType>
-    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Options" Version="6.6.0.161" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FiMSharp.Javascript\FiMSharp.Javascript.csproj" />
     <ProjectReference Include="..\FiMSharp\FiMSharp.csproj" />
   </ItemGroup>
 
