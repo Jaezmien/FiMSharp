@@ -10,6 +10,7 @@
     <PackageTags>fimpp, fim++</PackageTags>
     <RepositoryUrl>https://github.com/Jaezmien/FiMSharp</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Jaezmien/FiMSharp</PackageProjectUrl>
+	<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -19,7 +20,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
   </ItemGroup>
 
 </Project>

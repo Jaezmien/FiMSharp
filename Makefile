@@ -16,4 +16,4 @@ darwin:
 	dotnet publish FiMSharp.CLI --self-contained=true -p:PublishSingleFile=True -c Release -o "bin/darwin" --runtime osx-x64
 
 nuget:
-	dotnet pack -o Nuget/ -c Release
+	dotnet pack FiMSharp -o bin/ -c Release
