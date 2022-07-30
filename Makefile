@@ -1,4 +1,4 @@
-all: build win win32 linux linuxarm darwin
+all: build win linux linuxarm darwin
 
 build:
 	dotnet build FiMSharp -c Release -o bin/
