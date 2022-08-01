@@ -26,7 +26,7 @@ namespace FiMSharp.Kirin
 				if( Keywords.Any(kw => subContent.Contains($" {kw} ")) )
 				{
 					string word = Keywords.First(kw => subContent.Contains($" {kw} "));
-					index = subContent.LastIndexOf(word);
+					index = subContent.IndexOf(word);
 					return word;
 				}
 
