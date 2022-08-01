@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using FiMSharp.Kirin;
 
 namespace FiMSharp
@@ -199,6 +200,61 @@ namespace FiMSharp
 			}
 
 			return false;
+		}
+
+		public class ArrayIndex
+		{
+			public string RawIndex;
+			public string RawVariable;
+
+			public static bool IsArrayIndex(string content, FiMReport report)
+			{
+				return GetArrayIndex(content, report) != null;
+			}
+
+			public static ArrayIndex GetArrayIndex(string content, FiMReport report)
+			{
+				// Explicit index
+				if (Regex.IsMatch(content, @"^(.+) of (.+)$"))
+				{
+					var match = Regex.Match(content, @"^(.+) (of) (.+)$");
+
+					if (!FiMHelper.IsIndexInsideString(content, match.Groups[2].Index))
+					{
+						string strIndex = match.Groups[1].Value;
+						string strVar = match.Groups[3].Value;
+
+						if ( report.Variables.Exists(strVar) )
+						{
+							return new ArrayIndex()
+							{
+								RawIndex = strIndex,
+								RawVariable = strVar
+							};
+						}
+					}
+				}
+				
+				// Implicit index
+				if (Regex.IsMatch(content, @"^(.+) (\d+)$"))
+				{
+					var match = Regex.Match(content, @"^(.+) (\d+)$");
+					string varName = match.Groups[1].Value;
+					string varIndex = match.Groups[2].Value;
+
+					if( report.Variables.Exists(varName) )
+					{
+						return new ArrayIndex()
+						{
+							RawIndex = varIndex,
+							RawVariable = varName,
+						};
+					}
+				}
+
+				return null;
+			}
+			
 		}
 	}
 }

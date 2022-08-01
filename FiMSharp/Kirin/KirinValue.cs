@@ -234,55 +234,43 @@ namespace FiMSharp.Kirin
 				}
 			}
 
-			// Array index (explicit)
-			if (Regex.IsMatch(evaluatable, @"^(.+) of (.+)$"))
+			// Array index
+			if( FiMHelper.ArrayIndex.IsArrayIndex(evaluatable, report) )
 			{
-				var match = Regex.Match(evaluatable, @"^(.+) (of) (.+)$");
+				var match = FiMHelper.ArrayIndex.GetArrayIndex(evaluatable, report);
 
-				if (!FiMHelper.IsIndexInsideString(evaluatable, match.Groups[2].Index))
+				var varIndex = new KirinValue(match.RawIndex, report);
+				if (varIndex.Type != KirinVariableType.NUMBER) throw new FiMException("Invalid index value");
+				int index = Convert.ToInt32(varIndex.Value);
+
+				string strVar = match.RawVariable;
+				if (!report.Variables.Exists(strVar)) throw new FiMException("Variable " + strVar + " does not exist");
+				var variable = report.Variables.Get(strVar);
+				if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
+					throw new FiMException("Cannot index a non-array variable");
+
+				if (variable.Type == KirinVariableType.STRING)
 				{
-					string strIndex = match.Groups[1].Value;
-					var varIndex = new KirinValue(strIndex, report);
-					if (varIndex.Type != KirinVariableType.NUMBER) throw new FiMException("Invalid index value");
-					int index = Convert.ToInt32(varIndex.Value);
-
-					string strVar = match.Groups[3].Value;
-					if (!report.Variables.Exists(strVar)) throw new FiMException("Variable " + strVar + " does not exist");
-					var variable = report.Variables.Get(strVar);
-					if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
-						throw new FiMException("Cannot index a non-array variable");
-
-					if (variable.Type == KirinVariableType.STRING)
-					{
-						returnedType = KirinVariableType.CHAR;
-						return Convert.ToString(variable.Value)[index - 1];
-					}
-
-					var dict = variable.Value as System.Collections.IDictionary;
-					if (variable.Type == KirinVariableType.STRING_ARRAY)
-					{
-						returnedType = KirinVariableType.STRING;
-						return Convert.ToString(dict[index]);
-					}
-					if (variable.Type == KirinVariableType.BOOL_ARRAY)
-					{
-						returnedType = KirinVariableType.BOOL;
-						return Convert.ToBoolean(dict[index]);
-					}
-					if (variable.Type == KirinVariableType.NUMBER_ARRAY)
-					{
-						returnedType = KirinVariableType.NUMBER;
-						return Convert.ToDouble(dict[index]);
-					}
+					returnedType = KirinVariableType.CHAR;
+					return Convert.ToString(variable.Value)[index - 1];
 				}
-			}
-			// Array index (implicit)
-			if (Regex.IsMatch(evaluatable, @"^(.+) (\d+)$"))
-			{
-				var match = Regex.Match(evaluatable, @"^(.+) (\d+)$");
-				string varName = match.Groups[1].Value;
-				if (report.Variables.Exists(varName))
-					return Evaluate(report, $"{match.Groups[2].Value} of {varName}", out returnedType, expectedType);
+
+				var dict = variable.Value as System.Collections.IDictionary;
+				if (variable.Type == KirinVariableType.STRING_ARRAY)
+				{
+					returnedType = KirinVariableType.STRING;
+					return Convert.ToString(dict[index]);
+				}
+				if (variable.Type == KirinVariableType.BOOL_ARRAY)
+				{
+					returnedType = KirinVariableType.BOOL;
+					return Convert.ToBoolean(dict[index]);
+				}
+				if (variable.Type == KirinVariableType.NUMBER_ARRAY)
+				{
+					returnedType = KirinVariableType.NUMBER;
+					return Convert.ToDouble(dict[index]);
+				}
 			}
 
 			// Arithmetic
