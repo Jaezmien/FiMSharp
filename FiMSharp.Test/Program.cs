@@ -30,9 +30,11 @@ namespace FiMSharp.Test
 #if RELEASE
 			ReportTests.RunAll();
 #else
-			if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
+			// RunReport("rot13.fim");
+			ReportTests.RunAll();
+			/*if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
 			else if (args.Any(a => a == "--test-all")) ReportTests.RunAll();
-			else RunDebugReport();
+			else RunDebugReport();*/
 #endif
 		}
 	}
@@ -65,7 +67,7 @@ namespace FiMSharp.Test
 		public static void RunAll()
 		{
 			Test("array.fim", new string[] { "Banana Cake", "Gala" });
-			// Test("brainfuck.fim", new string[] { "Hello World!" });
+			Test("brainfuck.fim", new string[] { "Hello World!" });
 			Test("bubblesort.fim", new string[] { "1", "2", "3", "4", "5", "7", "7" });
 			Test("cider.fim");
 			Test("conditional.fim", new string[] {
@@ -76,8 +78,8 @@ namespace FiMSharp.Test
 				"(false == false || false == true) && true != true",
 				"(false == false || true == true) && (true == true || true == false)"
 			});
-			// Test("deadfish.fim", new string[] { "Hello world" });
-			// Test("digital root.fim", new string[] { "9" });
+			Test("deadfish.fim", new string[] { "Hello world" });
+			Test("digital root.fim", new string[] { "9" });
 			Test("disan.fim", new string[] {
 				"Insert a number",
 				"0 is divisible by 2!",
@@ -85,7 +87,7 @@ namespace FiMSharp.Test
 				"4 is divisible by 2!"
 			}, new string[] { "5" });
 			// e.fim
-			// Test("eratosthenes.fim", new string[] { "0", "2", "3", "5", "7", "11", "13", "17", "19" });
+			Test("eratosthenes.fim", new string[] { "2", "3", "5", "7", "11", "13", "17", "19" });
 			Test("factorial.fim", new string[] { "120" });
 			Test("fibonacci.fim", new string[] { "34" });
 			Test("fizzbuzz.fim");
@@ -97,7 +99,7 @@ namespace FiMSharp.Test
 			Test("multiple parameters.fim", new string[] { "x", "1", "y", "0" });
 			Test("quicksort.fim", new string[] { "1", "2", "3", "4", "5", "7", "7" });
 			Test("recursion.fim", new string[] { "5", "4", "3", "2", "1" });
-			// Test("rot13.fim", new string[] { "Hello World!", "Uryyb Jbeyq!", "Hello World!" });
+			Test("rot13.fim", new string[] { "Hello World!", "Uryyb Jbeyq!", "Hello World!" });
 			Test("string index.fim", new string[] { "T", "w" });
 			Test("sum.fim", new string[] { "5051" });
 			Test("switch.fim", new string[] {

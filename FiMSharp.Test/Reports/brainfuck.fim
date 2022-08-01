@@ -24,7 +24,7 @@ I learned whether the code works to get an argument.
             Thorax of Princess Luna is Pharynx. (Set both-way index in Dictionary)
             Pharynx of Princess Luna is Thorax.
 
-            Trixie of Shining Armor is nothing. (Pop stack)
+            Trixie of Shining Armor is the number nothing. (Pop stack)
             Trixie got one less.
 
             Spike got one less.
@@ -45,7 +45,7 @@ I learned how to interpret brainfuck.
     Did you know that Fluttershy is many numbers? (Memory Blocks)
     Did you know that Pinkie Pie is the number 1? (Memory Pointer)
 
-    As long as Applejack had no more than length of Twilight,
+    As long as Applejack had no more than count of Twilight,
         Did you know that Rainbow Dash is the letter Applejack of Twilight?
 
         If Rainbow Dash is equal to '>' then,
@@ -57,13 +57,15 @@ I learned how to interpret brainfuck.
         Otherwise if Rainbow Dash is equal to '-' then,
             Pinkie Pie of Fluttershy got one less.
         Otherwise if Rainbow Dash is equal to '.' then,
-            Did you know that Spike is the letter char of num Pinkie Pie of Fluttershy. (Spike will hold this temporarily, this is an interpreter limit.)
+            Did you know that Spike is the letter convert a number to char using Pinkie Pie of Fluttershy.
+            (Spike will hold this temporarily, this is an interpreter limit.)
+
             Trixie became Trixie""Spike.
         Otherwise if Rainbow Dash is equal to ',' then,
             Did you know that Spike is the letter nothing?
             I asked Spike.
-            If Spike was not nothing then,
-                Pinkie Pie of Fluttershy is num of char Spike.
+            If Spike was not the letter nothing then,
+                Pinkie Pie of Fluttershy is convert a character to num using Spike.
             That's what I would do.
         Otherwise if Rainbow Dash is equal to '[' then,
             If Pinkie Pie of Fluttershy is equal to 0 then,
@@ -78,7 +80,7 @@ I learned how to interpret brainfuck.
         Applejack got one more.
     That's what I did.
 
-    If Trixie is not nothing then,
+    If Trixie is not the word nothing then,
         I said Trixie!
     That's what I would do.
 

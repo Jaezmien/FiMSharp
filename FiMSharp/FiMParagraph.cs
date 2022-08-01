@@ -18,6 +18,7 @@ namespace FiMSharp
 		public readonly string Name;
 		private readonly FiMReport report;
 		private readonly KirinBaseFunction func;
+		public string FunctionType { get { return func.NodeType; } }
 		public KirinVariableType ReturnType
 		{
 			get { return this.func.Returns ?? KirinVariableType.UNKNOWN; }

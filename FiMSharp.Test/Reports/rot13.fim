@@ -4,7 +4,7 @@ I learned how to apply rot13 using a word input to get a word.
 
     Did you know that output is the word nothing?
     For every character char in input...
-        Did you know that char ascii is the number num of char char?
+        Did you know that char ascii is the number convert a char to num using char?
         Did you know that rotable is the argument false?
 
         If char ascii had no less than 65 and char ascii had no more than 90 then, (Uppercase)
@@ -20,7 +20,7 @@ I learned how to apply rot13 using a word input to get a word.
                 addchar became 13.
             That's what I would do.
             char ascii became char ascii plus addchar.
-            Did you know that new char ascii is the character char of num char ascii?
+            Did you know that new char ascii is the character convert a number to char using char ascii?
             output became output""new char ascii.
         Otherwise,
             output became output""char.

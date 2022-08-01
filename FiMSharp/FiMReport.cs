@@ -35,6 +35,29 @@ namespace FiMSharp
 			}
 
 			this.KirinTree = tree;
+
+			//
+
+			this.AddMethod("convert a number to char", new Func<double, char>((value) =>
+			{
+				return (char)value;
+			}));
+			this.AddMethod("convert a char to num", new Func<char, double>((value) =>
+			{
+				return (double)char.Parse(value.ToString());
+			}));
+			this.AddMethod("convert a number to literal string", new Func<double, string>((value) =>
+			{
+				return value.ToString();
+			}));
+			this.AddMethod("convert a char to literal num", new Func<char, double>((value) =>
+			{
+				return int.Parse(value.ToString());
+			}));
+			this.AddMethod("square root of a num", new Func<double, double>((value) =>
+			{
+				return Math.Sqrt(value);
+			}));
 		}
 		public static FiMReport FromFile(string directory)
 			=> new FiMReport(File.ReadAllText(Path.GetFullPath(directory)));
