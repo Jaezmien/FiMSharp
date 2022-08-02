@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FiMSharp.CLI\FiMSharp.CLI.csproj" />
     <ProjectReference Include="..\FiMSharp\FiMSharp.csproj" />
   </ItemGroup>
 

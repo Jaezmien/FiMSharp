@@ -10,18 +10,24 @@ namespace FiMSharp.Test
 {
 	class Program
 	{
+		public static FiMReport GetReport(string path)
+		{
+			FiMReport report = FiMReport.FromFile(path);
+			FiMSharp.CLI.Program.AddExperimentalFunctions(report);
+			return report;
+		}
 		static void RunReport(string file)
 		{
 			string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
 			string path = Path.GetFullPath(Path.Combine(currentDirectory, @"..\..\..\Reports", file));
-			FiMReport report = FiMReport.FromFile(path);
+			var report = GetReport(path);
 			report.MainParagraph?.Execute();
 		}
 		static void RunDebugReport()
 		{
 			string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
 			string path = Path.GetFullPath(Path.Combine(currentDirectory, @"..\..\..\", "debug.fim"));
-			FiMReport report = FiMReport.FromFile(path);
+			var report = GetReport(path);
 			report.MainParagraph?.Execute();
 		}
 
@@ -185,7 +191,7 @@ namespace FiMSharp.Test
 
 			try
 			{
-				FiMReport report = FiMReport.FromFile(GetPathFromDir($"Reports/{ file }"));
+				var report = Program.GetReport(GetPathFromDir($"Reports/{ file }"));
 				report.ConsoleOutput = w;
 				report.ConsoleInput = r;
 				Console.Write($"Running report '{file}'... ");
@@ -212,7 +218,7 @@ namespace FiMSharp.Test
 		{
 			try
 			{
-				FiMReport report = FiMReport.FromFile(GetPathFromDir($"Reports/{ file }"));
+				var report = Program.GetReport(GetPathFromDir($"Reports/{ file }"));
 				report.ConsoleOutput = new EmptyWriter();
 				Console.Write($"Running report '{file}'... ");
 				report.MainParagraph?.Execute();
