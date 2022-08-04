@@ -8,23 +8,24 @@ namespace FiMSharp
 {
 	public class FiMParagraph
 	{
-		public FiMParagraph(FiMReport report, KirinBaseFunction func)
+		public FiMParagraph(FiMClass rClass, KirinBaseFunction func)
 		{
-			this.report = report;
+			this.reportClass = rClass;
 			this.func = func;
 			this.Name = func.Name;
 		}
 
 		public readonly string Name;
-		private readonly FiMReport report;
+		private readonly FiMClass reportClass;
 		private readonly KirinBaseFunction func;
 		public KirinVariableType ReturnType
 		{
 			get { return this.func.Returns ?? KirinVariableType.UNKNOWN; }
 		}
+
 		public object Execute(params object[] args)
 		{
-			var result = this.func.Execute(this.report, args);
+			var result = this.func.Execute(this.reportClass, args);
 			return result;
 		}
 		public object Execute(KirinValue[] args)

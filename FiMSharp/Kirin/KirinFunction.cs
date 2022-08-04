@@ -13,7 +13,7 @@ namespace FiMSharp.Kirin
 		
 		public KirinVariableType? Returns;
 
-		public virtual object Execute(FiMReport report, params object[] args) { return null; }
+		public virtual object Execute(FiMClass reportClass, params object[] args) { return null; }
 	}
 	public class KirinFunction : KirinBaseFunction
 	{
@@ -21,25 +21,25 @@ namespace FiMSharp.Kirin
 			: base(startNode.Start, (endNode.Start + endNode.Length) - startNode.Start)
 		{
 			this.Name = startNode.Name;
-			this.IsMain = startNode.IsMain;
+			this.Today = startNode.IsMain;
 			this.Arguments = startNode.args;
 			this.Returns = startNode.Return;
 		}
 
 		public List<KirinFunctionArgument> Arguments;
-		public bool IsMain;
+		public bool Today;
 		public KirinStatement Statement;
 
-		public override object Execute(FiMReport report, params object[] args)
+		public override object Execute(FiMClass reportClass, params object[] args)
 		{
 			int localVariables = 0;
-			report.Variables.PushStack();
+			reportClass.Variables.PushFunctionStack();
 
 			if (this.Arguments?.Count() > 0)
 			{
 				for (int i = 0; i < this.Arguments.Count(); i++)
 				{
-					if (report.Variables.Exists(this.Arguments[i].Name))
+					if (reportClass.Variables.Has(this.Arguments[i].Name))
 						throw new FiMException("Variable name " + this.Arguments[i].Name + " already exists");
 
 					if (i < args.Length)
@@ -50,11 +50,11 @@ namespace FiMSharp.Kirin
 								+ ", got " + FiMHelper.AsVariableType(args[i]).AsNamedString());
 						}
 
-						report.Variables.PushVariable(new FiMVariable(this.Arguments[i].Name, new KirinValue(args[i])));
+						reportClass.Variables.Push(new FiMVariable(this.Arguments[i].Name, new KirinValue(args[i])));
 					}
 					else
 					{
-						report.Variables.PushVariable(
+						reportClass.Variables.Push(
 							new FiMVariable(
 								this.Arguments[i].Name,
 								new KirinValue(FiMHelper.GetDefaultValue(this.Arguments[i].Type))
@@ -65,9 +65,8 @@ namespace FiMSharp.Kirin
 				}
 			}
 
-			var result = Statement.Execute(report);
-			report.Variables.PopVariableRange(localVariables);
-			report.Variables.PopStack();
+			var result = Statement.Execute(reportClass);
+			reportClass.Variables.PopFunctionStack();
 
 			if (result != null && this.Returns == null)
 				throw new FiMException("Non-value returning function returned value");
@@ -109,7 +108,7 @@ namespace FiMSharp.Kirin
 		public List<KirinVariableType> Arguments;
 		public Delegate Function;
 
-		public override object Execute(FiMReport report, params object[] args)
+		public override object Execute(FiMClass reportClass, params object[] args)
 		{
 			object[] sanitizedArgs = null;
 			if( this.Arguments?.Count > 0 )

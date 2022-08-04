@@ -13,7 +13,7 @@
 			return true;
 		}
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
 #if DEBUG
 			if (System.Diagnostics.Debugger.IsAttached)

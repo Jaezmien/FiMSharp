@@ -8,16 +8,16 @@ namespace FiMSharp.Kirin
 {
 	public class KirinValue : KirinBaseNode
 	{
-		public KirinValue(string raw, FiMReport report)
+		public KirinValue(string raw, FiMClass reportClass)
 		{
 			this.Raw = raw;
-			this.Report = report;
+			this.Class = reportClass;
 			if (raw != null) this.Load();
 		}
-		public KirinValue(string raw, FiMReport report, KirinVariableType forcedType)
+		public KirinValue(string raw, FiMClass reportClass, KirinVariableType forcedType)
 		{
 			this.Raw = raw;
-			this.Report = report;
+			this.Class = reportClass;
 			this.ForcedType = forcedType;
 			this.Load();
 		}
@@ -29,7 +29,7 @@ namespace FiMSharp.Kirin
 			if (this._Value.GetType() == typeof(int)) this._Value = Convert.ToDouble(value);
 		}
 
-		public FiMReport Report;
+		public FiMClass Class;
 		public string Raw;
 		public bool Constant;
 		private object _Value;
@@ -89,7 +89,7 @@ namespace FiMSharp.Kirin
 				if (KirinLiteral.TryParse(raw, out object lResult)) value = lResult;
 				else
 				{
-					value = KirinValue.Evaluate(Report, raw, out var returnedType, ForcedType);
+					value = KirinValue.Evaluate(Class, raw, out var returnedType, ForcedType);
 					this.ForceType(returnedType);
 				}
 
@@ -119,19 +119,19 @@ namespace FiMSharp.Kirin
 		/// Evaluates raw FiM++ string into a value
 		/// </summary>
 		public static object Evaluate(
-			FiMReport report,
+			FiMClass reportClass,
 			string evaluatable,
 			KirinVariableType? expectedType = null
 		)
 		{
-			return Evaluate(report, evaluatable, out _, expectedType);
+			return Evaluate(reportClass, evaluatable, out _, expectedType);
 		}
 
 		/// <summary>
 		/// Evaluates raw FiM++ string into a value
 		/// </summary>
 		public static object Evaluate(
-			FiMReport report,
+			FiMClass reportClass,
 			string evaluatable,
 			out KirinVariableType returnedType,
 			KirinVariableType? expectedType = null
@@ -147,15 +147,15 @@ namespace FiMSharp.Kirin
 			}
 
 			// Calling an existing variable
-			if (report.Variables.Exists(evaluatable))
+			if( reportClass.GetVariable(evaluatable) != null)
 			{
-				var variable = report.Variables.Get(evaluatable);
+				var variable = reportClass.GetVariable(evaluatable);
 				returnedType = variable.Type;
 				return variable.Value;
 			}
 
 			// Calling an existing method
-			if (report.Paragraphs.FindIndex(v => evaluatable.StartsWith(v.Name)) > -1)
+			if( reportClass.GetParagraphLazy(evaluatable) != null)
 			{
 				KirinValue[] args = null;
 				string pName = evaluatable;
@@ -165,14 +165,13 @@ namespace FiMSharp.Kirin
 					int pIndex = pName.IndexOf(KirinFunctionCall.FunctionParam);
 					pName = pName.Substring(0, pIndex);
 					args = KirinFunctionCall.ParseCallArguments(
-						evaluatable.Substring(pName.Length + KirinFunctionCall.FunctionParam.Length), report
+						evaluatable.Substring(pName.Length + KirinFunctionCall.FunctionParam.Length), reportClass
 					).ToArray();
 				}
 
-				if (report.Paragraphs.FindIndex(v => v.Name == pName) == -1)
-					throw new FiMException("Paragraph " + pName + " not found");
+				var paragraph = reportClass.GetParagraph(pName);
+				if (paragraph == null) throw new FiMException("Paragraph " + pName + " not found");
 
-				var paragraph = report.Paragraphs.Find(v => v.Name == pName);
 				if (paragraph.ReturnType == KirinVariableType.UNKNOWN)
 					throw new FiMException("Paragraph returns nothing");
 				returnedType = paragraph.ReturnType;
@@ -183,7 +182,7 @@ namespace FiMSharp.Kirin
 			if (expectedType != null && FiMHelper.IsTypeArray((KirinVariableType)expectedType))
 			{
 				System.Collections.IDictionary dict = null;
-				var args = KirinFunctionCall.ParseCallArguments(evaluatable, report);
+				var args = KirinFunctionCall.ParseCallArguments(evaluatable, reportClass);
 
 				if (!FiMHelper.IsTypeOfArray(args[0].Type, (KirinArrayType)expectedType))
 					throw new FiMException("Invalid list value type");
@@ -216,8 +215,8 @@ namespace FiMSharp.Kirin
 			{
 				var match = Regex.Match(evaluatable, @"^count of (.+)");
 				string varName = match.Groups[1].Value;
-				if (!report.Variables.Exists(varName)) throw new FiMException("Variable " + varName + " does not exist");
-				var variable = report.Variables.Get(varName);
+				if (!reportClass.Variables.Has(varName)) throw new FiMException("Variable " + varName + " does not exist");
+				var variable = reportClass.Variables.Get(varName);
 
 				if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
 					throw new FiMException("Cannot get count of a non-array variable");
@@ -235,17 +234,17 @@ namespace FiMSharp.Kirin
 			}
 
 			// Array index
-			if( FiMHelper.ArrayIndex.IsArrayIndex(evaluatable, report) )
+			if( FiMHelper.ArrayIndex.IsArrayIndex(evaluatable, reportClass) )
 			{
-				var match = FiMHelper.ArrayIndex.GetArrayIndex(evaluatable, report);
+				var match = FiMHelper.ArrayIndex.GetArrayIndex(evaluatable, reportClass);
 
-				var varIndex = new KirinValue(match.RawIndex, report);
+				var varIndex = new KirinValue(match.RawIndex, reportClass);
 				if (varIndex.Type != KirinVariableType.NUMBER) throw new FiMException("Invalid index value");
 				int index = Convert.ToInt32(varIndex.Value);
 
 				string strVar = match.RawVariable;
-				if (!report.Variables.Exists(strVar)) throw new FiMException("Variable " + strVar + " does not exist");
-				var variable = report.Variables.Get(strVar);
+				if (!reportClass.Variables.Has(strVar)) throw new FiMException("Variable " + strVar + " does not exist");
+				var variable = reportClass.Variables.Get(strVar);
 				if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
 					throw new FiMException("Cannot index a non-array variable");
 
@@ -278,14 +277,14 @@ namespace FiMSharp.Kirin
 			{
 				var arithmetic = new KirinArithmetic(arithmeticResult);
 				returnedType = KirinVariableType.NUMBER;
-				return arithmetic.GetValue(report);
+				return arithmetic.GetValue(reportClass);
 			}
 			// Conditional
 			if (KirinConditional.IsConditional(evaluatable, out var conditionalResult))
 			{
 				var conditional = new KirinConditional(conditionalResult);
 				returnedType = KirinVariableType.BOOL;
-				return conditional.GetValue(report);
+				return conditional.GetValue(reportClass);
 			}
 
 			// String concatenation
@@ -318,7 +317,7 @@ namespace FiMSharp.Kirin
 							string value = buffer.ToString();
 
 							if (isInString) finalValue.Append(value);
-							else finalValue.Append(Evaluate(report, value));
+							else finalValue.Append(Evaluate(reportClass, value));
 
 							buffer.Clear();
 						}
@@ -333,7 +332,7 @@ namespace FiMSharp.Kirin
 				{
 					string value = buffer.ToString();
 					if (isInString) finalValue.Append(value);
-					else finalValue.Append(Evaluate(report, value));
+					else finalValue.Append(Evaluate(reportClass, value));
 				}
 
 				returnedType = KirinVariableType.STRING;

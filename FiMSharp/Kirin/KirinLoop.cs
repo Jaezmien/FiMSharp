@@ -118,49 +118,48 @@ namespace FiMSharp.Kirin
 			return true;
 		}
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
-			if (report.Variables.Exists(this.VariableName))
+			if (reportClass.Variables.Has(this.VariableName))
 				throw new FiMException("Variable " + this.VariableName + " already exists");
 
-			var varArray = new KirinValue(this.RawValue, report);
+			var varArray = new KirinValue(this.RawValue, reportClass);
 			if (!FiMHelper.IsTypeArray(varArray.Type) && varArray.Type != KirinVariableType.STRING)
 				throw new FiMException("Expected type array on for-in loops");
 
 			if(varArray.Type == KirinVariableType.STRING)
 			{
 				string str = Convert.ToString(varArray.Value);
-				report.Variables.PushVariable(new FiMVariable(this.VariableName, str[0]));
+				reportClass.Variables.Push(new FiMVariable(this.VariableName, str[0]));
 				foreach (char c in str)
 				{
-					report.Variables.Get(this.VariableName).Value = c;
-					var value = this.Statement.Execute(report);
+					reportClass.Variables.Get(this.VariableName).Value = c;
+					var value = this.Statement.Execute(reportClass);
 					if (value != null)
 					{
-						report.Variables.PopVariable();
+						reportClass.Variables.Pop(false);
 						return value;
 					}
 				}
-				report.Variables.PopVariable();
 			}
 			else
 			{
 				var list = varArray.Value as System.Collections.IDictionary;
 				var sortedKeys = list.Keys.Cast<int>().ToArray().OrderBy(k => k).ToArray();
 
-				report.Variables.PushVariable(new FiMVariable(this.VariableName, list[sortedKeys[0]]));
+				reportClass.Variables.Push(new FiMVariable(this.VariableName, list[sortedKeys[0]]));
 				foreach ( int k in sortedKeys ) {
-					report.Variables.Get(this.VariableName).Value = list[k];
-					var value = this.Statement.Execute(report);
+					reportClass.Variables.Get(this.VariableName).Value = list[k];
+					var value = this.Statement.Execute(reportClass);
 					if (value != null)
 					{
-						report.Variables.PopVariable();
+						reportClass.Variables.Pop(false);
 						return value;
 					}
 				}
-				report.Variables.PopVariable();
 			}
 
+			reportClass.Variables.Pop(false);
 			return null;
 		}
 
@@ -221,13 +220,13 @@ namespace FiMSharp.Kirin
 			return true;
 		}
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
-			if (report.Variables.Exists(this.VariableName))
+			if( reportClass.GetVariable(this.VariableName) != null )
 				throw new FiMException("Variable " + this.VariableName + " already exists");
 
-			var varFrom = new KirinValue(this.RawFrom, report);
-			var varTo = new KirinValue(this.RawTo, report);
+			var varFrom = new KirinValue(this.RawFrom, reportClass);
+			var varTo = new KirinValue(this.RawTo, reportClass);
 
 			if(varFrom.Type != KirinVariableType.NUMBER || varTo.Type != KirinVariableType.NUMBER)
 				throw new FiMException("Expected type number on for-to loops");
@@ -238,7 +237,7 @@ namespace FiMSharp.Kirin
 			double interval;
 			if( this.RawInterval != string.Empty )
 			{
-				var varInterval = new KirinValue(this.RawInterval, report);
+				var varInterval = new KirinValue(this.RawInterval, reportClass);
 				if (varInterval.Type != KirinVariableType.NUMBER)
 					throw new FiMException("Expected tpye number of for-to interval");
 				interval = Convert.ToDouble(varInterval.Value);
@@ -248,22 +247,22 @@ namespace FiMSharp.Kirin
 				interval = valTo - valFrom > 0 ? 1.0d : -1.0d;
 			}
 
-			report.Variables.PushVariable(new FiMVariable(this.VariableName, valFrom));
+			reportClass.Variables.Push(new FiMVariable(this.VariableName, valFrom));
 			while ( interval > 0 ? valFrom <= valTo : valFrom >= valTo )
 			{
-				report.Variables.Get(this.VariableName).Value = valFrom;
+				reportClass.Variables.Get(this.VariableName).Value = valFrom;
 
-				var value = this.Statement.Execute(report);
+				var value = this.Statement.Execute(reportClass);
 				if (value != null)
 				{
-					report.Variables.PopVariable();
+					reportClass.Variables.Pop(false);
 					return value;
 				}
 
 				valFrom += interval;
 			}
-			report.Variables.PopVariable();
 
+			reportClass.Variables.Pop(false);
 			return null;
 		}
 
@@ -309,15 +308,15 @@ namespace FiMSharp.Kirin
 			return true;
 		}
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
 			if (this.Statement == null)
 				throw new FiMException("While loop has no statement");
 
 			var conditional = new KirinConditional(Condition);
-			while (conditional.GetValue(report) == true)
+			while (conditional.GetValue(reportClass) == true)
 			{
-				var value = Statement.Execute(report);
+				var value = Statement.Execute(reportClass);
 				if (value != null) break;
 			}
 

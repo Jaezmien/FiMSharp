@@ -48,15 +48,15 @@ namespace FiMSharp.Kirin
 				Statement = statement
 			});
 		}
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
 			if (!this.Complete) throw new FiMException("Executing an incomplete if statement");
 
 			foreach (var cS in Conditions)
 			{
 				var conditional = new KirinConditional(cS.Condition);
-				if (conditional.GetValue(report) == false) continue;
-				return cS.Statement.Execute(report);
+				if (conditional.GetValue(reportClass) == false) continue;
+				return cS.Statement.Execute(reportClass);
 			}
 			return null;
 		}

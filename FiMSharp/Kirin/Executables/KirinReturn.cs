@@ -32,9 +32,9 @@ namespace FiMSharp.Kirin
 			result = node;
 			return true;
 		}
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
-			var value = new KirinValue(this.RawParameters, report);
+			var value = new KirinValue(this.RawParameters, reportClass);
 			if( this.ExpectedType != KirinVariableType.UNKNOWN )
 			{
 				if (value.Type != this.ExpectedType)

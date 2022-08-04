@@ -30,21 +30,21 @@ namespace FiMSharp.Kirin
 			this.DefaultCase = statement;
 		}
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
 			if (!this.Complete) throw new FiMException("Executing an incomplete switch statement");
 
-			if (!report.Variables.Exists(this.RawVariable))
+			var variable = reportClass.GetVariable(this.RawVariable);
+			if (variable == null)
 				throw new FiMException("Varible " + this.RawVariable + " does not exist");
 
-			var variable = report.Variables.Get(this.RawVariable);
 			if (FiMHelper.IsTypeArray(variable))
 				throw new FiMException("Cannot use array on a switch");
 
 			Dictionary<object, string> CasesLookup = new Dictionary<object, string>();
 			foreach(var key in Cases.Keys)
 			{
-				if (!KirinSwitchCase.IsValidPlace(key, report, out object value))
+				if (!KirinSwitchCase.IsValidPlace(key, reportClass, out object value))
 					throw new FiMException("Invalid case " + key);
 
 				if(CasesLookup.Keys.Any(k => KirinValue.IsEqual(k, value)))
@@ -57,7 +57,7 @@ namespace FiMSharp.Kirin
 			if (CasesLookup.Keys.Any(k => KirinValue.IsEqual(k, variable.Value)))
 				s = Cases[CasesLookup.First(l => KirinValue.IsEqual(l.Key, variable.Value)).Value];
 
-			if( s != null ) return s.Execute(report);
+			if( s != null ) return s.Execute(reportClass);
 			return null;
 		}
 
@@ -176,16 +176,17 @@ namespace FiMSharp.Kirin
 
 			return true;
 		}
-		public static bool IsValidPlace(string place, FiMReport report, out object index)
+		public static bool IsValidPlace(string place, FiMClass reportClass, out object index)
 		{
 			if(IsValidNumberPlace(place, out var nIndex))
 			{
 				index = nIndex;
 				return true;
 			}
-			if( report.Variables.Exists(place) )
+
+			if( reportClass.GetVariable(place) != null )
 			{
-				var variable = report.Variables.Get(place);
+				var variable = reportClass.GetVariable(place);
 				if (!variable.Constant) throw new FiMException("Cannot use a non-constant variable as a case");
 				if (FiMHelper.IsTypeArray(variable.Type)) throw new FiMException("Can only use non-array variables as a case");
 

@@ -101,26 +101,26 @@ namespace FiMSharp.Kirin
             return false;
 		}
 
-        public double GetValue(FiMReport report) => this.NodeTree.Eval(report);
+        public double GetValue(FiMClass reportClass) => this.NodeTree.Eval(reportClass);
 
         private abstract class BaseNode
         {
-            public abstract double Eval(FiMReport report);
+            public abstract double Eval(FiMClass reportClass);
         }
         private class ExpressionNode : BaseNode
         {
             public BaseNode Left;
             public BaseNode Right;
             public string Expression;
-            public override double Eval(FiMReport report)
+            public override double Eval(FiMClass reportClass)
             {
                 switch (this.Expression)
                 {
-                    case "+": return Left.Eval(report) + Right.Eval(report);
-                    case "-": return Left.Eval(report) - Right.Eval(report);
-                    case "*": return Left.Eval(report) * Right.Eval(report);
-                    case "/": return Left.Eval(report) / Right.Eval(report);
-                    case "%": return Left.Eval(report) % Right.Eval(report);
+                    case "+": return Left.Eval(reportClass) + Right.Eval(reportClass);
+                    case "-": return Left.Eval(reportClass) - Right.Eval(reportClass);
+                    case "*": return Left.Eval(reportClass) * Right.Eval(reportClass);
+                    case "/": return Left.Eval(reportClass) / Right.Eval(reportClass);
+                    case "%": return Left.Eval(reportClass) % Right.Eval(reportClass);
                     default: throw new FiMException("Invalid expression " + this.Expression);
                 }
             }
@@ -128,9 +128,9 @@ namespace FiMSharp.Kirin
         private class ValueNode : BaseNode
         {
             public string RawValue;
-            public override double Eval(FiMReport report)
+            public override double Eval(FiMClass reportClass)
             {
-                var value = new KirinValue(this.RawValue, report);
+                var value = new KirinValue(this.RawValue, reportClass);
                 if (value.Type != KirinVariableType.NUMBER) throw new FiMException("Cannot do arithmetic on a non-number value");
                 return Convert.ToDouble(value.Value);
             }

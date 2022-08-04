@@ -16,7 +16,7 @@ namespace FiMSharp.Kirin
 		public readonly static string FunctionParam = " using ";
 
 		/// <param name="content">Starting after <c>KirinFunctionCall.FunctionParam</c></param>
-		public static List<KirinValue> ParseCallArguments(string content, FiMReport report)
+		public static List<KirinValue> ParseCallArguments(string content, FiMClass reportClass)
 		{
 			var a = new List<KirinValue>();
 
@@ -24,7 +24,7 @@ namespace FiMSharp.Kirin
 			{
 				foreach (string param in content.Split(new string[] { " and " }, StringSplitOptions.RemoveEmptyEntries))
 				{
-					a.Add(new KirinValue(param, report));
+					a.Add(new KirinValue(param, reportClass));
 				}
 			}
 
@@ -60,12 +60,13 @@ namespace FiMSharp.Kirin
 		public string FunctionName;
 		public string RawParameters;
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
-			if (report.Paragraphs.FindIndex(v => v.Name == FunctionName) == -1)
-				throw new FiMException("Cannot find paragraph " + FunctionName);
-			var p = report.Paragraphs.Find(v => v.Name == FunctionName);
-			var parameters = KirinFunctionCall.ParseCallArguments(this.RawParameters, report);
+			var p = reportClass.GetParagraph(FunctionName);
+
+			if (p == null) throw new FiMException("Cannot find paragraph " + FunctionName);
+
+			var parameters = KirinFunctionCall.ParseCallArguments(this.RawParameters, reportClass);
 			p.Execute(parameters.ToArray());
 			return null;
 		}

@@ -116,6 +116,13 @@ namespace FiMSharp
 			return program;
 		}
 
+		internal static KirinClass ParseClass(KirinNode[] nodes, string content)
+		{
+			KirinClass c = new KirinClass(-1, -1);
+
+			return c;
+		}
+
 		internal static KirinFunction ParseFunction(
 			KirinFunctionStart startNode,
 			KirinFunctionEnd endNode,
@@ -381,6 +388,9 @@ namespace FiMSharp
 
 			if (KirinProgramStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinProgramEnd.TryParse(subContent, start, length, out node)) return node;
+
+			if (KirinClassStart.TryParse(subContent, start, length, out node)) return node;
+			if (KirinClassEnd.TryParse(subContent, start, length, out node)) return node;
 
 			if (KirinFunctionStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinFunctionEnd.TryParse(subContent, start, length, out node)) return node; ;
