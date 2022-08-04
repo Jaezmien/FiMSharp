@@ -10,7 +10,9 @@
 		NUMBER,
 		NUMBER_ARRAY,
 		BOOL,
-		BOOL_ARRAY
+		BOOL_ARRAY,
+
+		EXPERIMENTAL_DYNAMIC_ARRAY,
 	}
 	public enum KirinArrayType
 	{

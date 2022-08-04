@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -97,7 +98,12 @@ namespace FiMSharp.Kirin
 			{
 				this.Arguments = new List<KirinVariableType>();
 				foreach(var arg in funcArgs)
-					this.Arguments.Add(FiMHelper.AsVariableType(arg.ParameterType, true));
+				{
+					if( arg.ParameterType == typeof(IDictionary) )
+						this.Arguments.Add(KirinVariableType.EXPERIMENTAL_DYNAMIC_ARRAY);
+					else
+						this.Arguments.Add(FiMHelper.AsVariableType(arg.ParameterType, true));
+				}
 			}
 
 			if( func.Method.ReturnType.Name != "Void" )
@@ -119,8 +125,15 @@ namespace FiMSharp.Kirin
 				{
 					if (i < args.Length)
 					{
-						if (FiMHelper.AsVariableType(args[i]) != this.Arguments[i])
+						if(this.Arguments[i] == KirinVariableType.EXPERIMENTAL_DYNAMIC_ARRAY)
+						{
+							if(!FiMHelper.IsTypeArray(args[i]))
+								throw new FiMException("Expected an array, got " + FiMHelper.AsVariableType(args[i]).AsNamedString());
+						}
+						else if (FiMHelper.AsVariableType(args[i]) != this.Arguments[i])
+						{
 							throw new FiMException("Expected " + this.Arguments[i].AsNamedString() + ", got " + FiMHelper.AsVariableType(args[i]).AsNamedString());
+						}
 						sanitizedArgs[i] = args[i];
 					}
 					else
