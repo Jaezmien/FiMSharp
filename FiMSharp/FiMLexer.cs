@@ -382,10 +382,12 @@ namespace FiMSharp
 			if (KirinProgramStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinProgramEnd.TryParse(subContent, start, length, out node)) return node;
 
+#if DEBUG
 			if (KirinClassStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinClassEnd.TryParse(subContent, start, length, out node)) return node;
 			if (KirinClassConstructorStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinClassConstructorEnd.TryParse(subContent, start, length, out node)) return node;
+#endif
 
 			if (KirinFunctionStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinFunctionEnd.TryParse(subContent, start, length, out node)) return node; ;

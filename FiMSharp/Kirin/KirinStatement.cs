@@ -1,7 +1,7 @@
 ﻿#if DEBUG
 #define HIDE_ERROR
 #endif
-
+using System;
 using System.Collections.Generic;
 
 namespace FiMSharp.Kirin
@@ -61,11 +61,11 @@ namespace FiMSharp.Kirin
 #else
 				try
 				{
-					r = n.Execute(report);
+					r = n.Execute(reportClass);
 				}
 				catch(FiMException err)
 				{
-					throw new Exception(err.Message + " at line " + FiMHelper.GetIndexPair(report.Report, n.Start).Line);
+					throw new Exception(err.Message + " at line " + FiMHelper.GetIndexPair(reportClass.Report.ReportString, n.Start).Line);
 				}
 #endif
 				if (r != null)
