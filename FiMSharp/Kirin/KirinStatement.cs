@@ -1,10 +1,8 @@
 ﻿#if DEBUG
 #define HIDE_ERROR
 #endif
-
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace FiMSharp.Kirin
 {
@@ -34,9 +32,9 @@ namespace FiMSharp.Kirin
 			return node;
 		}
 
-		public virtual object Execute(FiMReport report)
+		public virtual object Execute(FiMClass reportClass)
 		{
-			int localVariables = 0;
+			uint localVariables = 0;
 			object result = null;
 
 			foreach (var node in this.Body)
@@ -46,7 +44,7 @@ namespace FiMSharp.Kirin
 					if(node.GetType().IsSubclassOf(typeof(KirinNode)) || node.GetType() == typeof(KirinNode))
 					{
 						var no = (KirinNode)node;
-						throw new FiMException($"Paragraph contains a non-KirinExecutable node (Line: '{report.GetLine(no.Start, no.Length)}')");
+						throw new FiMException($"Paragraph contains a non-KirinExecutable node at line ${FiMHelper.GetIndexPair(reportClass.Report.ReportString, node.Start).Line}");
 					}
 					else
 					{
@@ -59,20 +57,20 @@ namespace FiMSharp.Kirin
 
 				object r;
 #if HIDE_ERROR
-				r = n.Execute(report);
+				r = n.Execute(reportClass);
 #else
 				try
 				{
-					r = n.Execute(report);
+					r = n.Execute(reportClass);
 				}
 				catch(FiMException err)
 				{
-					throw new Exception(err.Message + " at line " + FiMHelper.GetIndexPair(report.Report, n.Start).Line);
+					throw new Exception(err.Message + " at line " + FiMHelper.GetIndexPair(reportClass.Report.ReportString, n.Start).Line);
 				}
 #endif
 				if (r != null)
 				{
-					report.Variables.PopVariableRange(localVariables);
+					reportClass.Variables.Pop(count: localVariables);
 					return r;
 				}
 
@@ -83,7 +81,7 @@ namespace FiMSharp.Kirin
 				}
 			}
 
-			report.Variables.PopVariableRange(localVariables);
+			reportClass.Variables.Pop(count: localVariables);
 			return result;
 		}
 	}

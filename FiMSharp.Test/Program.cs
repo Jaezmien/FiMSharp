@@ -184,8 +184,8 @@ namespace FiMSharp.Test
 			try
 			{
 				FiMReport report = FiMReport.FromFile(GetPathFromDir($"Reports/{ file }"));
-				report.ConsoleOutput = w;
-				report.ConsoleInput = r;
+				report.Output = w;
+				report.Input = r;
 				Console.Write($"Running report '{file}'... ");
 				report.MainParagraph?.Execute();
 			}
@@ -211,7 +211,7 @@ namespace FiMSharp.Test
 			try
 			{
 				FiMReport report = FiMReport.FromFile(GetPathFromDir($"Reports/{ file }"));
-				report.ConsoleOutput = new EmptyWriter();
+				report.Output = new EmptyWriter();
 				Console.Write($"Running report '{file}'... ");
 				report.MainParagraph?.Execute();
 			}

@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FiMSharp", "FiMSharp\FiMSha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FiMSharp.Test", "FiMSharp.Test\FiMSharp.Test.csproj", "{C0136AAE-DD0A-4677-BF2B-0A021567A25F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiMSharp.CLI", "FiMSharp.CLI\FiMSharp.CLI.csproj", "{743B5DB3-11E2-4494-B334-9B096075C64C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FiMSharp.CLI", "FiMSharp.CLI\FiMSharp.CLI.csproj", "{743B5DB3-11E2-4494-B334-9B096075C64C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

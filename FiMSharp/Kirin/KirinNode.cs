@@ -23,6 +23,6 @@
 	{
 		public KirinExecutableNode(int start, int length): base(start, length) { }
 
-		public virtual object Execute(FiMReport report) => null;
+		public virtual object Execute(FiMClass reportClass) => null;
 	}
 }
