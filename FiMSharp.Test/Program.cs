@@ -162,6 +162,7 @@ namespace FiMSharp.Test
 			var w = new TestWriter();
 			int wI = 0;
 			List<string> errors = new List<string>();
+			
 			w.onWriteEvent += (m) =>
 			{
 				if (wI >= expected.Length)
@@ -201,6 +202,11 @@ namespace FiMSharp.Test
 				Console.WriteLine("failed");
 				throw new Exception($"Report '{file}' output contains errors:\n\n{string.Join("\n", errors)}");
 			}
+
+			if (wI != expected.Length)
+				throw new Exception($"Report '{file}' finished but has incomplete outputs");
+			if(input != null && rI != input.Length)
+				throw new Exception($"Report '{file}' finished but has incomplete inputs");
 
 			Console.WriteLine("passes");
 		}
