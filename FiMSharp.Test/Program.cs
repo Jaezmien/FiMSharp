@@ -29,6 +29,7 @@ namespace FiMSharp.Test
 		{
 #if RELEASE
 			ReportTests.RunAll();
+			
 #else
 			if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
 			else if (args.Any(a => a == "--test-all")) ReportTests.RunAll();

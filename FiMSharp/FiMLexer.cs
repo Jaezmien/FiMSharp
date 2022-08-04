@@ -90,7 +90,7 @@ namespace FiMSharp
 								funcNodes.Add(nodes[i]);
 								i++;
 							}
-							// for(int j = i + 1; )
+							
 							var statement = ParseStatement(funcNodes.ToArray(), content);
 
 							var endNode = nodes[i] as KirinFunctionEnd;
@@ -101,7 +101,7 @@ namespace FiMSharp
 							{
 								var n = (FiMReport)c;
 								if (n._MainParagraph != string.Empty) throw new Exception("Multiple main methods found");
-								n._MainParagraph = n.Name;
+								n._MainParagraph = func.Name;
 							}
 
 							c.AddParagraph(new FiMParagraph(c, func));
