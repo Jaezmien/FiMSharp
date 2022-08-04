@@ -46,14 +46,28 @@ namespace FiMSharp
 				}
 			}
 
-			var startIndex = nodes.FindIndex(n => n.NodeType == "KirinProgramStart") + 1;
+			var startIndex = nodes.FindIndex(n => n.NodeType == "KirinProgramStart");
 			var endIndex = nodes.FindIndex(n => n.NodeType == "KirinProgramEnd");
 
 			ParseClass(
 				report,
-				nodes.GetRange(startIndex, endIndex - startIndex).ToArray(),
+				nodes.GetRange(startIndex + 1, endIndex - (startIndex + 1)).ToArray(),
 				content
 			);
+
+			var startNode = nodes[startIndex] as KirinProgramStart;
+			var endNode = nodes[endIndex] as KirinProgramEnd;
+
+			report.Info = new FiMReportInfo(startNode.Start, startNode.Length)
+			{
+				Recipient = startNode.ProgramRecipient,
+				Name = startNode.ProgramName
+			};
+			report.Author = new FiMReportAuthor(endNode.Start, endNode.Length)
+			{
+				Role = endNode.AuthorRole,
+				Name = endNode.AuthorName
+			};
 
 			return program;
 		}

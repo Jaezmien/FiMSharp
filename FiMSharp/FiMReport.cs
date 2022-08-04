@@ -13,26 +13,6 @@ namespace FiMSharp
 
 			var tree = FiMLexer.ParseReport(this, this.ReportString);
 
-			foreach( var node in tree.Body )
-			{
-				if( node.NodeType == "KirinFunction" )
-				{
-					var n = node as KirinFunction;
-
-					if( n.Today )
-					{
-						if (this._MainParagraph != string.Empty) throw new Exception("Multiple main methods found");
-						this._MainParagraph = n.Name;
-					}
-
-					this.AddParagraph(new FiMParagraph(this, n));
-				}
-				if( node.NodeType == "KirinVariableDeclaration" )
-				{
-					((KirinVariableDeclaration)node).Execute(this, true);
-				}
-			}
-
 			this.KirinTree = tree;
 		}
 		public static FiMReport FromFile(string directory)
