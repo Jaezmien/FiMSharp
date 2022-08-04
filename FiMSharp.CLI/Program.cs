@@ -55,6 +55,16 @@ namespace FiMSharp.CLI
 #endif
 
 				FiMReport report = FiMReport.FromFile(report_path);
+				report.Output = (l) => Console.Write(l);
+				report.Input = (p, n) =>
+				{
+					if (string.IsNullOrEmpty(p))
+						Console.Write($"{n} is asking for an input: ");
+					else
+						Console.Write(p);
+
+					return Console.ReadLine();
+				};
 
 				if (pretty)
 				{

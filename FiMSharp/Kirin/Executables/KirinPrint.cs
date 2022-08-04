@@ -33,7 +33,7 @@ namespace FiMSharp.Kirin
 			var result = (new KirinValue(RawParameters, reportClass)).Value;
 			if (result == null) return null;
 			if (FiMHelper.IsTypeArray(result)) throw new FiMException("Cannot print an array");
-			reportClass.Report.Output.WriteLine(result);
+			reportClass.Report.Output(result + "\n");
 			return null;
 		}
 	}

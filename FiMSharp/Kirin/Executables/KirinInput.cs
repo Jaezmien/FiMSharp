@@ -46,10 +46,10 @@ namespace FiMSharp.Kirin
 			if (FiMHelper.IsTypeArray(variable.Type))
 				throw new Exception("Cannot input into an array");
 
-			if (!string.IsNullOrWhiteSpace(this.PromptString))
-				reportClass.Report.Output.WriteLine(this.PromptString);
-
-			string input = reportClass.Report.Input.ReadLine();
+			
+			string prompt = "";
+			if (!string.IsNullOrWhiteSpace(this.PromptString)) prompt = this.PromptString;
+			string input = reportClass.Report.Input(prompt, this.RawVariable);
 
 			if (variable.Type == KirinVariableType.STRING)
 				input = $"\"{input}\"";

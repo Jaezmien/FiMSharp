@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using FiMSharp.Kirin;
 
 namespace FiMSharp
@@ -11,9 +10,10 @@ namespace FiMSharp
 			this.Report = this;
 			this.ReportString = report.Replace("\r\n", "\n");
 
-			var tree = FiMLexer.ParseReport(this, this.ReportString);
+			this.KirinTree = FiMLexer.ParseReport(this, this.ReportString);
 
-			this.KirinTree = tree;
+			this.Output = (l) => { };
+			this.Input = (p, n) => { throw new System.NotImplementedException(); };
 		}
 		public static FiMReport FromFile(string directory)
 			=> new FiMReport(File.ReadAllText(Path.GetFullPath(directory)));
@@ -35,8 +35,10 @@ namespace FiMSharp
 			}
 		}
 
-		public TextWriter Output = Console.Out;
-		public TextReader Input = Console.In;
+		public delegate void Write(string line);
+		public delegate string Read(string prompt, string varname);
+		public Write Output;
+		public Read Input;
 
 		public string GetLine(int start, int length)
 		{
