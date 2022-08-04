@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace FiMSharp.Kirin
 {
-	class KirinSwitch : KirinExecutableNode
+	public class KirinSwitch : KirinExecutableNode
 	{
 		public KirinSwitch(int start, int length) : base(start, length) {
 			Cases = new Dictionary<string, KirinStatement>();
@@ -125,7 +125,7 @@ namespace FiMSharp.Kirin
 		}
 	}
 
-	class KirinSwitchStart : KirinNode
+	public class KirinSwitchStart : KirinNode
 	{
 		public KirinSwitchStart(int start, int length) : base(start, length) { }
 
@@ -147,7 +147,7 @@ namespace FiMSharp.Kirin
 		}
 	}
 
-	class KirinSwitchCase : KirinNode
+	public class KirinSwitchCase : KirinNode
 	{
 		public KirinSwitchCase(int start, int length) : base(start, length) { }
 
@@ -213,7 +213,7 @@ namespace FiMSharp.Kirin
 			return true;
 		}
 	}
-	class KirinSwitchCaseDefault : KirinNode
+	public class KirinSwitchCaseDefault : KirinNode
 	{
 		public KirinSwitchCaseDefault(int start, int length) : base(start, length) { }
 

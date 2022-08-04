@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace FiMSharp.Kirin
 {
-	class KirinIfStatement : KirinExecutableNode
+	public class KirinIfStatement : KirinExecutableNode
 	{
 		public KirinIfStatement(int start, int length) : base(start, length)
 		{
@@ -123,7 +123,7 @@ namespace FiMSharp.Kirin
 		}
 	}
 
-	class KirinIfStatementStart : KirinNode
+	public class KirinIfStatementStart : KirinNode
 	{
 		public KirinIfStatementStart(int start, int length) : base(start, length) { }
 
@@ -148,7 +148,7 @@ namespace FiMSharp.Kirin
 			return true;
 		}
 	}
-	class KirinElseIfStatement : KirinNode
+	public class KirinElseIfStatement : KirinNode
 	{
 		public KirinElseIfStatement(int start, int length) : base(start, length) { }
 
@@ -185,7 +185,7 @@ namespace FiMSharp.Kirin
 			return true;
 		}
 	}
-	class KirinIfStatementEnd : KirinNode
+	public class KirinIfStatementEnd : KirinNode
 	{
 		public KirinIfStatementEnd(int start, int length) : base(start, length) { }
 

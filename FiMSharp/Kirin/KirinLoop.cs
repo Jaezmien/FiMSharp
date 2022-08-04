@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace FiMSharp.Kirin
 {
-	class KirinLoop : KirinExecutableNode
+	public class KirinLoop : KirinExecutableNode
 	{
 		public KirinLoop(int start, int length): base(start, length) { }
 
@@ -92,7 +92,7 @@ namespace FiMSharp.Kirin
 		}
 	}
 
-	class KirinForInLoop : KirinLoop
+	public class KirinForInLoop : KirinLoop
 	{
 		public KirinForInLoop(int start, int length) : base(start, length) { }
 		public string RawValue;
@@ -179,7 +179,7 @@ namespace FiMSharp.Kirin
 			return statement;
 		}
 	}
-	class KirinForToLoop : KirinLoop
+	public class KirinForToLoop : KirinLoop
 	{
 		public KirinForToLoop(int start, int length) : base(start, length) { }
 		public string RawFrom;
@@ -283,7 +283,7 @@ namespace FiMSharp.Kirin
 		}
 	}
 
-	class KirinWhileLoop : KirinExecutableNode
+	public class KirinWhileLoop : KirinExecutableNode
 	{
 		public KirinWhileLoop(int start, int length) : base(start, length) { }
 
@@ -339,7 +339,7 @@ namespace FiMSharp.Kirin
 		}
 	}
 
-	class KirinLoopEnd : KirinNode
+	public class KirinLoopEnd : KirinNode
 	{
 		public KirinLoopEnd(int start, int length) : base(start, length) { }
 

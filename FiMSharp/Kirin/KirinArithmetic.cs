@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace FiMSharp.Kirin
 {
-    class KirinArithmetic : KirinBaseNode
+    public class KirinArithmetic : KirinBaseNode
     {
         public KirinArithmetic(ArithmeticCheckResult result)
         {

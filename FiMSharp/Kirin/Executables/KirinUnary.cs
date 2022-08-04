@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace FiMSharp.Kirin
 {
-	class KirinUnary : KirinExecutableNode
+	public class KirinUnary : KirinExecutableNode
 	{
 		public KirinUnary(int start, int length) : base(start, length) { }
 

@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace FiMSharp.Kirin
 {
-	class KirinInput : KirinExecutableNode
+	public class KirinInput : KirinExecutableNode
 	{
 		public KirinInput(int start, int length) : base(start, length) { }
 

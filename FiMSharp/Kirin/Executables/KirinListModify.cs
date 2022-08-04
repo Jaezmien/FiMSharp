@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace FiMSharp.Kirin
 {
-	class KirinListModify : KirinExecutableNode
+	public class KirinListModify : KirinExecutableNode
 	{
 		public KirinListModify(int start, int length) : base(start, length) { }
 

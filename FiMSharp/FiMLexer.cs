@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace FiMSharp
 {
-	class FiMLexer
+	internal class FiMLexer
 	{
 		public readonly static char[] Punctuations = new char[] { '.', '!', '?', ':', ',' };
 		public readonly static char[] StringLiterals = new char[] { '"', '“', '”' };

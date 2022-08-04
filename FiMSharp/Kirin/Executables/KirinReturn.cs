@@ -2,7 +2,7 @@
 
 namespace FiMSharp.Kirin
 {
-	class KirinReturn : KirinExecutableNode
+	public class KirinReturn : KirinExecutableNode
 	{
 		public KirinReturn(int start, int length) : base(start, length) { }
 
