@@ -82,7 +82,7 @@ namespace FiMSharp
 
 			this.Paragraphs.Push(new FiMParagraph(this, node));
 		}
-		protected void AddParagraph(FiMParagraph paragraph) => this.Paragraphs.Push(paragraph);
+		internal void AddParagraph(FiMParagraph paragraph) => this.Paragraphs.Push(paragraph);
 
 		public Stack<FiMClass> Classes;
 		public FiMClass GetClass(string name, int depth = 0, bool propagate = true)

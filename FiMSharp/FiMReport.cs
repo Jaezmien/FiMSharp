@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Collections.Generic;
 using FiMSharp.Kirin;
 
 namespace FiMSharp
 {
 	public class FiMReport : FiMClass
 	{
-		public FiMReport(string report) : base("", true, null, null)
+		public FiMReport(string report) : base("I", true, null, null)
 		{
 			this.Report = this;
 			this.ReportString = report.Replace("\r\n", "\n");
@@ -47,7 +45,7 @@ namespace FiMSharp
 
 		public KirinProgram KirinTree;
 
-		private readonly string _MainParagraph = string.Empty;
+		internal string _MainParagraph = string.Empty;
 		public FiMParagraph MainParagraph
 		{
 			get
