@@ -13,7 +13,7 @@ namespace FiMSharp.Kirin
 		public KirinVariableType ExpectedType;
 		public bool Constant;
 
-		private readonly static Regex VarDeclaration = new Regex(@"^Did you know that (.+)");
+		private readonly static string PreKeyword = "Did you know that ";
 		private readonly static string ConstantKW = " always";
 		private static class InitKeyword
 		{
@@ -37,18 +37,14 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = VarDeclaration.Match(content);
-			if (!match.Success) return false;
+			if (!content.StartsWith(PreKeyword)) return false;
 
 			var node = new KirinVariableDeclaration(start, length);
-
-			Group group = match.Groups[1];
-			string varName = group.Value;
+			string varName = content.Substring(PreKeyword.Length);
 			string iKeyword = InitKeyword.GetKeyword(varName, out int iIndex);
+			string subContent = varName.Substring(iIndex + iKeyword.Length);
 			varName = varName.Substring(0, iIndex);
 			node.Name = varName;
-
-			string subContent = group.Value.Substring(iIndex + iKeyword.Length);
 
 			node.Constant = subContent.StartsWith(ConstantKW);
 			if( node.Constant ) subContent = subContent.Substring(ConstantKW.Length);

@@ -129,19 +129,17 @@ namespace FiMSharp.Kirin
 	{
 		public KirinSwitchStart(int start, int length) : base(start, length) { }
 
-		private readonly static Regex SwitchStart = new Regex(@"^In regards to (.+)");
-
 		public string RawVariable;
 
+		private readonly static string Keyword = "In regards to ";
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = SwitchStart.Match(content);
-			if (!match.Success) return false;
+			if (!content.StartsWith(Keyword)) return false;
 
 			result = new KirinSwitchStart(start, length)
 			{
-				RawVariable = match.Groups[1].Value
+				RawVariable = content.Substring(Keyword.Length)
 			};
 			return true;
 		}
@@ -150,8 +148,6 @@ namespace FiMSharp.Kirin
 	public class KirinSwitchCase : KirinNode
 	{
 		public KirinSwitchCase(int start, int length) : base(start, length) { }
-
-		public readonly static Regex SwitchCase = new Regex(@"^On the (.+?) hoof");
 
 		private static bool IsValidNumberPlace(string place, out int index)
 		{
@@ -200,15 +196,16 @@ namespace FiMSharp.Kirin
 
 		public string RawCase;
 
+		private readonly static string PreKeyword = "On the ";
+		private readonly static string PostKeyword = " hoof";
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = SwitchCase.Match(content);
-			if (!match.Success) return false;
+			if (!content.StartsWith(PreKeyword) || !content.EndsWith(PostKeyword)) return false;
 
 			result = new KirinSwitchCase(start, length)
 			{
-				RawCase = match.Groups[1].Value
+				RawCase = content.Substring(PreKeyword.Length, content.Length - PreKeyword.Length - PostKeyword.Length)
 			};
 			return true;
 		}

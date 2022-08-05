@@ -96,12 +96,11 @@ namespace FiMSharp.Kirin
 	{
 		public KirinForInLoop(int start, int length) : base(start, length) { }
 		public string RawValue;
-
-		private readonly static Regex ForIn = new Regex(@"^For every (.+?) in (.+)");
+		
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = ForIn.Match(content);
+			var match = Regex.Match(content, @"^For every (.+) in (.+)");
 			if (!match.Success) return false;
 
 			var node = new KirinForInLoop(start, length)
@@ -186,12 +185,10 @@ namespace FiMSharp.Kirin
 		public string RawTo;
 		public string RawInterval;
 
-		private readonly static Regex ForIn = new Regex(@"^For every (.+?) from (.+?) to (.+)");
-		private readonly static Regex ToBy = new Regex(@"^(.+?) by (.+)");
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = ForIn.Match(content);
+			var match = Regex.Match(content, @"^For every (.+) from (.+) to (.+)");
 			if (!match.Success) return false;
 
 			var node = new KirinForToLoop(start, length)
@@ -206,9 +203,9 @@ namespace FiMSharp.Kirin
 			if (eType != KirinVariableType.NUMBER)
 				throw new FiMException("Expected type number in a for-to loop");
 
-			if(ToBy.IsMatch(node.RawTo))
+			var byMatch = Regex.Match(node.RawTo, @"^(.+?) by (.+)");
+			if(byMatch.Success)
 			{
-				var byMatch = ToBy.Match(node.RawInterval);
 				node.RawTo = byMatch.Groups[1].Value;
 				node.RawInterval = byMatch.Groups[2].Value;
 			}
@@ -290,14 +287,15 @@ namespace FiMSharp.Kirin
 		public KirinConditional.ConditionalCheckResult Condition;
 		public KirinStatement Statement;
 
-		private readonly static Regex WhileLoop = new Regex(@"^(?:As long as|While) (.+)");
+		private readonly static string[] PreKeywords = new[] { "As long as ", "While " };
+
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = WhileLoop.Match(content);
-			if (!match.Success) return false;
+			var match = PreKeywords.FirstOrDefault(k => content.StartsWith(k));
+			if (match == null) return false;
 
-			string condition = match.Groups[1].Value;
+			string condition = content.Substring(match.Length);
 
 			if (!KirinConditional.IsConditional(condition, out var cResult))
 				throw new FiMException("Expression is not a conditional");
@@ -343,12 +341,10 @@ namespace FiMSharp.Kirin
 	{
 		public KirinLoopEnd(int start, int length) : base(start, length) { }
 
-		public readonly static string LoopEnd = "That's what I did";
-
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			if (content != LoopEnd) return false;
+			if (content != "That's what I did") return false;
 
 			result = new KirinLoopEnd(start, length);
 			return true;

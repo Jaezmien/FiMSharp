@@ -2,9 +2,9 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-#if DEBUG
+using System.Diagnostics;
+using System.Threading;
 using System.Linq;
-#endif
 
 namespace FiMSharp.Test
 {
@@ -37,14 +37,60 @@ namespace FiMSharp.Test
 			report.MainParagraph?.Execute();
 		}
 
+		static double Profile(int iterations, Action func)
+		{
+			//Run at highest priority to minimize fluctuations caused by other processes/threads
+			Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
+			Thread.CurrentThread.Priority = ThreadPriority.Highest;
+
+			// warm up 
+			func();
+
+			var watch = new Stopwatch();
+
+			// clean up
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+			GC.Collect();
+
+			watch.Start();
+			for (int i = 0; i < iterations; i++)
+			{
+				func();
+			}
+			watch.Stop();
+			return watch.Elapsed.TotalMilliseconds;
+		}
+
+		static void Benchmark()
+		{
+			string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+			string path = Path.Combine(currentDirectory, @"..\..\..\Reports");
+
+			string[] files = Directory.GetFiles(path);
+			foreach (string file in files)
+			{
+				string filename = Path.GetFileName(file);
+
+				double benchmark = Profile(1000, () =>
+				{
+					FiMReport.FromFile(Path.GetFullPath(file));
+				});
+
+				Console.WriteLine($"[Debug/OPT] Report '{filename}' parsing through 1K iterations took {benchmark}ms.");
+			}
+		}
+
 		static void Main(string[] args)
 		{
 #if RELEASE
-			ReportTests.RunAll();
-			
+			Benchmark();
+			/*if (args.Any(a => a == "--benchmark")) Benchmark();
+			else ReportTests.RunAll();*/
 #else
 			if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
 			else if (args.Any(a => a == "--test-all")) ReportTests.RunAll();
+			else if (args.Any(a => a == "--benchmark")) Benchmark();
 			else RunDebugReport();
 #endif
 		}

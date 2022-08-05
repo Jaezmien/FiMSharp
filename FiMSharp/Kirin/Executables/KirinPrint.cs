@@ -11,12 +11,10 @@ namespace FiMSharp.Kirin
 			this.Length = length;
 		}
 
-		private readonly static Regex Print = new Regex(@"^I (quickly )?(?:said|sang|wrote) (.+)");
-
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = Print.Match(content);
+			var match = Regex.Match(content, @"^I (quickly )?(?:sa(?:id|ng)|wrote) (.+)");
 			if (!match.Success) return false;
 
 			result = new KirinPrint(start, length)

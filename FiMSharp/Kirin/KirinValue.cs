@@ -314,7 +314,6 @@ namespace FiMSharp.Kirin
 
 	public class KirinLiteral
 	{
-		private readonly static Regex StringCheck = new Regex("^\"(.+)?\"$");
 		private static class Boolean
 		{
 			public static readonly string[] True = { "correct", "right", "true", "yes" };
@@ -335,7 +334,7 @@ namespace FiMSharp.Kirin
 		{
 			result = null;
 
-			if (StringCheck.IsMatch(content))
+			if( content.StartsWith("\"") && content.EndsWith("\""))
 			{
 				string str = content.Substring(1, content.Length - 2);
 				if (Regex.IsMatch(str, @"(?<!\\)""")) return false;
@@ -349,11 +348,18 @@ namespace FiMSharp.Kirin
 				result = content[1] == '\\' ? CharAsLiteral(content[2]) : content[1];
 				return true;
 			}
-			if (Boolean.True.Any(v => v == content) || Boolean.False.Any(v => v == content))
+
+			if (Boolean.True.Any(v => v == content))
 			{
-				result = Boolean.True.Any(v => v == content);
+				result = true;
 				return true;
 			}
+			if (Boolean.False.Any(v => v == content))
+			{
+				result = false;
+				return true;
+			}
+
 			if (double.TryParse(content, out double fValue))
 			{
 				result = fValue;

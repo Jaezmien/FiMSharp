@@ -6,12 +6,10 @@ namespace FiMSharp.Kirin
 	{
 		public KirinPostScript(int start, int length) : base(start, length) { }
 
-		private readonly static string PSComment = @"^P\.(?:P\.)*S\.\s(?:.+)$";
-
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			if (!Regex.IsMatch(content, PSComment)) return false;
+			if (!Regex.IsMatch(content, @"^(?:P\.)+S\.\s")) return false;
 			result = new KirinPostScript(start, length);
 			return true;
 		}

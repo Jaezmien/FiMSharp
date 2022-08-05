@@ -10,39 +10,39 @@ namespace FiMSharp.Kirin
 	{
 		public KirinListModify(int start, int length) : base(start, length) { }
 
-		private readonly static Regex ListModif = new Regex(@"^(.+) (\d+) (?:is|was|ha[sd]|like[sd]?) (.+)");
-		private readonly static Regex ListModifVar = new Regex(@"^(.+) of (.+) (?:is|was|ha[sd]|like[sd]?) (.+)");
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 
-			if ( ListModif.IsMatch(content) )
+			var listModifIndex = Regex.Match(content, @"^(.+) (\d+) (?:(?:i|wa)s|ha[sd]|like[sd]?) (.+)");
+			if ( listModifIndex.Success )
 			{
-				var matches = ListModif.Matches(content);
-				GroupCollection groups = matches[0].Groups;
-
+				GroupCollection groups = listModifIndex.Groups;
 				result = new KirinListModify(start, length)
 				{
 					LeftOp = groups[1].Value,
 					RawIndex = groups[2].Value,
 					RightOp = groups[3].Value
 				};
-			}
-			else if( ListModifVar.IsMatch(content) )
-			{
-				var matches = ListModifVar.Matches(content);
-				GroupCollection groups = matches[0].Groups;
 
+				return true;
+			}
+
+			var listModifVar = Regex.Match(content, @"^(.+) of (.+) (?:(?:i|wa)s|ha[sd]|like[sd]?) (.+)");
+			if( listModifVar.Success )
+			{
+				GroupCollection groups = listModifVar.Groups;
 				result = new KirinListModify(start, length)
 				{
 					RawIndex = groups[1].Value,
 					LeftOp = groups[2].Value,
 					RightOp = groups[3].Value
 				};
-			}
-			else return false;
 
-			return true;
+				return true;
+			}
+
+			return false;
 		}
 
 		public string LeftOp;

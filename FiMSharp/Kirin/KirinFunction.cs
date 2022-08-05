@@ -182,7 +182,7 @@ namespace FiMSharp.Kirin
 		public List<KirinFunctionArgument> args;
 		public KirinVariableType Return;
 
-		private readonly static Regex FunctionStart = new Regex(@"^(?:Today )?I learned (.+)?");
+		private readonly static Regex FunctionStart = new Regex(@"^(?:Today )?I learned (.+)");
 		private readonly static string[] FunctionReturn = { " to get ", " with " };
 		private readonly static string FunctionParam = " using ";
 
@@ -245,16 +245,15 @@ namespace FiMSharp.Kirin
 
 		public string Name;
 
-		private readonly static Regex FunctionEnd = new Regex(@"^That's all about (.+)?");
+		private readonly static string PreKeyword = "That's all about ";
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = FunctionEnd.Match(content);
-			if (!match.Success) return false;
+			if (!content.StartsWith(PreKeyword)) return false;
 
 			result = new KirinFunctionEnd(start, length)
 			{
-				Name = match.Groups[1].Value
+				Name = content.Substring(PreKeyword.Length)
 			};
 			return true;
 		}

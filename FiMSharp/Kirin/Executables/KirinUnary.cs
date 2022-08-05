@@ -9,26 +9,38 @@ namespace FiMSharp.Kirin
 	{
 		public KirinUnary(int start, int length) : base(start, length) { }
 
-		private readonly static Regex PreIncrement = new Regex(@"^There was one more (.+)");
-		private readonly static Regex PostIncrement = new Regex(@"^(.+) got one more");
-		private readonly static Regex PreDecrement = new Regex(@"^There was one less (.+)");
-		private readonly static Regex PostDecrement = new Regex(@"^(.+) got one less");
-
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
 
-			var unaries = new [] { PreIncrement, PostIncrement, PreDecrement, PostDecrement };
-			if (!unaries.Any(r => r.IsMatch(content))) return false;
+			var preUnaries = new[] { "There was one more ", "There was one less " };
+			var postUnaries = new[] { " got one more", " got one less" };
 
-			var unaryRegex = unaries.First(r => r.IsMatch(content));
-			result = new KirinUnary(start, length)
+			if (preUnaries.Any(u => content.StartsWith(u)))
 			{
-				RawVariable = unaryRegex.Match(content).Groups[1].Value,
-				Increment = Array.IndexOf(unaries, unaryRegex) < 2
-			};
+				string keyword = preUnaries.First(u => content.StartsWith(u));
+				result = new KirinUnary(start, length)
+				{
+					RawVariable = content.Substring( keyword.Length ),
+					Increment = Array.FindIndex(preUnaries, u => content.StartsWith(u)) == 0
+				};
 
-			return true;
+				return true;
+			}
+
+			if (postUnaries.Any(u => content.EndsWith(u)))
+			{
+				string keyword = postUnaries.First(u => content.EndsWith(u));
+				result = new KirinUnary(start, length)
+				{
+					RawVariable = content.Substring(0, content.Length - keyword.Length),
+					Increment = Array.FindIndex(postUnaries, u => content.EndsWith(u)) == 0
+				};
+
+				return true;
+			}
+
+			return false;
 		}
 
 		public string RawVariable;
