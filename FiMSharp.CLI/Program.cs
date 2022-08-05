@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.IO;
@@ -11,6 +12,14 @@ namespace FiMSharp.CLI
 	{
 		public static void AddExperimentalFunctions(FiMReport report)
 		{
+			report.AddParagraph("count of an array", new Func<IDictionary, double>((value) =>
+			{
+				return value.Keys.Count;
+			}));
+			report.AddParagraph("length of a string", new Func<string, double>((value) =>
+			{
+				return value.Length;
+			}));
 			report.AddParagraph("convert a number to char", new Func<double, char>((value) =>
 			{
 				return (char)value;

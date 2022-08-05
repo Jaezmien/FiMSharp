@@ -192,7 +192,7 @@ namespace FiMSharp.Kirin
 					throw new FiMException("Unidentical list value type");
 
 				int i = 1;
-				if( expectedType == KirinVariableType.STRING_ARRAY )
+				if (expectedType == KirinVariableType.STRING_ARRAY)
 				{
 					dict = new Dictionary<int, string>();
 					args.ForEach(kv => dict.Add(i++, Convert.ToString(kv.Value)));
@@ -210,29 +210,6 @@ namespace FiMSharp.Kirin
 
 				returnedType = (KirinVariableType)expectedType;
 				return dict;
-			}
-
-			// Array count
-			if (Regex.IsMatch(evaluatable, @"^count of (.+)"))
-			{
-				var match = Regex.Match(evaluatable, @"^count of (.+)");
-				string varName = match.Groups[1].Value;
-				if (!reportClass.Variables.Has(varName)) throw new FiMException("Variable " + varName + " does not exist");
-				var variable = reportClass.Variables.Get(varName);
-
-				if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
-					throw new FiMException("Cannot get count of a non-array variable");
-
-				returnedType = KirinVariableType.NUMBER;
-				if (variable.Type == KirinVariableType.STRING)
-				{
-					return Convert.ToString(variable.Value).Length;
-				}
-				else
-				{
-					var array = (System.Collections.IDictionary)variable.Value;
-					return array.Count;
-				}
 			}
 
 			// Array index
