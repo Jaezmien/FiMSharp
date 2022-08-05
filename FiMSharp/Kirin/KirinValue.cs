@@ -279,64 +279,13 @@ namespace FiMSharp.Kirin
 				returnedType = KirinVariableType.NUMBER;
 				return arithmetic.GetValue(reportClass);
 			}
+
 			// Conditional
 			if (KirinConditional.IsConditional(evaluatable, out var conditionalResult))
 			{
 				var conditional = new KirinConditional(conditionalResult);
 				returnedType = KirinVariableType.BOOL;
 				return conditional.GetValue(reportClass);
-			}
-
-			// String concatenation
-			if (evaluatable.Contains("\""))
-			{
-				StringBuilder finalValue = new StringBuilder();
-
-				StringBuilder buffer = new StringBuilder();
-				bool isInString = false;
-				bool escapeNextChar = false;
-				foreach (char c in evaluatable)
-				{
-					if (c == '\\')
-					{
-						escapeNextChar = true;
-						continue;
-					}
-
-					if (escapeNextChar)
-					{
-						escapeNextChar = false;
-						buffer.Append(c);
-						continue;
-					}
-
-					if (c == '"')
-					{
-						if (buffer.Length > 0)
-						{
-							string value = buffer.ToString();
-
-							if (isInString) finalValue.Append(value);
-							else finalValue.Append(Evaluate(reportClass, value));
-
-							buffer.Clear();
-						}
-
-						isInString = !isInString;
-						continue;
-					}
-					buffer.Append(c);
-				}
-
-				if (buffer.Length > 0)
-				{
-					string value = buffer.ToString();
-					if (isInString) finalValue.Append(value);
-					else finalValue.Append(Evaluate(reportClass, value));
-				}
-
-				returnedType = KirinVariableType.STRING;
-				return finalValue.ToString();
 			}
 
 			throw new FiMException("Cannot evaluate " + evaluatable);
