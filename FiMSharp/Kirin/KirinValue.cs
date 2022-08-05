@@ -359,31 +359,9 @@ namespace FiMSharp.Kirin
 			{
 				string str = content.Substring(1, content.Length - 2);
 				if (Regex.IsMatch(str, @"(?<!\\)""")) return false;
-				var sb = new StringBuilder();
-				for (int i = 0; i < str.Length; i++)
-				{
-					char c = str[i];
-					if (c != '\\' || i + 1 >= str.Length - 1)
-					{
-						sb.Append(c);
-						continue;
-					}
 
-					char nc = str[++i];
-					char lc = CharAsLiteral(nc);
-					if (lc == nc)
-					{
-						sb.Append(c);
-						sb.Append(nc);
-						continue;
-					}
-					else
-					{
-						sb.Append(lc);
-					}
-				}
+				result = str.Replace("\\0", "\0").Replace("\\r", "\r").Replace("\\n", "\n").Replace("\\t", "\t").Replace("\\\"", "\"");
 
-				result = sb.ToString();
 				return true;
 			}
 			if (content.StartsWith("'") && content.EndsWith("'") && ((content.Length == 3) || (content.Length == 4 && content[1] == '\\')))
