@@ -40,7 +40,6 @@ That's all about whether the code works.
 
 I learned how to interpret brainfuck.
 
-    Did you know that Trixie is the word nothing? (Output string)
     Did you know that Applejack is the number 1? (Input Pointer)
     Did you know that Fluttershy is many numbers? (Memory Blocks)
     Did you know that Pinkie Pie is the number 1? (Memory Pointer)
@@ -57,8 +56,7 @@ I learned how to interpret brainfuck.
         Otherwise if Rainbow Dash is equal to '-' then,
             Pinkie Pie of Fluttershy got one less.
         Otherwise if Rainbow Dash is equal to '.' then,
-            Did you know that Spike is the character convert a number to char using Pinkie Pie of Fluttershy?
-            Trixie became Trixie plus Spike.
+            I quickly said convert a number to char using Pinkie Pie of Fluttershy.
         Otherwise if Rainbow Dash is equal to ',' then,
             Did you know that Spike is the letter nothing?
             I asked Spike.
@@ -77,10 +75,6 @@ I learned how to interpret brainfuck.
 
         Applejack got one more.
     That's what I did.
-
-    If Trixie is not the word nothing then,
-        I said Trixie!
-    That's what I would do.
 
 That's all about how to interpret brainfuck.
 

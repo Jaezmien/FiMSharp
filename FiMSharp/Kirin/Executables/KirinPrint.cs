@@ -11,7 +11,7 @@ namespace FiMSharp.Kirin
 			this.Length = length;
 		}
 
-		private readonly static Regex Print = new Regex(@"^I (?:said|sang|wrote) (.+)");
+		private readonly static Regex Print = new Regex(@"^I (quickly )?(?:said|sang|wrote) (.+)");
 
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
@@ -21,19 +21,21 @@ namespace FiMSharp.Kirin
 
 			result = new KirinPrint(start, length)
 			{
-				RawParameters = match.Groups[1].Value
+				NewLine = !match.Groups[1].Success,
+				RawParameters = match.Groups[2].Value,
 			};
 			return true;
 		}
 
 		public string RawParameters;
+		public bool NewLine;
 
 		public override object Execute(FiMClass reportClass)
 		{
 			var result = (new KirinValue(RawParameters, reportClass)).Value;
 			if (result == null) return null;
 			if (FiMHelper.IsTypeArray(result)) throw new FiMException("Cannot print an array");
-			reportClass.Report.Output(Convert.ToString(result) + "\n");
+			reportClass.Report.Output(Convert.ToString(result) + (NewLine ? "\n" : ""));
 			return null;
 		}
 	}
