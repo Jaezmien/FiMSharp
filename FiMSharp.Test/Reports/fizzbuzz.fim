@@ -10,10 +10,10 @@ Today I learned how to play fizzbuzz!
         Did you know that Babs Seed is the word ""? (Store the result!)
 
         If Applebloom modulo 3 is equal to 0 then, (...Is Applebloom divisible by 3?)
-            Babs Seed became Babs Seed"Fizz".
+            Babs Seed became Babs Seed plus "Fizz".
         That's what I would do.
         If Applebloom modulo 5 is equal to 0 then, (... Is Applebloom divisible by 5?)
-            Babs Seed became Babs Seed"Buzz".
+            Babs Seed became Babs Seed plus "Buzz".
         That's what I would do.
 
         (Now we check if result is still empty, which means it's not divisible by 3 or 5!)
@@ -21,7 +21,7 @@ Today I learned how to play fizzbuzz!
             Babs Seed became Applebloom. (String conversion!)
         That's what I would do.
 
-        I said Applebloom" - "Babs Seed.
+        I said Applebloom plus " - " plus Babs Seed.
         Applebloom got one more.
 
     That's what I did.

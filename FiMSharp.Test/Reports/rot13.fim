@@ -21,9 +21,9 @@ I learned how to apply rot13 using a word input to get a word.
             That's what I would do.
             char ascii became char ascii plus addchar.
             Did you know that new char ascii is the character convert a number to char using char ascii?
-            output became output""new char ascii.
+            output became output plus new char ascii.
         Otherwise,
-            output became output""char.
+            output became output plus char.
         That's what I would do.
 
         
