@@ -9,7 +9,6 @@ namespace FiMSharp
 	internal class FiMLexer
 	{
 		public readonly static char[] Punctuations = new char[] { '.', '!', '?', ':', ',' };
-		public readonly static char[] StringLiterals = new char[] { '"', '“', '”' };
 
 		public static KirinProgram ParseReport(FiMReport report, string content)
 		{

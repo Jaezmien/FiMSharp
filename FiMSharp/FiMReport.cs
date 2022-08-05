@@ -8,7 +8,7 @@ namespace FiMSharp
 		public FiMReport(string report) : base("I", true, null, null)
 		{
 			this.Report = this;
-			this.ReportString = report.Replace("\r\n", "\n");
+			this.ReportString = report.Replace("\r\n", "\n").Replace('“', '"').Replace('”', '"');
 
 			this.KirinTree = FiMLexer.ParseReport(this, this.ReportString);
 
