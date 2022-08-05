@@ -23,7 +23,7 @@ namespace FiMSharp
 			return list.ToArray();
 		}
 	}
-	class FiMHelper
+	internal class FiMHelper
 	{
 		public static bool IsKirinNodeType(KirinNode a, Type b)
 		{
@@ -207,12 +207,12 @@ namespace FiMSharp
 			public string RawIndex;
 			public string RawVariable;
 
-			public static bool IsArrayIndex(string content, FiMReport report)
+			public static bool IsArrayIndex(string content, FiMClass reportClass)
 			{
-				return GetArrayIndex(content, report) != null;
+				return GetArrayIndex(content, reportClass) != null;
 			}
 
-			public static ArrayIndex GetArrayIndex(string content, FiMReport report)
+			public static ArrayIndex GetArrayIndex(string content, FiMClass reportClass)
 			{
 				// Explicit index
 				if (Regex.IsMatch(content, @"^(.+) of (.+)$"))
@@ -224,7 +224,7 @@ namespace FiMSharp
 						string strIndex = match.Groups[1].Value;
 						string strVar = match.Groups[3].Value;
 
-						if ( report.Variables.Exists(strVar) )
+						if ( reportClass.GetVariable(strVar) != null )
 						{
 							return new ArrayIndex()
 							{
@@ -242,7 +242,7 @@ namespace FiMSharp
 					string varName = match.Groups[1].Value;
 					string varIndex = match.Groups[2].Value;
 
-					if( report.Variables.Exists(varName) )
+					if( reportClass.GetVariable(varName) != null )
 					{
 						return new ArrayIndex()
 						{

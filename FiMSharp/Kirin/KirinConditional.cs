@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 
 namespace FiMSharp.Kirin
 {
@@ -108,11 +105,11 @@ namespace FiMSharp.Kirin
 			return true;
 		}
 
-		public bool GetValue(FiMReport report) => Convert.ToBoolean(this.NodeTree.Eval(report));
+		public bool GetValue(FiMClass reportClass) => Convert.ToBoolean(this.NodeTree.Eval(reportClass));
 
 		private abstract class BaseNode
 		{
-			public abstract object Eval(FiMReport report);
+			public abstract object Eval(FiMClass reportClass);
 		}
 		private class ExpressionNode : BaseNode
 		{
@@ -148,10 +145,10 @@ namespace FiMSharp.Kirin
 
 				return x == y;
 			}
-			public override object Eval(FiMReport report)
+			public override object Eval(FiMClass reportClass)
 			{
-				var lv = Left.Eval(report);
-				var rv = Right.Eval(report);
+				var lv = Left.Eval(reportClass);
+				var rv = Right.Eval(reportClass);
 				var lvt = FiMHelper.AsVariableType(lv);
 				var rvt = FiMHelper.AsVariableType(rv);
 
@@ -183,9 +180,9 @@ namespace FiMSharp.Kirin
 		private class ValueNode : BaseNode
 		{
 			public string RawValue;
-			public override object Eval(FiMReport report)
+			public override object Eval(FiMClass reportClass)
 			{
-				var value = new KirinValue(this.RawValue, report);
+				var value = new KirinValue(this.RawValue, reportClass);
 				return value.Value;
 			}
 		}

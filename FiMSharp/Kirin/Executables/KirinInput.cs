@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace FiMSharp.Kirin
 {
-	class KirinInput : KirinExecutableNode
+	public class KirinInput : KirinExecutableNode
 	{
 		public KirinInput(int start, int length) : base(start, length) { }
 
@@ -38,18 +38,18 @@ namespace FiMSharp.Kirin
 		public string RawVariable;
 		public string PromptString;
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
-			if (!report.Variables.Exists(this.RawVariable))
+			var variable = reportClass.GetVariable(this.RawVariable);
+			if( variable == null )
 				throw new Exception("Variable " + this.RawVariable + " does not exist");
-			var variable = report.Variables.Get(this.RawVariable);
 			if (FiMHelper.IsTypeArray(variable.Type))
 				throw new Exception("Cannot input into an array");
 
-			if (!string.IsNullOrWhiteSpace(this.PromptString))
-				report.ConsoleOutput.WriteLine(this.PromptString);
-
-			string input = report.ConsoleInput.ReadLine();
+			
+			string prompt = "";
+			if (!string.IsNullOrWhiteSpace(this.PromptString)) prompt = this.PromptString;
+			string input = reportClass.Report.Input(prompt, this.RawVariable);
 
 			if (variable.Type == KirinVariableType.STRING)
 				input = $"\"{input}\"";

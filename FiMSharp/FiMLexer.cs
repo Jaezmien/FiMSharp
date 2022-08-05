@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace FiMSharp
 {
-	class FiMLexer
+	internal class FiMLexer
 	{
 		public readonly static char[] Punctuations = new char[] { '.', '!', '?', ':', ',' };
 		public readonly static char[] StringLiterals = new char[] { '"', '“', '”' };
@@ -46,59 +46,75 @@ namespace FiMSharp
 				}
 			}
 
-			for( int i = 0; i < nodes.Count; i++ )
+			var startIndex = nodes.FindIndex(n => n.NodeType == "KirinProgramStart");
+			var endIndex = nodes.FindIndex(n => n.NodeType == "KirinProgramEnd");
+
+			ParseClass(
+				report,
+				nodes.GetRange(startIndex + 1, endIndex - (startIndex + 1)).ToArray(),
+				content
+			);
+
+			var startNode = nodes[startIndex] as KirinProgramStart;
+			var endNode = nodes[endIndex] as KirinProgramEnd;
+
+			report.Info = new FiMReportInfo(startNode.Start, startNode.Length)
+			{
+				Recipient = startNode.ProgramRecipient,
+				Name = startNode.ProgramName
+			};
+			report.Author = new FiMReportAuthor(endNode.Start, endNode.Length)
+			{
+				Role = endNode.AuthorRole,
+				Name = endNode.AuthorName
+			};
+
+			return program;
+		}
+
+		internal static void ParseClass(FiMClass c, KirinNode[] nodes, string content)
+		{
+			for(int i = 0; i < nodes.Length; i++)
 			{
 				var node = nodes[i];
-				switch (node.NodeType)
+				switch(node.NodeType)
 				{
-					case "KirinProgramStart":
-						{
-							var n = node as KirinProgramStart;
-							program.Start = n.Start;
-
-							report.Info = new FiMReportInfo(n.Start, n.Length)
-							{
-								Recipient = n.ProgramRecipient,
-								Name = n.ProgramName
-							};
-
-							program.PushNode(node);
-						}
-						break;
-					case "KirinProgramEnd":
-						{
-							var n = node as KirinProgramEnd;
-							program.Length = (n.Start + n.Length) - program.Start;
-
-							report.Author = new FiMReportAuthor(n.Start, n.Length)
-							{
-								Role = n.AuthorRole,
-								Name = n.AuthorName
-							};
-
-							program.PushNode(node);
-						}
-						break;
 					case "KirinFunctionStart":
 						{
 							i++;
 							var startNode = node as KirinFunctionStart;
 
 							List<KirinNode> funcNodes = new List<KirinNode>();
-							while (nodes[i].NodeType != "KirinFunctionEnd") funcNodes.Add(nodes[i++]);
+							while (nodes[i].NodeType != "KirinFunctionEnd")
+							{
+								funcNodes.Add(nodes[i]);
+								i++;
+							}
+							
 							var statement = ParseStatement(funcNodes.ToArray(), content);
 
 							var endNode = nodes[i] as KirinFunctionEnd;
 
-							program.PushNode( ParseFunction(startNode, endNode, statement) );
+							var func = ParseFunction(startNode, endNode, statement);
+
+							if (func.Today && c.GetType() == typeof(FiMReport))
+							{
+								var n = (FiMReport)c;
+								if (n._MainParagraph != string.Empty) throw new Exception("Multiple main methods found");
+								n._MainParagraph = func.Name;
+							}
+
+							c.AddParagraph(new FiMParagraph(c, func));
 						}
 						break;
 
 					case "KirinVariableDeclaration":
 						{
-							program.PushNode(node);
+							((KirinVariableDeclaration)node).Execute(c, true);
 						}
 						break;
+
+					// "KirinClassDeclarationStart":
 
 					case "KirinPostScript":
 						{
@@ -108,12 +124,10 @@ namespace FiMSharp
 					default:
 						{
 							var line = FiMHelper.GetIndexPair(content, node.Start).Line;
-							throw new Exception($"Illegal report body node at line {line}");
+							throw new Exception($"Illegal class body node at line {line}");
 						}
 				}
 			}
-
-			return program;
 		}
 
 		internal static KirinFunction ParseFunction(
@@ -381,6 +395,13 @@ namespace FiMSharp
 
 			if (KirinProgramStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinProgramEnd.TryParse(subContent, start, length, out node)) return node;
+
+#if DEBUG
+			if (KirinClassStart.TryParse(subContent, start, length, out node)) return node;
+			if (KirinClassEnd.TryParse(subContent, start, length, out node)) return node;
+			if (KirinClassConstructorStart.TryParse(subContent, start, length, out node)) return node;
+			if (KirinClassConstructorEnd.TryParse(subContent, start, length, out node)) return node;
+#endif
 
 			if (KirinFunctionStart.TryParse(subContent, start, length, out node)) return node;
 			if (KirinFunctionEnd.TryParse(subContent, start, length, out node)) return node; ;

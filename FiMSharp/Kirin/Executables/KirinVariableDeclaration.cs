@@ -26,8 +26,8 @@ namespace FiMSharp.Kirin
 				if( Keywords.Any(kw => subContent.Contains($" {kw} ")) )
 				{
 					string word = Keywords.First(kw => subContent.Contains($" {kw} "));
-					index = subContent.IndexOf(word);
-					return word;
+					index = subContent.IndexOf($" {word} ");
+					return $" {word} ";
 				}
 
 				throw new FiMException("Cannot determine Initialization Keyword");
@@ -45,7 +45,7 @@ namespace FiMSharp.Kirin
 			Group group = match.Groups[1];
 			string varName = group.Value;
 			string iKeyword = InitKeyword.GetKeyword(varName, out int iIndex);
-			varName = varName.Substring(0, iIndex - 1);
+			varName = varName.Substring(0, iIndex);
 			node.Name = varName;
 
 			string subContent = group.Value.Substring(iIndex + iKeyword.Length);
@@ -53,11 +53,11 @@ namespace FiMSharp.Kirin
 			node.Constant = subContent.StartsWith(ConstantKW);
 			if( node.Constant ) subContent = subContent.Substring(ConstantKW.Length);
 
-			var varType = FiMHelper.DeclarationType.Determine(subContent, out string tKeyword);
+			var varType = FiMHelper.DeclarationType.Determine(" " + subContent, out string tKeyword);
 			string varValueRaw = null;
-			if(tKeyword.Length + 1 <= subContent.Length)
+			if(tKeyword.Length <= subContent.Length)
 			{
-				varValueRaw = subContent.Substring(tKeyword.Length + 1);
+				varValueRaw = subContent.Substring(tKeyword.Length);
 			}
 			node.ExpectedType = varType;
 			node.RawValue = varValueRaw;
@@ -66,14 +66,12 @@ namespace FiMSharp.Kirin
 			return true;
 		}
 
-		public override object Execute(FiMReport report)
+		public object Execute(FiMClass reportClass, bool global = false)
 		{
-			if (report.Variables.Exists(this.Name))
+			if (reportClass.GetVariable(this.Name) != null)
 				throw new FiMException("Variable " + this.Name + " already exists");
 
-			KirinValue value;
-			// if( FiMHelper.IsTypeArray(this.ExpectedType) || this.RawValue == null )
-			value = new KirinValue(this.RawValue, report, this.ExpectedType);
+			KirinValue value = new KirinValue(this.RawValue, reportClass, this.ExpectedType);
 
 			if (value.Value == null)
 			{
@@ -88,8 +86,12 @@ namespace FiMSharp.Kirin
 			value.Constant = Constant;
 
 			FiMVariable var = new FiMVariable(this.Name, value);
-			report.Variables.PushVariable(var);
+			reportClass.Variables.Push(var, global);
 			return null;
+		}
+		public override object Execute(FiMClass reportClass)
+		{
+			return Execute(reportClass, false);
 		}
 	}
 }

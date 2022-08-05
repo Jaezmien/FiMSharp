@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace FiMSharp.Kirin
 {
-    class KirinArithmetic : KirinBaseNode
+    public class KirinArithmetic : KirinBaseNode
     {
         public KirinArithmetic(ArithmeticCheckResult result)
         {
@@ -101,26 +101,26 @@ namespace FiMSharp.Kirin
             return false;
 		}
 
-        public double GetValue(FiMReport report) => this.NodeTree.Eval(report);
+        public object GetValue(FiMClass reportClass) => this.NodeTree.Eval(reportClass);
 
         private abstract class BaseNode
         {
-            public abstract double Eval(FiMReport report);
+            public abstract dynamic Eval(FiMClass reportClass);
         }
         private class ExpressionNode : BaseNode
         {
             public BaseNode Left;
             public BaseNode Right;
             public string Expression;
-            public override double Eval(FiMReport report)
+            public override dynamic Eval(FiMClass reportClass)
             {
                 switch (this.Expression)
                 {
-                    case "+": return Left.Eval(report) + Right.Eval(report);
-                    case "-": return Left.Eval(report) - Right.Eval(report);
-                    case "*": return Left.Eval(report) * Right.Eval(report);
-                    case "/": return Left.Eval(report) / Right.Eval(report);
-                    case "%": return Left.Eval(report) % Right.Eval(report);
+                    case "+": return Left.Eval(reportClass) + Right.Eval(reportClass);
+                    case "-": return Left.Eval(reportClass) - Right.Eval(reportClass);
+                    case "*": return Left.Eval(reportClass) * Right.Eval(reportClass);
+                    case "/": return Left.Eval(reportClass) / Right.Eval(reportClass);
+                    case "%": return Left.Eval(reportClass) % Right.Eval(reportClass);
                     default: throw new FiMException("Invalid expression " + this.Expression);
                 }
             }
@@ -128,11 +128,17 @@ namespace FiMSharp.Kirin
         private class ValueNode : BaseNode
         {
             public string RawValue;
-            public override double Eval(FiMReport report)
+            public override dynamic Eval(FiMClass reportClass)
             {
-                var value = new KirinValue(this.RawValue, report);
-                if (value.Type != KirinVariableType.NUMBER) throw new FiMException("Cannot do arithmetic on a non-number value");
-                return Convert.ToDouble(value.Value);
+				var value = new KirinValue(this.RawValue, reportClass);
+
+				if (value.Type == KirinVariableType.STRING)
+					return Convert.ToString(value.Value);
+                
+				if (value.Type == KirinVariableType.NUMBER)
+					return Convert.ToDouble(value.Value);
+
+				throw new FiMException("Cannot do arithmetic on a non-number value");
             }
         }
     }

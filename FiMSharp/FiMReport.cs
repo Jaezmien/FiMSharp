@@ -1,82 +1,48 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
+﻿using System.IO;
 using FiMSharp.Kirin;
 
 namespace FiMSharp
 {
-	public class FiMReport
+	public class FiMReport : FiMClass
 	{
-		public FiMReport(string report)
+		public FiMReport(string report) : base("I", true, null, null)
 		{
-			this.Variables = new FiMVariableList();
-			this.Paragraphs = new List<FiMParagraph>();
-			this.Report = report.Replace("\r\n", "\n");
+			this.Report = this;
+			this.ReportString = report.Replace("\r\n", "\n");
 
-			var tree = FiMLexer.ParseReport(this, this.Report);
+			this.KirinTree = FiMLexer.ParseReport(this, this.ReportString);
 
-			foreach( var node in tree.Body )
-			{
-				if( node.NodeType == "KirinFunction" )
-				{
-					var n = node as KirinFunction;
-					if( n.IsMain )
-					{
-						if (this._MainParagraph != string.Empty) throw new Exception("Multiple main methods found");
-						this._MainParagraph = n.Name;
-					}
-					this.Paragraphs.Add(new FiMParagraph(this, n));
-				}
-				if( node.NodeType == "KirinVariableDeclaration" )
-				{
-					((KirinVariableDeclaration)node).Execute(this);
-				}
-			}
-
-			this.KirinTree = tree;
+			this.Output = (l) => { };
+			this.Input = (p, n) => { throw new System.NotImplementedException(); };
 		}
 		public static FiMReport FromFile(string directory)
 			=> new FiMReport(File.ReadAllText(Path.GetFullPath(directory)));
 
+		public string ReportString;
+
 		public FiMReportInfo Info;
 		public FiMReportAuthor Author;
 
-		public string Report;
 		public KirinProgram KirinTree;
 
-		public FiMVariableList Variables;
-		public List<FiMParagraph> Paragraphs;
-		private readonly string _MainParagraph = string.Empty;
+		internal string _MainParagraph = string.Empty;
 		public FiMParagraph MainParagraph
 		{
 			get
 			{
 				if (string.IsNullOrEmpty(this._MainParagraph)) return null;
-				return this.Paragraphs[ this.Paragraphs.FindIndex(p => p.Name == this._MainParagraph) ];
+				return this.GetParagraph(this._MainParagraph, propagate: false);
 			}
 		}
 
-		public TextWriter ConsoleOutput = Console.Out;
-		public TextReader ConsoleInput = Console.In;
-
-		public void AddVariable(string name, object value)
-		{
-			if (this.Variables.Exists(name))
-				throw new Exception("Variable " + Variables + " already exists");
-			this.Variables.PushGlobalVarible(new FiMVariable(name, value));
-		}
-		public void AddMethod(string name, Delegate func)
-		{
-			var node = new KirinInternalFunction(name, func);
-			if (this.Paragraphs.FindIndex(p => p.Name == node.Name) != -1)
-				throw new Exception("Paragraph " + node.Name + " already exists");
-			this.Paragraphs.Add(new FiMParagraph(this, node));
-		}
+		public delegate void Write(string line);
+		public delegate string Read(string prompt, string varname);
+		public Write Output;
+		public Read Input;
 
 		public string GetLine(int start, int length)
 		{
-			return this.Report.Substring(start, length);
+			return this.ReportString.Substring(start, length);
 		}
 	}
 

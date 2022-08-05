@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace FiMSharp.Kirin
 {
-	class KirinUnary : KirinExecutableNode
+	public class KirinUnary : KirinExecutableNode
 	{
 		public KirinUnary(int start, int length) : base(start, length) { }
 
@@ -34,11 +34,12 @@ namespace FiMSharp.Kirin
 		public string RawVariable;
 		public bool Increment;
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
-			if (report.Variables.Exists(this.RawVariable))
+			if (reportClass.GetVariable(this.RawVariable) != null)
 			{
-				var variable = report.Variables.Get(this.RawVariable);
+				var variable = reportClass.GetVariable(this.RawVariable);
+
 				if (variable.Type != KirinVariableType.NUMBER)
 				{
 					if (this.Increment)
@@ -52,10 +53,10 @@ namespace FiMSharp.Kirin
 				else
 					variable.Value = Convert.ToDouble(variable.Value) - 1.0d;
 			}
-			else if(FiMHelper.ArrayIndex.IsArrayIndex(this.RawVariable, report))
+			else if(FiMHelper.ArrayIndex.IsArrayIndex(this.RawVariable, reportClass))
 			{
-				var match = FiMHelper.ArrayIndex.GetArrayIndex(this.RawVariable, report);
-				var variable = report.Variables.Get(match.RawVariable);
+				var match = FiMHelper.ArrayIndex.GetArrayIndex(this.RawVariable, reportClass);
+				var variable = reportClass.GetVariable(match.RawVariable);
 				if( variable.Type != KirinVariableType.NUMBER_ARRAY )
 				{
 					if (this.Increment)
@@ -64,7 +65,7 @@ namespace FiMSharp.Kirin
 						throw new FiMException("Cannot apply unary decrement on a non-number array");
 				}
 
-				var varIndex = new KirinValue(match.RawIndex, report);
+				var varIndex = new KirinValue(match.RawIndex, reportClass);
 				if (varIndex.Type != KirinVariableType.NUMBER) throw new FiMException("Invalid index value");
 				int index = Convert.ToInt32(varIndex.Value);
 

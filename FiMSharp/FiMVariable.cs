@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using FiMSharp.Kirin;
 
 namespace FiMSharp
@@ -34,86 +35,56 @@ namespace FiMSharp
 		}
 	}
 
-	public class FiMVariableList
+	internal class FiMVariableList
 	{
 		public FiMVariableList()
 		{
-			this.Variables = new List<List<FiMVariable>>();
-			this.PushStack();
+			this.GlobalVariables = new Stack<FiMVariable>();
+			this.LocalVariables = new Stack<Stack<FiMVariable>>();
 		}
 
-		private readonly List<List<FiMVariable>> Variables;
-		public List<FiMVariable> GlobalStack
+		public readonly Stack<FiMVariable> GlobalVariables;
+		public readonly Stack<Stack<FiMVariable>> LocalVariables;
+		public int StackDepth { get { return LocalVariables.Count; } }
+
+		public void Push(FiMVariable value, bool global = false)
 		{
-			get
-			{
-				return Variables[0];
-			}
+			if (global) this.GlobalVariables.Push(value);
+			else this.LocalVariables.Peek().Push(value);
 		}
-		public List<FiMVariable> CurrentStack
+		public FiMVariable Pop(bool global = false)
 		{
-			get
+			if (global) return this.GlobalVariables.Pop();
+			else return this.LocalVariables.Peek().Pop();
+		}
+		public FiMVariable[] Pop(bool global = false, uint count = 1)
+		{
+			Stack<FiMVariable> variables = new Stack<FiMVariable>();
+
+			while(count > 0 && this.LocalVariables.Peek().Count > 0)
 			{
-				return Variables[Variables.Count - 1];
+				variables.Push(this.LocalVariables.Peek().Pop());
+				count--;
 			}
+
+			return variables.ToArray();
 		}
 
-		public void PushStack()
-		{
-			Variables.Add(new List<FiMVariable>());
-		}
-		public List<FiMVariable> PopStack()
-		{
-			if (Variables.Count == 1) return null;
+		public void PushFunctionStack() => this.LocalVariables.Push(new Stack<FiMVariable>());
+		public void PopFunctionStack() => this.LocalVariables.Pop();
 
-			var stack = Variables[Variables.Count - 1];
-			Variables.RemoveAt(Variables.Count - 1);
-			return stack;
-		}
-		public int StackCount() => Variables.Count;
-		public int CurrentStackCount() => CurrentStack.Count;
+		public bool Has(string name, bool local = true) => this.Get(name, local) != null;
+		public FiMVariable Get(string name, bool local = true)
+		{
+			var variable = this.GlobalVariables.FirstOrDefault(v => v.Name == name);
+			if (variable != null) return variable;
 
-		public void PushGlobalVarible(FiMVariable variable)
-		{
-			GlobalStack.Add(variable);
-		}
-		public void PushVariable(FiMVariable variable)
-		{
-			CurrentStack.Add(variable);
-		}
-		public FiMVariable PopVariable()
-		{
-			if (CurrentStack.Count == 0) return null;
-			var v = CurrentStack[CurrentStack.Count - 1];
-			CurrentStack.RemoveAt(CurrentStack.Count - 1);
-			return v;
-		}
-		public List<FiMVariable> PopVariableRange(int count)
-		{
-			var l = new List<FiMVariable>();
-			for( int i = 0; i < count; i++ )
+			if (local)
 			{
-				var v = this.PopVariable();
-				if (v == null) break;
-				l.Add(v);
+				variable = this.LocalVariables.Peek().FirstOrDefault(v => v.Name == name);
+				if (variable != null) return variable;
 			}
-			return l;
-		}
 
-		public bool Exists(string name)
-		{
-			return this.Get(name) != null;
-		}
-		public FiMVariable Get(string name)
-		{
-			for( int i = 0; i < GlobalStack.Count; i++)
-			{
-				if (GlobalStack.FindIndex(v => v.Name == name) > -1) return GlobalStack.Find(v => v.Name == name);
-			}
-			for (int i = 0; i < CurrentStack.Count; i++)
-			{
-				if (CurrentStack.FindIndex(v => v.Name == name) > -1) return CurrentStack.Find(v => v.Name == name);
-			}
 			return null;
 		}
 	}

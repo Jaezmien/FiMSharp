@@ -14,6 +14,12 @@ namespace FiMSharp.Test
 		{
 			FiMReport report = FiMReport.FromFile(path);
 			FiMSharp.CLI.Program.AddExperimentalFunctions(report);
+      report.Output = (l) => Console.Write(l);
+			report.Input = (p, _) =>
+			{
+				if (string.IsNullOrWhiteSpace(p)) Console.Write(p);
+				return Console.ReadLine();
+			};
 			return report;
 		}
 		static void RunReport(string file)
@@ -35,6 +41,7 @@ namespace FiMSharp.Test
 		{
 #if RELEASE
 			ReportTests.RunAll();
+			
 #else
 			// RunReport("rot13.fim");
 			ReportTests.RunAll();
@@ -124,76 +131,33 @@ namespace FiMSharp.Test
 			return Path.GetFullPath(Path.Combine(currentDirectory, @"..\..\..\", path));
 		}
 
-		class EmptyWriter : TextWriter
-		{
-			public override void Write(string value) { }
-			public override void WriteLine(string value) { }
-
-			public override Encoding Encoding
-			{
-				get { return Encoding.Default; }
-			}
-		}
-		class TestWriter : TextWriter
-		{
-			public delegate void OnWrite(string msg);
-			public OnWrite onWriteEvent;
-			public override void Write(string value)
-			{
-				onWriteEvent?.Invoke(value);
-			}
-			public override void WriteLine(string value)
-			{
-				onWriteEvent?.Invoke(value);
-			}
-
-			public override Encoding Encoding
-			{
-				get { return Encoding.Default; }
-			}
-		}
-		class TestReader : TextReader
-		{
-			public delegate string OnInput();
-			public OnInput onInputEvent;
-			public override string ReadLine()
-			{
-				return onInputEvent.Invoke();
-			}
-		}
 		/// <summary>
 		/// Test if a report runs without throwing an error, also checks its outputs.
 		/// </summary>
 		public static void Test(string file, string[] expected, string[] input = null)
 		{
-			var w = new TestWriter();
 			int wI = 0;
-			List<string> errors = new List<string>();
-			w.onWriteEvent += (m) =>
-			{
-				if (wI >= expected.Length)
-				{
-					errors.Add($"Report outputted more messages than expected ({m})");
-					return;
-				}
-				if (m != expected[wI]) errors.Add($"Got '{m}', expected '{expected[wI]}'");
-				wI++;
-			};
-			var r = new TestReader();
 			int rI = 0;
-			r.onInputEvent += () =>
-			{
-				if (input == null) throw new Exception("Report asked for input while input is null");
-				string inp = input[rI];
-				rI++;
-				return inp;
-			};
+			List<string> errors = new List<string>();
 
 			try
 			{
 				var report = Program.GetReport(GetPathFromDir($"Reports/{ file }"));
-				report.ConsoleOutput = w;
-				report.ConsoleInput = r;
+				report.Output = (line) =>
+				{
+					if (wI >= expected.Length)
+					{
+						errors.Add($"Report outputted more messages than expected ({line})");
+						return;
+					}
+					if (line != expected[wI]) errors.Add($"Got '{line}', expected '{expected[wI]}'");
+					wI++;
+				};
+				report.Input = (line, _) =>
+				{
+					if (input == null) throw new Exception("Report asked for input while input is null");
+					return input[rI++];
+				};
 				Console.Write($"Running report '{file}'... ");
 				report.MainParagraph?.Execute();
 			}
@@ -209,6 +173,11 @@ namespace FiMSharp.Test
 				throw new Exception($"Report '{file}' output contains errors:\n\n{string.Join("\n", errors)}");
 			}
 
+			if (wI != expected.Length)
+				throw new Exception($"Report '{file}' finished but has incomplete outputs");
+			if(input != null && rI != input.Length)
+				throw new Exception($"Report '{file}' finished but has incomplete inputs");
+
 			Console.WriteLine("passes");
 		}
 		/// <summary>
@@ -219,7 +188,10 @@ namespace FiMSharp.Test
 			try
 			{
 				var report = Program.GetReport(GetPathFromDir($"Reports/{ file }"));
-				report.ConsoleOutput = new EmptyWriter();
+				report.Input = (p, _) =>
+				{
+					throw new Exception("Test(string) not expecting inputs");
+				};
 				Console.Write($"Running report '{file}'... ");
 				report.MainParagraph?.Execute();
 			}

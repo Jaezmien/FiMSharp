@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace FiMSharp.Kirin
 {
-	class KirinListModify : KirinExecutableNode
+	public class KirinListModify : KirinExecutableNode
 	{
 		public KirinListModify(int start, int length) : base(start, length) { }
 
@@ -49,21 +49,21 @@ namespace FiMSharp.Kirin
 		public string RawIndex;
 		public string RightOp;
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
-			if (!report.Variables.Exists(this.LeftOp))
-				throw new FiMException("Variable " + this.LeftOp + " does not exist");
 
-			var variable = report.Variables.Get(this.LeftOp);
+			var variable = reportClass.GetVariable(this.LeftOp);
+			if( variable == null )
+				throw new FiMException("Variable " + this.LeftOp + " does not exist");
 			if (!FiMHelper.IsTypeArray(variable.Type) && variable.Type != KirinVariableType.STRING)
 				throw new FiMException("Variable " + this.LeftOp + " is not an array");
 
-			var kIndex = new KirinValue(this.RawIndex, report);
+			var kIndex = new KirinValue(this.RawIndex, reportClass);
 			if (kIndex.Type != KirinVariableType.NUMBER)
 				throw new FiMException("Invalid index " + kIndex.Value);
 			var iValue = Convert.ToInt32(kIndex.Value);
 
-			var value = new KirinValue(this.RightOp, report);
+			var value = new KirinValue(this.RightOp, reportClass);
 			
 			if ( variable.Type == KirinVariableType.STRING )
 			{

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace FiMSharp.Kirin
 {
-	class KirinVariableModify : KirinExecutableNode
+	public class KirinVariableModify : KirinExecutableNode
 	{
 		public KirinVariableModify(int start, int length) : base(start, length) { }
 
@@ -30,12 +30,14 @@ namespace FiMSharp.Kirin
 		public string LeftOp;
 		public string RightOp;
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
-			if (!report.Variables.Exists(this.LeftOp))
+			var lVariable = reportClass.GetVariable(this.LeftOp);
+			if (lVariable == null)
 				throw new FiMException("Variable " + this.LeftOp + " does not exist");
-			var kValue = new KirinValue(this.RightOp, report);
-			report.Variables.Get(this.LeftOp).Value = kValue.Value;
+
+			var kValue = new KirinValue(this.RightOp, reportClass);
+			lVariable.Value = kValue.Value;
 			return null;
 		}
 	}

@@ -28,12 +28,12 @@ namespace FiMSharp.Kirin
 
 		public string RawParameters;
 
-		public override object Execute(FiMReport report)
+		public override object Execute(FiMClass reportClass)
 		{
-			var result = (new KirinValue(RawParameters, report)).Value;
+			var result = (new KirinValue(RawParameters, reportClass)).Value;
 			if (result == null) return null;
 			if (FiMHelper.IsTypeArray(result)) throw new FiMException("Cannot print an array");
-			report.ConsoleOutput.WriteLine(result);
+			reportClass.Report.Output(result + "\n");
 			return null;
 		}
 	}
