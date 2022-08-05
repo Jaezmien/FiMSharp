@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 #if DEBUG
 using System.Linq;
@@ -78,7 +78,7 @@ namespace FiMSharp.Test
 		public static void RunAll()
 		{
 			Test("array.fim", new string[] { "Banana Cake", "Gala" });
-			Test("brainfuck.fim", new string[] { "Hello World!" });
+			Test("brainfuck.fim", new string[] { "H", "e", "l", "l", "o", " ", "W", "o", "r", "l", "d", "!" });
 			Test("bubblesort.fim", new string[] { "1", "2", "3", "4", "5", "7", "7" });
 			Test("cider.fim");
 			Test("conditional.fim", new string[] {
@@ -89,7 +89,7 @@ namespace FiMSharp.Test
 				"(false == false || false == true) && true != true",
 				"(false == false || true == true) && (true == true || true == false)"
 			});
-			Test("deadfish.fim", new string[] { "Hello world" });
+			Test("deadfish.fim", new string[] { "H", "e", "l", "l", "o", " ", "w", "o", "r", "l", "d" });
 			Test("digital root.fim", new string[] { "9" });
 			Test("disan.fim", new string[] {
 				"Insert a number",
@@ -148,7 +148,7 @@ namespace FiMSharp.Test
 						errors.Add($"Report outputted more messages than expected ({line})");
 						return;
 					}
-					if (line.Trim() != expected[wI]) errors.Add($"Got '{line}', expected '{expected[wI]}'");
+					if (Regex.Replace(line, @"\n$", "") != expected[wI]) errors.Add($"Got '{line}', expected '{expected[wI]}'");
 					wI++;
 				};
 				report.Input = (line, _) =>
