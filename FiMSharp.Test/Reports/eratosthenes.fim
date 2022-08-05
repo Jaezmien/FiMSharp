@@ -8,7 +8,7 @@ I learned how to find the primes using the number n to get many numbers.
     That's what I would do.
 
     Did you know that t is many numbers?
-    Did you know that sqrt limit is the number sqrt of n.
+    Did you know that sqrt limit is the number square root of a num using n.
 
     For every number k from 2 to n...
         k of t is 1.
@@ -42,7 +42,7 @@ Today I learned how to run a program!
 
     Did you know that primes is the numbers how to find the primes using the number 20.
     For every number p in primes...
-        I said p. (Expected: 0, 2, 3, 5, 7, 11, 13, 17, 19)
+        I said p. (Expected: 2, 3, 5, 7, 11, 13, 17, 19)
     That's what I did.
 
 That's all about how to run a program.

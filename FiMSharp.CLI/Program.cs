@@ -7,8 +7,31 @@ using Mono.Options;
 
 namespace FiMSharp.CLI
 {
-	class Program
+	public class Program
 	{
+		public static void AddExperimentalFunctions(FiMReport report)
+		{
+			report.AddMethod("convert a number to char", new Func<double, char>((value) =>
+			{
+				return (char)value;
+			}));
+			report.AddMethod("convert a char to num", new Func<char, double>((value) =>
+			{
+				return (double)char.Parse(value.ToString());
+			}));
+			report.AddMethod("convert a number to literal string", new Func<double, string>((value) =>
+			{
+				return value.ToString();
+			}));
+			report.AddMethod("convert a char to literal num", new Func<char, double>((value) =>
+			{
+				return int.Parse(value.ToString());
+			}));
+			report.AddMethod("square root of a num", new Func<double, double>((value) =>
+			{
+				return Math.Sqrt(value);
+			}));
+		}
 		static bool FileExists(string path)
 		{
 			return File.Exists(Path.GetFullPath(path));
@@ -25,10 +48,12 @@ namespace FiMSharp.CLI
 				string report_path = "";
 				bool pretty = false;
 				bool show_help = false;
+				bool experimental = false;
 
 				OptionSet p = new OptionSet()
 					.Add("p|prettify", "Prettify console output.", v => pretty = true)
-					.Add("h|help", "Show this message and exit.", v => show_help = true);
+					.Add("h|help", "Show this message and exit.", v => show_help = true)
+					.Add("e|experimental", "Add experimental functions", v => experimental = true);
 				List<string> extra = p.Parse(args);
 
 				if (show_help)
@@ -65,6 +90,8 @@ namespace FiMSharp.CLI
 
 					return Console.ReadLine();
 				};
+
+				if( experimental ) AddExperimentalFunctions(report);
 
 				if (pretty)
 				{

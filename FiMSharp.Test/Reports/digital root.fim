@@ -4,10 +4,10 @@ Dear Princess Celestia: Digital Root!
 I learned how to find the digital root using a number x to get a number!
 
     Did you know that y is the number 0?
-    Did you know that z is the word string of x.
+    Did you know that z is the word convert a number to literal string using x.
 
     For every character v in z...
-        Did you know that w is the number number of v?
+        Did you know that w is the number convert a char to literal num using v?
         w became y plus w.
         w became w minus 1.
         w became w mod 9.
