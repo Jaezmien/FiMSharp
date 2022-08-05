@@ -6,7 +6,12 @@ Today I learned how to count to one-hundred!
     Did you know that miss was the number 1?
 
     As long as miss was no more than 100,
-        I said miss" Mississippi(s)".
+        If miss is equal to 1,
+            I said miss plus " Mississippi".
+        Otherwise,
+            I said miss plus " Mississippi(s)".
+        That's what I would do.
+
         miss got one more.
     That's what I did!
 

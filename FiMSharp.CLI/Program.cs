@@ -11,23 +11,23 @@ namespace FiMSharp.CLI
 	{
 		public static void AddExperimentalFunctions(FiMReport report)
 		{
-			report.AddMethod("convert a number to char", new Func<double, char>((value) =>
+			report.AddParagraph("convert a number to char", new Func<double, char>((value) =>
 			{
 				return (char)value;
 			}));
-			report.AddMethod("convert a char to num", new Func<char, double>((value) =>
+			report.AddParagraph("convert a char to num", new Func<char, double>((value) =>
 			{
 				return (double)char.Parse(value.ToString());
 			}));
-			report.AddMethod("convert a number to literal string", new Func<double, string>((value) =>
+			report.AddParagraph("convert a number to literal string", new Func<double, string>((value) =>
 			{
 				return value.ToString();
 			}));
-			report.AddMethod("convert a char to literal num", new Func<char, double>((value) =>
+			report.AddParagraph("convert a char to literal num", new Func<char, double>((value) =>
 			{
 				return int.Parse(value.ToString());
 			}));
-			report.AddMethod("square root of a num", new Func<double, double>((value) =>
+			report.AddParagraph("square root of a num", new Func<double, double>((value) =>
 			{
 				return Math.Sqrt(value);
 			}));

@@ -134,6 +134,9 @@ namespace FiMSharp.Kirin
 
 				if (value.Type == KirinVariableType.STRING)
 					return Convert.ToString(value.Value);
+
+                if (value.Type == KirinVariableType.CHAR)
+                    return Convert.ToString(value.Value);
                 
 				if (value.Type == KirinVariableType.NUMBER)
 					return Convert.ToDouble(value.Value);

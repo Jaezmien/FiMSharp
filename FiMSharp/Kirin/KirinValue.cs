@@ -85,6 +85,8 @@ namespace FiMSharp.Kirin
 					this.ForceType(eType);
 				}
 
+				if (this.ForcedType != null) eType = (KirinVariableType)this.ForcedType;
+
 				object value;
 				if (KirinLiteral.TryParse(raw, out object lResult)) value = lResult;
 				else
@@ -276,8 +278,9 @@ namespace FiMSharp.Kirin
 			if (KirinArithmetic.IsArithmetic(evaluatable, out var arithmeticResult))
 			{
 				var arithmetic = new KirinArithmetic(arithmeticResult);
-				returnedType = KirinVariableType.NUMBER;
-				return arithmetic.GetValue(reportClass);
+				var value = arithmetic.GetValue(reportClass);
+				returnedType = FiMHelper.AsVariableType(value.GetType());
+				return value;
 			}
 
 			// Conditional
@@ -334,7 +337,7 @@ namespace FiMSharp.Kirin
 
 	public class KirinLiteral
 	{
-		private readonly static Regex StringCheck = new Regex("^\"(.+)\"$");
+		private readonly static Regex StringCheck = new Regex("^\"(.+)?\"$");
 		private static class Boolean
 		{
 			public static readonly string[] True = { "correct", "right", "true", "yes" };

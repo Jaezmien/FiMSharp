@@ -79,7 +79,7 @@ namespace FiMSharp
 			var variable = this.GlobalVariables.FirstOrDefault(v => v.Name == name);
 			if (variable != null) return variable;
 
-			if (local)
+			if (local && this.LocalVariables.Count > 0)
 			{
 				variable = this.LocalVariables.Peek().FirstOrDefault(v => v.Name == name);
 				if (variable != null) return variable;

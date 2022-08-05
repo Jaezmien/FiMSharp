@@ -43,11 +43,9 @@ namespace FiMSharp.Test
 			ReportTests.RunAll();
 			
 #else
-			// RunReport("rot13.fim");
-			ReportTests.RunAll();
-			/*if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
+			if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
 			else if (args.Any(a => a == "--test-all")) ReportTests.RunAll();
-			else RunDebugReport();*/
+			else RunDebugReport();
 #endif
 		}
 	}
@@ -150,7 +148,7 @@ namespace FiMSharp.Test
 						errors.Add($"Report outputted more messages than expected ({line})");
 						return;
 					}
-					if (line != expected[wI]) errors.Add($"Got '{line}', expected '{expected[wI]}'");
+					if (line.Trim() != expected[wI]) errors.Add($"Got '{line}', expected '{expected[wI]}'");
 					wI++;
 				};
 				report.Input = (line, _) =>
@@ -188,6 +186,7 @@ namespace FiMSharp.Test
 			try
 			{
 				var report = Program.GetReport(GetPathFromDir($"Reports/{ file }"));
+				report.Output = (l) => { };
 				report.Input = (p, _) =>
 				{
 					throw new Exception("Test(string) not expecting inputs");
