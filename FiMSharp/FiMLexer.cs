@@ -332,21 +332,10 @@ namespace FiMSharp
 				int trueStart = line.Start + FindLineTrueStart(content.Substring(line.Start, line.End - line.Start));
 				string subContent = content.Substring(trueStart, line.End - trueStart);
 
-				if( subContent == "Dear Princess Celestia:" && lines.Count > 0 )
-				{
-					var nextLine = lines.Dequeue();
-					cleanLines.Push(
-						new ReportLine()
-						{
-							Start = trueStart,
-							End = nextLine.End
-						}
-					);
-
-					continue;
-				}
-
-				if( subContent == "Your faithful student," && lines.Count > 0 )
+				if( (
+					subContent == "Dear Princess Celestia:" ||
+					subContent == "Your faithful student,"
+					)  && lines.Count > 0 )
 				{
 					var nextLine = lines.Dequeue();
 					cleanLines.Push(
