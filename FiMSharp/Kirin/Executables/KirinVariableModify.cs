@@ -15,10 +15,10 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			if (!ReplaceKW.Any(kw => content.Contains(kw))) return false;
+			string mKeyword = ReplaceKW.FirstOrDefault(kw => content.Contains(kw));
+			if (mKeyword == null) return false;
 
 			var node = new KirinVariableModify(start, length);
-			string mKeyword = ReplaceKW.First(kw => content.Contains(kw));
 			int mIndex = content.IndexOf(mKeyword);
 
 			node.LeftOp = content.Substring(0, mIndex);

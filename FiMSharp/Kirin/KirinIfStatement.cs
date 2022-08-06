@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace FiMSharp.Kirin
 {
@@ -129,16 +130,16 @@ namespace FiMSharp.Kirin
 
 		public string RawCondition;
 
-		private readonly static Regex IfStart = new Regex(@"^(?:If|When) (.+)");
+		private readonly static string[] PreKeywords = new[] { "If ", "When " };
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = IfStart.Match(content);
-			if (!match.Success) return false;
+			var match = PreKeywords.FirstOrDefault(k => content.StartsWith(k));
+			if (match == null) return false;
 
 			var node = new KirinIfStatementStart(start, length)
 			{
-				RawCondition = match.Groups[1].Value
+				RawCondition = content.Substring(match.Length)
 			};
 
 			if(node.RawCondition.EndsWith(" then"))
@@ -154,20 +155,21 @@ namespace FiMSharp.Kirin
 
 		public string RawCondition;
 
-		private readonly static Regex IfStart = new Regex(@"^(?:Or else|Otherwise)( .+)?");
+		private readonly static string[] PreKeywords = new[] { "Or else", "Otherwise" };
+
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = IfStart.Match(content);
-			if (!match.Success) return false;
+			var match = PreKeywords.FirstOrDefault(k => content.StartsWith(k));
+			if (match == null) return false;
 
 			var node = new KirinElseIfStatement(start, length)
 			{
 				RawCondition = ""
 			};
-			if( match.Groups[1].Success )
+			if (content.Substring(match.Length).Length > 0 && content.Substring(match.Length,1) == " " )
 			{
-				var matchStr = match.Groups[1].Value.Substring(1);
+				var matchStr = content.Substring(match.Length + 1);
 				var startStr = matchStr[0].ToString();
 				if (startStr != startStr.ToLower()) throw new FiMException("Invalid else if statement");
 				if (!KirinIfStatementStart.TryParse(

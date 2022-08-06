@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace FiMSharp.Kirin
 {
@@ -8,31 +8,33 @@ namespace FiMSharp.Kirin
 	{
 		public KirinInput(int start, int length) : base(start, length) { }
 
-		private readonly static Regex Read = new Regex(@"^I (?:heard|read|asked) (.+)");
-		private readonly static Regex Prompt = new Regex(@"^I (?:heard|read|asked) (.+) ""(.+)""$");
+		private readonly static string[] PreKeywords = new[] { "I heard ", "I read ", "I asked " };
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			if (Prompt.IsMatch(content))
+			if (!content.StartsWith("I ")) return false;
+			var match = PreKeywords.FirstOrDefault(k => content.StartsWith(k));
+			if (match == null) return false;
+			content = content.Substring(match.Length);
+
+			var prompt = Regex.Match(content, @"(.+) ""(.+)""");
+			if (prompt.Success)
 			{
-				var match = Prompt.Match(content);
 				result = new KirinInput(start, length)
 				{
-					RawVariable = match.Groups[1].Value,
-					PromptString = match.Groups[2].Value
+					RawVariable = prompt.Groups[1].Value,
+					PromptString = prompt.Groups[2].Value
 				};
+
+				return true;
 			}
-			else if (Read.IsMatch(content))
+
+			result = new KirinInput(start, length)
 			{
-				var match = Read.Match(content);
-				result = new KirinInput(start, length)
-				{
-					RawVariable = match.Groups[1].Value,
-					PromptString = string.Empty
-				};
-			}
-			else return false;
-			
+				RawVariable = content,
+				PromptString = string.Empty
+			};
+
 			return true;
 		}
 		public string RawVariable;

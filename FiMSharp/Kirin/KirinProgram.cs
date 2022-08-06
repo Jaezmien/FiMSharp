@@ -14,18 +14,18 @@ namespace FiMSharp.Kirin
 		public string ProgramName;
 		public string ProgramRecipient;
 
-		private readonly static Regex ReportStart = new Regex(@"^Dear (.+)?: (.+)?");
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = ReportStart.Match(content);
+			if (!content.StartsWith("Dear ")) return false;
+
+			var match = Regex.Match(content, @"(.+): (.+)");
 			if (!match.Success) return false;
 
-			var groups = match.Groups;
 			result = new KirinProgramStart(start, length)
 			{
-				ProgramRecipient = groups[1].Value,
-				ProgramName = groups[2].Value
+				ProgramRecipient = match.Groups[1].Value,
+				ProgramName = match.Groups[2].Value
 			};
 
 			return true;
@@ -39,18 +39,18 @@ namespace FiMSharp.Kirin
 		public string AuthorName;
 		public string AuthorRole;
 
-		private readonly static Regex ReportEnd = new Regex(@"^Your (.+)?, (.+)?");
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = ReportEnd.Match(content);
+			if (!content.StartsWith("Your ")) return false;
+
+			var match = Regex.Match(content, @"^Your (.+), (.+)");
 			if (!match.Success) return false;
 
-			var groups = match.Groups;
 			result = new KirinProgramEnd(start, length)
 			{
-				AuthorRole = groups[1].Value,
-				AuthorName = groups[2].Value
+				AuthorRole = match.Groups[1].Value,
+				AuthorName = match.Groups[2].Value
 			};
 			return true;
 		}

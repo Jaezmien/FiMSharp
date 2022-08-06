@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace FiMSharp.Kirin
 {
@@ -12,7 +13,6 @@ namespace FiMSharp.Kirin
 			this.Length = length;
 		}
 
-		private readonly static Regex FunctionCall = new Regex(@"^I (?:remembered|would) (.+)");
 		public readonly static string FunctionParam = " using ";
 
 		/// <param name="content">Starting after <c>KirinFunctionCall.FunctionParam</c></param>
@@ -31,20 +31,23 @@ namespace FiMSharp.Kirin
 			return a;
 		}
 
+		private readonly static string[] Keywords = new[] { "I remembered ", "I would " };
 		public static bool TryParse(string content, FiMReport report, int start, int length, out KirinNode result)
 		{
 			result = null;
-			var match = FunctionCall.Match(content);
-			if (!match.Success) return false;
+			if (!content.StartsWith("I ")) return false;
+			var match = Keywords.FirstOrDefault(k => content.StartsWith(k));
+			if (match == null) return false;
 
-			string value = match.Groups[1].Value;
+			string value = content.Substring(match.Length);
 			var node = new KirinFunctionCall(start, length)
 			{
 				FunctionName = value
 			};
-			if ( value.Contains(FunctionParam) )
+
+			int keywordIndex = value.IndexOf(FunctionParam);
+			if ( keywordIndex > -1 )
 			{
-				int keywordIndex = value.IndexOf(FunctionParam);
 				node.FunctionName = value.Substring(0, keywordIndex);
 				node.RawParameters = value.Substring(keywordIndex + FunctionParam.Length);
 			}
