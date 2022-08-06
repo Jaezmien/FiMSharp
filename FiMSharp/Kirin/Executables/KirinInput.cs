@@ -12,6 +12,7 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
+			if (!content.StartsWith("I ")) return false;
 			var match = PreKeywords.FirstOrDefault(k => content.StartsWith(k));
 			if (match == null) return false;
 			content = content.Substring(match.Length);

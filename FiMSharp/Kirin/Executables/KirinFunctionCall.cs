@@ -35,6 +35,7 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, FiMReport report, int start, int length, out KirinNode result)
 		{
 			result = null;
+			if (!content.StartsWith("I ")) return false;
 			var match = Keywords.FirstOrDefault(k => content.StartsWith(k));
 			if (match == null) return false;
 

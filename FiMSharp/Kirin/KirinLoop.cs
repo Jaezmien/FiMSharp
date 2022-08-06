@@ -100,6 +100,7 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
+			if (!content.StartsWith("For every") || !content.Contains(" in ")) return false;
 			var match = Regex.Match(content, @"^For every (.+) in (.+)");
 			if (!match.Success) return false;
 
@@ -188,6 +189,7 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
+			if (!content.StartsWith("For every") || !content.Contains(" from ") || !content.Contains(" to ")) return false;
 			var match = Regex.Match(content, @"^For every (.+) from (.+) to (.+)");
 			if (!match.Success) return false;
 

@@ -14,11 +14,10 @@ namespace FiMSharp.Kirin
 		public string ProgramName;
 		public string ProgramRecipient;
 
-		private readonly static string PreKeyword = "Dear ";
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			if (!content.StartsWith(PreKeyword)) return false;
+			if (!content.StartsWith("Dear ")) return false;
 
 			var match = Regex.Match(content, @"(.+): (.+)");
 			if (!match.Success) return false;
@@ -40,11 +39,10 @@ namespace FiMSharp.Kirin
 		public string AuthorName;
 		public string AuthorRole;
 
-		private readonly static string PreKeyword = "Your ";
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
-			if (!content.StartsWith(PreKeyword)) return false;
+			if (!content.StartsWith("Your ")) return false;
 
 			var match = Regex.Match(content, @"^Your (.+), (.+)");
 			if (!match.Success) return false;

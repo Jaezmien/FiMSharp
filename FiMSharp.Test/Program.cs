@@ -77,7 +77,7 @@ namespace FiMSharp.Test
 					FiMReport.FromFile(Path.GetFullPath(file));
 				});
 
-				Console.WriteLine($"[Debug/OPT] Report '{filename}' parsing through 1K iterations took {benchmark}ms.");
+				Console.WriteLine($"[Debug] Report '{filename}' parsing took {benchmark / 1000}ms.");
 			}
 		}
 
@@ -85,12 +85,11 @@ namespace FiMSharp.Test
 		{
 #if RELEASE
 			Benchmark();
-			/*if (args.Any(a => a == "--benchmark")) Benchmark();
-			else ReportTests.RunAll();*/
 #else
+			ReportTests.RunAll();
+			;
 			if (args.Any(a => a == "--test-basic")) ReportTests.RunBasic();
 			else if (args.Any(a => a == "--test-all")) ReportTests.RunAll();
-			else if (args.Any(a => a == "--benchmark")) Benchmark();
 			else RunDebugReport();
 #endif
 		}

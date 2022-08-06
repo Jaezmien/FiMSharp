@@ -189,6 +189,7 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
+			if (!content.Contains("I learned ")) return false;
 			var match = FunctionStart.Match(content);
 			if (!match.Success) return false;
 

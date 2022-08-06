@@ -14,6 +14,7 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
+			if (!content.StartsWith("I ")) return false;
 			var match = Regex.Match(content, @"^I (quickly )?(?:sa(?:id|ng)|wrote) (.+)");
 			if (!match.Success) return false;
 

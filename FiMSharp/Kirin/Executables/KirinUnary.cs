@@ -12,6 +12,7 @@ namespace FiMSharp.Kirin
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
+			if (!content.Contains(" one ")) return false;
 
 			var preUnaries = new[] { "There was one more ", "There was one less " };
 			var postUnaries = new[] { " got one more", " got one less" };

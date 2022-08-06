@@ -10,9 +10,11 @@ namespace FiMSharp.Kirin
 	{
 		public KirinListModify(int start, int length) : base(start, length) { }
 
+		private readonly static string[] Keywords = new[] { " is ", " was ", " has ", " had ", " like ", " likes ", " liked " };
 		public static bool TryParse(string content, int start, int length, out KirinNode result)
 		{
 			result = null;
+			if (!Keywords.Any(k => content.Contains(k))) return false;
 
 			var listModifIndex = Regex.Match(content, @"^(.+) (\d+) (?:(?:i|wa)s|ha[sd]|like[sd]?) (.+)");
 			if ( listModifIndex.Success )
