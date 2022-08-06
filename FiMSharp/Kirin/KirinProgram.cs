@@ -19,7 +19,7 @@ namespace FiMSharp.Kirin
 			result = null;
 			if (!content.StartsWith("Dear ")) return false;
 
-			var match = Regex.Match(content, @"(.+): (.+)");
+			var match = Regex.Match(content, @"Dear (.+): (.+)");
 			if (!match.Success) return false;
 
 			result = new KirinProgramStart(start, length)
