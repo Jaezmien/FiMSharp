@@ -12,12 +12,12 @@ namespace FiMSharp.Kirin
 			this.Complete = false;
 			this.Conditions = new List<KirinConditionStatement>();
 		}
-		private struct KirinConditionStatement
+		public struct KirinConditionStatement
 		{
 			public KirinConditional.ConditionalCheckResult Condition;
 			public KirinStatement Statement;
 		}
-		private List<KirinConditionStatement> Conditions;
+		public List<KirinConditionStatement> Conditions;
 		private bool Complete;
 		public int Count
 		{

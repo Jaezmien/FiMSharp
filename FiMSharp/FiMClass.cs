@@ -27,7 +27,7 @@ namespace FiMSharp
 		public FiMClass Parent;
 		public FiMReport Report;
 
-		internal FiMVariableList Variables;
+		public FiMVariableList Variables;
 		public FiMVariable GetVariable(string name, int depth = 0, bool propagate = true)
 		{
 			if (this.Variables.Has(name, depth == 0))
@@ -48,7 +48,7 @@ namespace FiMSharp
 			this.Variables.Push(new FiMVariable(name, value), true);
 		}
 
-		internal Stack<FiMParagraph> Paragraphs;
+		public Stack<FiMParagraph> Paragraphs;
 		public FiMParagraph GetParagraph(string name, int depth = 0, bool propagate = true)
 		{
 			var paragraph = this.Paragraphs.FirstOrDefault(p => p.Name == name);

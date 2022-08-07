@@ -14,13 +14,78 @@ namespace FiMSharp.Test
 		{
 			FiMReport report = FiMReport.FromFile(path);
 			FiMSharp.CLI.Program.AddExperimentalFunctions(report);
-      report.Output = (l) => Console.Write(l);
+			report.Output = (l) => Console.Write(l);
 			report.Input = (p, _) =>
 			{
 				if (string.IsNullOrWhiteSpace(p)) Console.Write(p);
 				return Console.ReadLine();
 			};
 			return report;
+		}
+		static void ConvertReport(string file)
+		{
+			string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+			string path = Path.GetFullPath(Path.Combine(currentDirectory, @"..\..\..\Reports", file));
+			var report = GetReport(path);
+			Console.WriteLine(
+				Changeling.Javascript.Transpile(report, indent: "\t", onInternalFunction: (name) =>
+				{
+					var func = new Changeling.Javascript.JavascriptInternalFunction()
+					{
+						Name = "",
+						Function = ""
+					};
+
+					switch (name)
+					{
+						case "count of an array":
+							{
+								func.Name = "fim_count";
+								func.Function = "function fim_count(a){return a.filter(x=>x).length}";
+							}
+							break;
+						case "length of a string":
+							{
+								func.Name = "fim_length";
+								func.Function = "function fim_length(s){return s.length}";
+							}
+							break;
+						case "convert a number to char":
+							{
+								func.Name = "fim_ntc";
+								func.Function = "function fim_ntc(n){return String.fromCharCode(n)}";
+							}
+							break;
+						case "convert a char to num":
+							{
+								func.Name = "fim_ctn";
+								func.Function = "function fim_ctn(c){return c.charCodeAt(0)}";
+							}
+							break;
+						case "convert a number to literal string":
+							{
+								func.Name = "fim_ntls";
+								func.Function = "function fim_ntls(n){return n+''}";
+							}
+							break;
+						case "convert a char to literal num":
+							{
+								func.Name = "fim_ctln";
+								func.Function = "function fim_ctln(c){return +c}";
+							}
+							break;
+						case "square root of a num":
+							{
+								func.Name = "fim_sqrt";
+								func.Function = "function fim_sqrt(n){return Math.sqrt(n)}";
+							}
+							break;
+
+					}
+
+					return func;
+				})
+			);
 		}
 		static void RunReport(string file)
 		{
