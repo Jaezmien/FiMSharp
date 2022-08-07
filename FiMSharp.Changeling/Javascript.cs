@@ -25,12 +25,19 @@ namespace FiMSharp.Changeling
 			public FiMReport report;
 			public List<string> globalVariables;
 			public Dictionary<string, string> internalFunctions;
+
+			public string output;
+			public string outputNewline;
+			public string input;
 		}
 
 		public static string Transpile(
 			FiMReport report,
 			string indent = "    ",
-			Func<string, JavascriptInternalFunction> onInternalFunction = null
+			Func<string, JavascriptInternalFunction> onInternalFunction = null,
+			string output = "console.log",
+			string outputNewline = "console.log",
+			string input = "prompt"
 		) {
 			StringBuilder sb = new StringBuilder();
 
@@ -38,7 +45,11 @@ namespace FiMSharp.Changeling
 			{
 				report = report,
 				globalVariables = new List<string>(),
-				internalFunctions = new Dictionary<string, string>()
+				internalFunctions = new Dictionary<string, string>(),
+
+				output = output,
+				outputNewline = outputNewline,
+				input = input,
 			};
 
 			sb.AppendLine("'use strict';");
@@ -136,8 +147,7 @@ namespace FiMSharp.Changeling
 						{
 							var n = (KirinPrint)node;
 
-							// TODO: Handle n.NewLine
-							sb.AppendLine($"{_i}console.log({ SanitizeValue(n.RawParameters, container) });");
+							sb.AppendLine($"{_i}{ (n.NewLine ? container.outputNewline : container.output) }({ SanitizeValue(n.RawParameters, container) });");
 						}
 						break;
 					case "KirinFunctionCall":
@@ -200,7 +210,7 @@ namespace FiMSharp.Changeling
 							string prompt = $"{ n.RawVariable } is asking for an input: ";
 							if( n.PromptString != string.Empty ) prompt = n.PromptString;
 
-							sb.AppendLine($"{_i}{name} = prompt(\"{ prompt }\");");
+							sb.AppendLine($"{_i}{name} = { container.input }(\"{ prompt }\");");
 						}
 						break;
 					case "KirinIfStatement":
