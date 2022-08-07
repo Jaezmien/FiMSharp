@@ -17,6 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FiMSharp.Changeling\FiMSharp.Changeling.csproj" />
     <ProjectReference Include="..\FiMSharp\FiMSharp.csproj" />
     <PackageReference Include="Mono.Options" Version="6.12.0.148" />
   </ItemGroup>
