@@ -12,8 +12,8 @@ namespace FiMSharp.Kirin
 			DefaultCase = null;
 		}
 
-		private Dictionary<string, KirinStatement> Cases;
-		private KirinStatement DefaultCase;
+		public Dictionary<string, KirinStatement> Cases;
+		public KirinStatement DefaultCase;
 		public string RawVariable;
 		private bool Complete;
 
@@ -149,7 +149,7 @@ namespace FiMSharp.Kirin
 	{
 		public KirinSwitchCase(int start, int length) : base(start, length) { }
 
-		private static bool IsValidNumberPlace(string place, out int index)
+		public static bool IsValidNumberPlace(string place, out int index)
 		{
 			index = -1;
 

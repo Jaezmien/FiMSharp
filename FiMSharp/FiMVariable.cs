@@ -35,7 +35,7 @@ namespace FiMSharp
 		}
 	}
 
-	internal class FiMVariableList
+	public class FiMVariableList
 	{
 		public FiMVariableList()
 		{

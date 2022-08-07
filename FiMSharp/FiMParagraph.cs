@@ -11,22 +11,22 @@ namespace FiMSharp
 		public FiMParagraph(FiMClass rClass, KirinBaseFunction func)
 		{
 			this.reportClass = rClass;
-			this.func = func;
+			this.Function = func;
 			this.Name = func.Name;
 		}
 
 		public readonly string Name;
 		private readonly FiMClass reportClass;
-		private readonly KirinBaseFunction func;
-		public string FunctionType { get { return func.NodeType; } }
+		public readonly KirinBaseFunction Function;
+		public string FunctionType { get { return Function.NodeType; } }
 		public KirinVariableType ReturnType
 		{
-			get { return this.func.Returns ?? KirinVariableType.UNKNOWN; }
+			get { return this.Function.Returns ?? KirinVariableType.UNKNOWN; }
 		}
 
 		public object Execute(params object[] args)
 		{
-			var result = this.func.Execute(this.reportClass, args);
+			var result = this.Function.Execute(this.reportClass, args);
 			return result;
 		}
 		public object Execute(KirinValue[] args)

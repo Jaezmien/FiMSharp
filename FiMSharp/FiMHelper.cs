@@ -23,7 +23,7 @@ namespace FiMSharp
 			return list.ToArray();
 		}
 	}
-	internal class FiMHelper
+	public class FiMHelper
 	{
 		public static bool IsKirinNodeType(KirinNode a, Type b)
 		{
