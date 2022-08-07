@@ -2,6 +2,7 @@ all: build win linux linuxarm darwin
 
 build:
 	dotnet build FiMSharp -c Release -o bin/
+	dotnet build FiMSharp.Changeling -c Release -o bin/
 
 win:	
 	dotnet publish FiMSharp.CLI --self-contained=true -p:PublishSingleFile=True -c Release -o "bin/win" --runtime win-x86

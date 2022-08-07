@@ -9,6 +9,11 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+	</PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\FiMSharp\FiMSharp.csproj" />
   </ItemGroup>
