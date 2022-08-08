@@ -36,6 +36,8 @@ Today I learned how to say hello world.
 That's all about how to say hello world.
 Your faithful student, Twilight Sparkle."); // You can also use FiMReport.FromFile(string path); to use a path instead.
 
+report.Output = (l) => Console.Write(l);
+
 if( report.MainParagraph != null ) {
 	report.MainParagraph.Execute(); // Outputs "Hello World!" into the console.
 }
