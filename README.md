@@ -1,3 +1,11 @@
+# ⚠ Deprecated
+
+FiMSharp is **no longer actively maintained**. Please check out the successor: [fim](https://github.com/Jaezmien/fim).
+
+Feel free to check out the new project for updates and improvements!
+
+---
+
 <div align="center">
   
 # 🐎 FiMSharp
